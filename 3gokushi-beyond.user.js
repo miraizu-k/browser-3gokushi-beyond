@@ -4,7 +4,7 @@
 // @description    ブラウザ三国志用便利機能色々ごった煮 by hatt+ろむ+α
 // @include        http://*.3gokushi.jp/*
 // @author         hatt,romer,etc...
-// @version        1.27.2.6
+// @version        1.27.2.12
 // ==/UserScript==
 //
 // FireFox / Google Chrome対応です。
@@ -5481,13 +5481,12 @@ function disp_PikaHPRestTime()
 //////////////////////
 function disp_SuzanSeisan()
 {
+    if(location.pathname != "/village.php") {
+        return;
+    }
     var icon = IMG_DIR  + "common/sidebar/icon_production.gif";
     var elms = ccreateSideBox("beyond_sidebox_suzanseisan", icon, "拠点生産");
-
-    if(location.pathname == "/village.php") {
-        Suzan_Seisan(elms.sideBoxInner);
-    }
-
+    Suzan_Seisan(elms.sideBoxInner);
 }
 
 
@@ -6916,7 +6915,7 @@ function initVillages() {
     VILLAGES_INFO = cloadData("villagesInfo","{}",true,true);
 
     function _villageInit() {
-        var villages = $a('(id("lodgment")/div[@class="floatInner"] | //div[@class="sideBoxInner basename"])//li/*[@title]');
+        var villages = $a('(id("lodgment")/div[contains(concat(" ",normalize-space(@class)," "), " floatInner ")] | //div[contains(concat(" ",normalize-space(@class)," "), " sideBoxInner ") and contains(concat(" ",normalize-space(@class)," "), " basename ")])//li/*[@title and not(contains(concat(" ",normalize-space(@class)," "), " map-basing "))]');
 
         var compList = new Object();
 
