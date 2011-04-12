@@ -6425,15 +6425,15 @@ function Pika_installMapXYHelper()
 
     if( location.pathname != '/map.php' ) return;
 
-    var btn = $x('id("map-xy-search")//input[@type="submit"]');
-    if( !btn ) return;
-    btn.addEventListener('click',
+    var form = $x('id("map-xy-search")/form');
+    if( !form ) return;
+    form.addEventListener('submit',
             function() {
                 var xpath = 'id("map-xy-search")//input[@type="text"]';
                 var xy = $a(xpath);
                 var x  = xy[0].value.toString();
 
-                if (x.match(/(-?\d+)[ .,&、](?:y=)?(-?\d+)/)) {
+                if (x.match(/(-?\d+)[ .,&、]+(?:y=)?(-?\d+)/)) {
                     xy[0].value = RegExp.$1;
                     xy[1].value = RegExp.$2;
                 }
