@@ -4,7 +4,7 @@
 // @description    ブラウザ三国志用便利機能色々ごった煮 by hatt+ろむ+α
 // @include        http://*.3gokushi.jp/*
 // @author         hatt,romer,etc...
-// @version        1.27.2.6
+// @version        1.27.2.12
 // ==/UserScript==
 //
 // FireFox / Google Chrome対応です。
@@ -1793,7 +1793,7 @@ function disp_memo()
 //////////////////////
 function disp_baseLink()
 {
-    var elm = $x('id("lodgment")/div[@class="floatInner"] | //div[@class="sideBoxInner basename"]');
+    var elm = $x('id("lodgment")/div[contains(concat(" ",normalize-space(@class)," "), " floatInner ")] | //div[contains(concat(" ",normalize-space(@class)," "), " sideBoxInner ") and contains(concat(" ",normalize-space(@class)," "), " basename ")]');
     if( !elm ) return;
 
     var bases = $a("//li/child::*", elm);
@@ -4770,7 +4770,7 @@ function disp_MapCenter()
     if( cx < MAP_X_MIN ) cx = MAP_X_MIN;
     if( cy > MAP_Y_MAX ) cy = MAP_Y_MAX;
     if( cy < MAP_Y_MIN ) cy = MAP_Y_MIN;
-    var area_center = $x("//map[@id=\"mapOverlayMap\"]//area[@href=\"land.php?x=" + cx + "&y=" + cy + "\"]");
+    var area_center = $x('id("mapOverlayMap")//area[contains(@onmouseover,"('+cx+','+cy+')")]');
     if( !area_center ) return;
 
     var dat = area_center.getAttribute("onmouseover");
@@ -4781,7 +4781,7 @@ function disp_MapCenter()
     var dv = d.createElement("div");
     dv.style.fontSize= "10px";
     dv.appendChild(d.createTextNode("中央:( " + cx + " , " + cy + " )"));
-    $("mapXY").appendChild(dv);
+    $("map-xy-search").appendChild(dv);
 
     function setCenter(act, x, y )
     {
@@ -5480,13 +5480,12 @@ function disp_PikaHPRestTime()
 //////////////////////
 function disp_SuzanSeisan()
 {
+    if(location.pathname != "/village.php") {
+        return;
+    }
     var icon = IMG_DIR  + "common/sidebar/icon_production.gif";
     var elms = ccreateSideBox("beyond_sidebox_suzanseisan", icon, "拠点生産");
-
-    if(location.pathname == "/village.php") {
-        Suzan_Seisan(elms.sideBoxInner);
-    }
-
+    Suzan_Seisan(elms.sideBoxInner);
 }
 
 
@@ -6425,15 +6424,15 @@ function Pika_installMapXYHelper()
 
     if( location.pathname != '/map.php' ) return;
 
-    var btn = $x('//div[@id="mapXY"]//input[@type="submit"]');
-    if( !btn ) return;
-    btn.addEventListener('click',
+    var form = $x('id("map-xy-search")/form');
+    if( !form ) return;
+    form.addEventListener('submit',
             function() {
-                var xpath = '//div[@id="mapXY"]//input[@type="text"]';
+                var xpath = 'id("map-xy-search")//input[@type="text"]';
                 var xy = $a(xpath);
                 var x  = xy[0].value.toString();
 
-                if (x.match(/(-?\d+)[ .,&、](?:y=)?(-?\d+)/)) {
+                if (x.match(/(-?\d+)[ .,&、]+(?:y=)?(-?\d+)/)) {
                     xy[0].value = RegExp.$1;
                     xy[1].value = RegExp.$2;
                 }
@@ -6648,7 +6647,7 @@ function Suzan_Seisan(inner)
 
 function disp_castleAidLink()
 {
-    var bases = $a('(id("lodgment")/div[@class="floatInner"] | //div[@class="sideBoxInner basename"])//li/*[@title]');
+    var bases = $a('(id("lodgment")/div[contains(concat(" ",normalize-space(@class)," "), " floatInner ")] | //div[contains(concat(" ",normalize-space(@class)," "), " sideBoxInner ") and contains(concat(" ",normalize-space(@class)," "), " basename ")])//li/*[@title and not(contains(concat(" ",normalize-space(@class)," "), " map-basing "))]');
     if( !bases ) return;
 
     for( var i=0 ; i < bases.length ; i++) {
@@ -6915,7 +6914,7 @@ function initVillages() {
     VILLAGES_INFO = cloadData("villagesInfo","{}",true,true);
 
     function _villageInit() {
-        var villages = $a('(id("lodgment")/div[@class="floatInner"] | //div[@class="sideBoxInner basename"])//li/*[@title]');
+        var villages = $a('(id("lodgment")/div[contains(concat(" ",normalize-space(@class)," "), " floatInner ")] | //div[contains(concat(" ",normalize-space(@class)," "), " sideBoxInner ") and contains(concat(" ",normalize-space(@class)," "), " basename ")])//li/*[@title and not(contains(concat(" ",normalize-space(@class)," "), " map-basing "))]');
 
         var compList = new Object();
 
