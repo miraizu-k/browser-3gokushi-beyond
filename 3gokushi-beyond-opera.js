@@ -42,6 +42,7 @@
 // ver1.27.2.4 2010.10.02
 // ver1.27.2.5 2010.10.07
 // ver1.27.2.6 2010.10.12
+
 document.addEventListener('DOMContentLoaded', function() {
 if(document.getElementById("beyond_basepanel") ) return ;
 
@@ -123,7 +124,6 @@ if (!Array.prototype.indexOf)
     return -1;
   };
 }
-
 
 var d = document;
 var $ = function(id) { return d.getElementById(id); };
