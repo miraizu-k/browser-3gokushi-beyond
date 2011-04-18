@@ -3,8 +3,9 @@
 // @namespace      3gokushi-hatt
 // @description    ブラウザ三国志用便利機能色々ごった煮 by hatt+ろむ+α
 // @include        http://*.3gokushi.jp/*
-// @author         hatt,romer,etc...
-// @version        1.27.2.12
+// @author         hatt
+// @maintainer     romer,etc
+// @version        1.27.2.13
 // ==/UserScript==
 //
 // FireFox / Google Chrome対応です。
@@ -46,59 +47,11 @@
 
 if(document.getElementById("beyond_basepanel") ) return ;
 
-var VERSION_NAME = "ブラウザ三国志Beyond Ver1.27.2.12 by hatt+ろむ+α";
+var VERSION_NAME = "ブラウザ三国志Beyond Ver1.27.2.13 by hatt+ろむ+etc";
 var IMG_DIR = "/20100510-01/img/";
 
-///////////////////////////////////////////////
-//Chrome用GM_関数
-// @copyright      2009, James Campos
-// @license        cc-by-3.0; http://creativecommons.org/licenses/by/3.0/
-if ((typeof GM_getValue == 'undefined') || (GM_getValue('a', 'b') == undefined)) {
-    GM_addStyle = function(css) {
-        var style = document.createElement('style');
-        style.textContent = css;
-        document.getElementsByTagName('head')[0].appendChild(style);
-    };
-
-    GM_deleteValue = function(name) {
-        localStorage.removeItem(name);
-    };
-
-    GM_getValue = function(name, defaultValue) {
-        var value = localStorage.getItem(name);
-        if (!value)
-            return defaultValue;
-        var type = value[0];
-        value = value.substring(1);
-        switch (type) {
-            case 'b':
-                return value == 'true';
-            case 'n':
-                return Number(value);
-            default:
-                return value;
-        }
-    };
-
-    GM_log = function(message) {
-        if (window.opera) {
-            opera.postError(message);
-            return;
-        }
-        console.log(message);
-    };
-
-     GM_registerMenuCommand = function(name, funk) {
-    //todo
-    };
-
-    GM_setValue = function(name, value) {
-        value = (typeof value)[0] + value;
-        localStorage.setItem(name, value);
-    };
-}
-///////////////////////////////////////////////
-
+initGMFunctions();
+var myJSON = initJSON();
 
 ///////////////////////////////////////////////
 //配列のindexOf対策
@@ -229,6 +182,13 @@ var Pika_elementQueue = [];
 var VILLAGES_INFO= {};
 
 var SID = '';
+
+var MAP_TYPE = {
+        TYPE11 : 1,
+        TYPE15 : 2,
+        TYPE20 : 3,
+        TYPE51 : 4
+};
 
 if( !initPanel() ) return;
 
@@ -3362,9 +3322,7 @@ function disp_RemoveList()
 
     if( location.pathname == "/map.php" ) {
         //地図に表示
-        var type = 1;
-        if( $x("//div[@id=\"changemapscale\"]/ul/li[@class=\"sort15 now\"]") ) type=2;
-        else if( $x("//div[@id=\"changemapscale\"]/ul/li[@class=\"sort20 now\"]") ) type=3;
+        var type = cgetMapSize();
 
         var lists = cloadData("RemoveList", "[]", true, true);
         lists = checkList(lists);       //時間を過ぎたものを削除
@@ -3755,9 +3713,10 @@ function disp_MapList()
     if( location.pathname != "/map.php" ) return;
 
 
-    var map_type = 1;
-    if( $x("//div[@id=\"changemapscale\"]/ul/li[@class=\"sort15 now\"]") ) map_type=2;
-    else if( $x("//div[@id=\"changemapscale\"]/ul/li[@class=\"sort20 now\"]") ) map_type=3;
+    var map_type = cgetMapSize();
+    if (map_type == null) {
+        return;
+    }
 
     var base = $("mapbox");
 
@@ -4284,7 +4243,7 @@ function disp_ToolTipsDistance()
 //////////////////////
 function disp_ToolTipsAllyPerson()
 {
-    var links = $a('//a[(contains(@href,"village_change.php") or contains(@href,"land.php")) and not(contains(@href,"TB_inline") or contains(@href,"from"))]');
+    var links = $a('//a[(contains(@href,"village_change.php") or contains(@href,"land.php")) and not(contains(@href,"TB_inline") or contains(@href,"from") or contains(@onmouseover,"bigmap-caption"))]');
     if (links.length == 0) return;
 
     var selfVillages =cgetVillageIds();
@@ -4819,16 +4778,23 @@ function disp_MapCenter()
 
         img.style.left = x;
         img.style.top = y;
-        if( $x("//div[@id=\"changemapscale\"]/ul/li[@class=\"sort15 now\"]") ) {
+        var mapType = cgetMapSize();
+        if (mapType == null) {
+            return;
+        }
+
+        if(mapType == MAP_TYPE.TYPE15) {
             img.style.width = "44px";
             img.style.height = "44px";
-        } else if( $x("//div[@id=\"changemapscale\"]/ul/li[@class=\"sort20 now\"]") ) {
-            img.style.width = "33px";
-            img.style.height = "33px";
-        } else {
+        }
+        else if(mapType == MAP_TYPE.TYPE20) {
+            img.style.width = "34px";
+            img.style.height = "36px";
+        }
+        else if(mapType == MAP_TYPE.TYPE11) {
             img.style.width = "60px";
             img.style.height = "60px";
-        img.style.zIndex = 121;
+            img.style.zIndex = 121;
         }
         rollover.parentNode.insertBefore(img, rollover.nextSibling);
     }
@@ -5273,11 +5239,10 @@ function disp_AttackMap()
             'SJbmiabqyrbuC8fyTNf2jef6zvc8AATsgsEckYg7Fm9KoPE4XCakMCeDqmpCoSxt0yBsWQNj6bgb'+
             'dmJl6jUN+RSe3+V59ayMYZdwevjQd/c3ZbfiRlaYlXiYcsglFugjOUlZaXmJWVEAADs=';
     if( location.pathname == "/facility/unit_status.php" ) {
-        var tds = $a("//table[@summary=\"出撃中の兵士\" or @summary=\"移動中の兵士\"]/tbody/tr[position()>1]/td[1]");
+        var tds = $a('//table[@summary="出撃中の兵士" or @summary="移動中の兵士"]/tbody/tr[position()>1]/td[1]');
 
         for(var i=0; i<tds.length ; i+=3) {
             //0：場所　1：時間　２：兵種
-//            GM_log(tds[i+0].textContent);
             var xy = tds[i+0].innerHTML.match(/[\(|（](-?\d+),(-?\d+)[）|\)]$/);
             if( !xy ) continue;
             var tim = tds[i+1].innerHTML.match(/(\d+\-\d+\-\d+ \d+:\d+:\d+)/);
@@ -5312,9 +5277,10 @@ function disp_AttackMap()
 
     if( location.pathname == "/map.php" ) {
         //地図に表示
-        var type = 1;
-        if( $x("//div[@id=\"changemapscale\"]/ul/li[@class=\"sort15 now\"]") ) type=2;
-        else if( $x("//div[@id=\"changemapscale\"]/ul/li[@class=\"sort20 now\"]") ) type=3;
+        var type = cgetMapSize();
+        if (type == null) {
+            return;
+        }
 
         if( lists.length ) {
             var cx = parseInt(URL_PARAM.x,10);
@@ -5713,14 +5679,25 @@ function cgetMapNofromXY(x, y, base_x, base_y, type)
     if( isNaN(""+base_y) ) base_y = 0;
 
     //map.php専用のXY座標→mapAll999
-    var sc = 11;
+    var sc = 0;
     var hosei = 0;
-    if( type == 2 ) {
+    if (type == MAP_TYPE.TYPE11) {
+        sc = 11;
+    }
+    else if( type == MAP_TYPE.TYPE15 ) {
         sc = 15;
-    } else if( type == 3 ) {
+    }
+    else if( type == MAP_TYPE.TYPE20 ) {
         sc = 20;
         hosei = 1;
     }
+    else if( type == MAP_TYPE.TYPE51 ) {
+        sc = 51;
+    }
+    else {
+        return '00';
+    }
+
     var hw = Math.floor( (sc - 1) / 2 );
     var no = "";
     if( x >= base_x - hw && x <= base_x - hw + sc - 1 &&
@@ -6206,12 +6183,7 @@ function csaveData(key, value, local, ev)
 {
     if( local ) key = location.hostname + key;
     if( ev ) {
-        if (window.opera || typeof JSON != 'object') {
-            value = toJSON(value);
-        }
-        else {
-            value = JSON.stringify( value );
-        }
+        value = myJSON.stringify(value);
     }
     GM_setValue(key, value );
 }
@@ -6220,7 +6192,7 @@ function cloadData(key, value, local, ev)
 {
     if( local ) key = location.hostname + key;
     var ret = GM_getValue(key, value);
-    return ev ? eval('ret='+ret) : ret;
+    return ev ? myJSON.parse(ret) : ret;
 }
 
 function cdelData(key, local )
@@ -7011,7 +6983,6 @@ function initVillages() {
 
 function initCastleSend() {
     if( location.pathname != '/facility/castle_send_troop.php' || location.search.indexOf("radio_move_type") < 0) return;
-
     var radioMoveType = location.search.match(/radio_move_type=(\d+)/)[1];
     var ary = $a('//input[@name="radio_move_type"]');
     var elem;
@@ -7027,7 +6998,6 @@ function initCastleSend() {
 }
 
 function initNarrow() {
-
     if (0 <= location.pathname.search(/^\/(village|map|land)\.php/)) {
         $x('id("lodgment")/div[@class="floatHead"]//a').href = 'javascript:void(0);';
     }
@@ -7041,7 +7011,6 @@ function initPreLoadNode() {
 
 function initUrlParams() {
     var matches = location.search.match(/(?:\?|&)?([^=]+)(?:=([^&]+))?/g);
-
     if (matches) {
         var param;
         var key;
@@ -7064,7 +7033,82 @@ function initUrlParams() {
     }
 }
 
+// GM関数初期化
+function initGMFunctions() {
+    // @copyright 2009, James Campos
+    // @license cc-by-3.0; http://creativecommons.org/licenses/by/3.0/
+    if ((typeof GM_getValue != 'undefined')
+            && (GM_getValue('a', 'b') != undefined)) {
+        return;
+    }
+    GM_addStyle = function(css) {
+        var style = document.createElement('style');
+        style.textContent = css;
+        document.getElementsByTagName('head')[0].appendChild(style);
+    };
 
+    GM_deleteValue = function(name) {
+        localStorage.removeItem(name);
+    };
+
+    GM_getValue = function(name, defaultValue) {
+        var value = localStorage.getItem(name);
+        if (!value)
+            return defaultValue;
+        var type = value[0];
+        value = value.substring(1);
+        switch (type) {
+        case 'b':
+            return value == 'true';
+        case 'n':
+            return Number(value);
+        default:
+            return value;
+        }
+    };
+
+    GM_log = function(message) {
+        if (typeof opera == 'object') {
+            opera.postError(message);
+            return;
+        }
+        console.log(message);
+    };
+
+    GM_registerMenuCommand = function(name, funk) {
+        // todo
+    };
+
+    GM_setValue = function(name, value) {
+        switch (typeof value) {
+        case 'string':
+        case 'number':
+        case 'boolean':
+            break;
+        default:
+            throw new TypeError();
+        }
+
+        value = (typeof value)[0] + value;
+        localStorage.setItem(name, value);
+    };
+
+    // additional functions
+    GM_listValues = function() {
+        var len = localStorage.length;
+        var res = new Object();
+        var key = '';
+        for ( var i = 0; i < len; i++) {
+            key = localStorage.key(i);
+            res[key] = key;
+        }
+        return res;
+    };
+
+    GM_openInTab = function(url) {
+        window.open(url, '');
+    };
+}
 
 
 
@@ -7073,7 +7117,10 @@ function initUrlParams() {
 
 
 // common関数拡張
-
+/**
+ * @param {Number} insPos
+ * @param {Object}
+ */
 function cinsertSideBox(insPos,insNode) {
     var sideboxes = $a(".//div[@id=\"beyond_fixpanel\"]/div[@class=\"sideBox\"]");
     var srt = new Array();
@@ -7102,17 +7149,27 @@ function cinsertSideBox(insPos,insNode) {
     }
 }
 
+/**
+ * @returns {Number}
+ */
 function cgetCurrentVillageId() {
     var xy = cgetCurrentBaseXY();
     return VILLAGES_INFO[(xy.x+"_"+xy.y).replace(/-/g,"m")].vid;
 }
 
+/**
+ * @param {Number} vid
+ * @returns {Boolean}
+ */
 function chasVillageId(vid) {
     vid = parseInt(vid,10);
     var vids = cgetVillageIds();
     return vids[vid] ? true : false;
 }
 
+/**
+ * @returns {Number}
+ */
 function cgetVillageIds() {
     var ret = new Object();
     for (var key in VILLAGES_INFO) {
@@ -7125,7 +7182,12 @@ function cgetVillageIds() {
 }
 
 
-// element , pre 1:next0,skipCount
+/**
+ * @param {HTMLElement} element
+ * @param {Number} direction pre=1,next=0
+ * @param {Number} optional skipCount
+ * @returns {HTMLElement}
+ */
 function cgetElementSibling(element,direction,skipCount) {
     var hasElementSibling = (typeof element.nextElementSibling == 'object' || typeof element.previousElementSibling == 'object') ? true : false;
     if (!skipCount) skipCount = 1;
@@ -7158,7 +7220,11 @@ function cgetElementSibling(element,direction,skipCount) {
     return element;
 }
 
-// areaから四方のareaを取得
+/**
+ * areaから四方のareaを取得
+ * @param {HTMLAreaElement} area
+ * @returns {Object}
+ */
 function cgetSquareElementFromArea(area) {
     var coords = area.getAttribute('coords');
     var matches = null;
@@ -7174,25 +7240,23 @@ function cgetSquareElementFromArea(area) {
     add.y = 25;
 
     var isMap = false;
-
-    if (0 <= location.pathname.indexOf("map.php")) {
+    var mapType = cgetMapSize();
+    if (mapType != null) {
         isMap = true;
-        var size = parseInt($x('id("changemapscale")//li[contains(concat(" ",normalize-space(@class)," ")," now ")]').className.match(/sort(\d+) /)[1],10);
-        switch (size) {
-        case 20:
+        switch (mapType) {
+        case MAP_TYPE.TYPE20:
             add.x = 16;
             add.y = 8;
             break;
-        case 15:
+        case MAP_TYPE.TYPE15:
             add.x = 22;
             add.y = 11;
             break;
-        default:
+        case MAP_TYPE.TYPE11:
             add.x = 30;
             add.y = 15;
             break;
         }
-
         base.y += add.y * 2;
     }
 
@@ -7221,7 +7285,11 @@ function cgetSquareElementFromArea(area) {
     }
 }
 
-// areaからx,y,name,lvを返す
+/**
+ * areaからx,y,name,lvを返す
+ * @param {HTMLAreaElement} area
+ * @returns {Object}
+ */
 function cgetFacilityInfoFromArea(area) {
     var retObj = {name:"",lv:0,x:-1,y:-1};
     var matches = null;
@@ -7243,6 +7311,10 @@ function cgetFacilityInfoFromArea(area) {
     return retObj;
 }
 
+/**
+ * @param {String} url
+ * @returns {String}
+ */
 function caddSessionId(url) {
     if (0 < SID.length && url.search(/(\?|&)SSID=[^&]+&?/i) < 0) {
         var anchor = '';
@@ -7258,82 +7330,124 @@ function caddSessionId(url) {
     return url;
 }
 
+/**
+ * function cgetMapSize
+ * @returns {Number}
+ */
+function cgetMapSize() {
+    if (0 <= location.pathname.indexOf("map.php")) {
+        isMap = true;
+        var nowMapDoc = $x('id("change-map-scale")//li[contains(concat(" ",normalize-space(@class)," ")," now ")]');
+        if (!nowMapDoc) {
+            return null;
+        }
+        var size = parseInt(nowMapDoc.className.match(/sort(\d+) /)[1],10);
+        switch (size) {
+            case 51:
+                return MAP_TYPE.TYPE51;
+            case 20:
+                return MAP_TYPE.TYPE20;
+            case 15:
+                return MAP_TYPE.TYPE15;
+            case 11:
+                return MAP_TYPE.TYPE11;
+        }
+    }
+    return null;
+}
 
 // その他拡張
-//JSONとprototype.jsの衝突回避用
-function toJSON(obj) {
-    switch (typeof obj) {
-    case 'string':
-        return quote(obj);
-    case 'number':
-        return isFinite(obj) ? String(obj) : 'null';
-    case 'boolean':
-    case 'null':
-        return String(obj);
-    case 'object':
-        if (!obj) {
-            return 'null';
+//JSONがない場合とprototype.jsとJSONオブジェクトの衝突回避用(forOpera)
+function initJSON() {
+    var myJSON = function() {
+        if (typeof JSON == 'object') {
+            this.__proto__ = JSON;
         }
-
-        if (obj instanceof Date) {
-            return isFinite(obj) ? obj.getUTCFullYear() + '-'
-                    + complementZero(obj.getUTCMonth() + 1) + '-'
-                    + complementZero(obj.getUTCDate()) + 'T'
-                    + complementZero(obj.getUTCHours()) + ':'
-                    + complementZero(obj.getUTCMinutes()) + ':'
-                    + complementZero(obj.getUTCSeconds()) + 'Z' : 'null';
-        }
-
-        var partial = new Array();
-        var prefix = '{';
-        var suffix = '}';
-        if (obj instanceof Array) {
-            prefix = '[';
-            suffix = ']';
-
-            length = obj.length;
-            for ( var i = 0; i < length; i++) {
-                partial[i] = toJSON(obj[i]) || 'null';
-            }
-        } else {
-            for ( var key in obj) {
-                if (Object.hasOwnProperty.call(obj, key)) {
-                    partial.push(quote(key) + ':'
-                            + (toJSON(obj[key]) || 'null'));
+    };
+    if (typeof JSON != 'object' || typeof Prototype == 'object') {
+        myJSON.prototype.stringify = function(obj) {
+            switch (typeof obj) {
+            case 'string':
+                return quote(obj);
+            case 'number':
+                return isFinite(obj) ? String(obj) : 'null';
+            case 'boolean':
+            case 'null':
+                return String(obj);
+            case 'object':
+                if (!obj) {
+                    return 'null';
                 }
+
+                if (obj instanceof Date) {
+                    return isFinite(obj) ? obj.getUTCFullYear() + '-'
+                            + complementZero(obj.getUTCMonth() + 1) + '-'
+                            + complementZero(obj.getUTCDate()) + 'T'
+                            + complementZero(obj.getUTCHours()) + ':'
+                            + complementZero(obj.getUTCMinutes()) + ':'
+                            + complementZero(obj.getUTCSeconds()) + 'Z'
+                            : 'null';
+                }
+
+                var partial = new Array();
+                var prefix = '{';
+                var suffix = '}';
+                if (obj instanceof Array) {
+                    prefix = '[';
+                    suffix = ']';
+
+                    length = obj.length;
+                    for ( var i = 0; i < length; i++) {
+                        partial[i] = arguments.callee(obj[i]) || 'null';
+                    }
+                } else {
+                    for ( var key in obj) {
+                        if (Object.hasOwnProperty.call(obj, key)) {
+                            partial.push(quote(key) + ':'
+                                    + (arguments.callee(obj[key]) || 'null'));
+                        }
+                    }
+                }
+
+                return prefix + partial.join(',') + suffix;
+                break;
+            default:
+                return null;
             }
-        }
 
-        return prefix + partial.join(',') + suffix;
-        break;
-    default:
-        return null;
-    }
+            function quote(str) {
+                var escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+                var meta = { // table of character substitutions
+                    '\b' : '\\b',
+                    '\t' : '\\t',
+                    '\n' : '\\n',
+                    '\f' : '\\f',
+                    '\r' : '\\r',
+                    '"' : '\\"',
+                    '\\' : '\\\\'
+                };
 
-    function quote(str) {
-        var escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
-        var meta = { // table of character substitutions
-            '\b' : '\\b',
-            '\t' : '\\t',
-            '\n' : '\\n',
-            '\f' : '\\f',
-            '\r' : '\\r',
-            '"' : '\\"',
-            '\\' : '\\\\'
-        };
-
-        return escapable.test(str) ? '"'
-                + str.replace(escapable,
-                        function(a) {
+                return escapable.test(str) ? '"'
+                        + str.replace(escapable, function(a) {
                             var c = meta[a];
                             return typeof c === 'string' ? c : '\\u'
                                     + ('0000' + a.charCodeAt(0).toString(16))
                                             .slice(-4);
                         }) + '"' : '"' + str + '"';
+            }
+
+            function complementZero(number) {
+                return number < 10 ? '0' + number : number;
+            }
+        };
+
+        if (typeof JSON != 'object') {
+            myJSON.prototype.parse = function(jsonStrings) {
+                return eval('(' + jsonStrings + ')');
+            };
+        }
     }
 
-    function complementZero(number) {
-        return number < 10 ? '0' + number : number;
-    }
+    return new myJSON();
 }
 }) ();
