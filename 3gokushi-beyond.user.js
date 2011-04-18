@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           3gokushi-Beyond
 // @namespace      3gokushi-hatt
-// @description    ブラウザ三国志用便利機能色々ごった煮 by hatt+ろむ+α
+// @description    ブラウザ三国志用便利機能色々ごった煮 by hatt+ろむ+etc
 // @include        http://*.3gokushi.jp/*
 // @author         hatt
 // @maintainer     romer,etc
