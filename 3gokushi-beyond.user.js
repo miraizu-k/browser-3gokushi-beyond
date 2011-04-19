@@ -7360,93 +7360,91 @@ function cgetMapSize() {
 //JSONがない場合とprototype.jsとJSONオブジェクトの衝突回避用(forOpera)
 function initJSON() {
     var myJSON = function() {
-        if (typeof JSON == 'object') {
-            this.__proto__ = JSON;
-        }
-    };
-    if (typeof JSON != 'object' || typeof Prototype == 'object') {
-        myJSON.prototype.stringify = function(obj) {
-            switch (typeof obj) {
-            case 'string':
-                return quote(obj);
-            case 'number':
-                return isFinite(obj) ? String(obj) : 'null';
-            case 'boolean':
-            case 'null':
-                return String(obj);
-            case 'object':
-                if (!obj) {
-                    return 'null';
-                }
-
-                if (obj instanceof Date) {
-                    return isFinite(obj) ? obj.getUTCFullYear() + '-'
-                            + complementZero(obj.getUTCMonth() + 1) + '-'
-                            + complementZero(obj.getUTCDate()) + 'T'
-                            + complementZero(obj.getUTCHours()) + ':'
-                            + complementZero(obj.getUTCMinutes()) + ':'
-                            + complementZero(obj.getUTCSeconds()) + 'Z'
-                            : 'null';
-                }
-
-                var partial = new Array();
-                var prefix = '{';
-                var suffix = '}';
-                if (obj instanceof Array) {
-                    prefix = '[';
-                    suffix = ']';
-
-                    length = obj.length;
-                    for ( var i = 0; i < length; i++) {
-                        partial[i] = arguments.callee(obj[i]) || 'null';
-                    }
-                } else {
-                    for ( var key in obj) {
-                        if (Object.hasOwnProperty.call(obj, key)) {
-                            partial.push(quote(key) + ':'
-                                    + (arguments.callee(obj[key]) || 'null'));
+        if (typeof JSON != 'object' || typeof Prototype == 'object') {
+            this.__proto__ = {
+                stringify : function(obj) {
+                    switch (typeof obj) {
+                    case 'string':
+                        return quote(obj);
+                    case 'number':
+                        return isFinite(obj) ? String(obj) : 'null';
+                    case 'boolean':
+                    case 'null':
+                        return String(obj);
+                    case 'object':
+                        if (!obj) {
+                            return 'null';
                         }
+
+                        if (obj instanceof Date) {
+                            return isFinite(obj) ? obj.getUTCFullYear() + '-'
+                                    + complementZero(obj.getUTCMonth() + 1) + '-'
+                                    + complementZero(obj.getUTCDate()) + 'T'
+                                    + complementZero(obj.getUTCHours()) + ':'
+                                    + complementZero(obj.getUTCMinutes()) + ':'
+                                    + complementZero(obj.getUTCSeconds()) + 'Z'
+                                    : 'null';
+                        }
+
+                        var partial = new Array();
+                        var prefix = '{';
+                        var suffix = '}';
+                        if (obj instanceof Array) {
+                            prefix = '[';
+                            suffix = ']';
+
+                            length = obj.length;
+                            for ( var i = 0; i < length; i++) {
+                                partial[i] = arguments.callee(obj[i]) || 'null';
+                            }
+                        } else {
+                            for ( var key in obj) {
+                                if (Object.hasOwnProperty.call(obj, key)) {
+                                    partial.push(quote(key) + ':'
+                                            + (arguments.callee(obj[key]) || 'null'));
+                                }
+                            }
+                        }
+
+                        return prefix + partial.join(',') + suffix;
+                        break;
+                    default:
+                        return null;
                     }
+
+                    function quote(str) {
+                        var escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+                        var meta = { // table of character substitutions
+                            '\b' : '\\b',
+                            '\t' : '\\t',
+                            '\n' : '\\n',
+                            '\f' : '\\f',
+                            '\r' : '\\r',
+                            '"' : '\\"',
+                            '\\' : '\\\\'
+                        };
+
+                        return escapable.test(str) ? '"'
+                                + str.replace(escapable, function(a) {
+                                            var c = meta[a];
+                                            return typeof c === 'string' ? c : '\\u'
+                                                    + ('0000' + a.charCodeAt(0).toString(16))
+                                                            .slice(-4);
+                                        }) + '"' : '"' + str + '"';
+                    }
+
+                    function complementZero(number) {
+                        return number < 10 ? '0' + number : number;
+                    }
+                },
+                parse : function(jsonStrings) {
+                    return eval('(' + jsonStrings + ')');
                 }
-
-                return prefix + partial.join(',') + suffix;
-                break;
-            default:
-                return null;
-            }
-
-            function quote(str) {
-                var escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
-                var meta = { // table of character substitutions
-                    '\b' : '\\b',
-                    '\t' : '\\t',
-                    '\n' : '\\n',
-                    '\f' : '\\f',
-                    '\r' : '\\r',
-                    '"' : '\\"',
-                    '\\' : '\\\\'
-                };
-
-                return escapable.test(str) ? '"'
-                        + str.replace(escapable, function(a) {
-                            var c = meta[a];
-                            return typeof c === 'string' ? c : '\\u'
-                                    + ('0000' + a.charCodeAt(0).toString(16))
-                                            .slice(-4);
-                        }) + '"' : '"' + str + '"';
-            }
-
-            function complementZero(number) {
-                return number < 10 ? '0' + number : number;
-            }
-        };
-
-        if (typeof JSON != 'object') {
-            myJSON.prototype.parse = function(jsonStrings) {
-                return eval('(' + jsonStrings + ')');
             };
         }
-    }
+    };
+
+    myJSON.prototype = JSON;
 
     return new myJSON();
 }
