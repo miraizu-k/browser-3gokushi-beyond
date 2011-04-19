@@ -7444,7 +7444,9 @@ function initJSON() {
         }
     };
 
-    myJSON.prototype = JSON;
+    if (typeof JSON == 'object') {
+        myJSON.prototype = JSON;
+    }
 
     return new myJSON();
 }
