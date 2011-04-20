@@ -1,90 +1,54 @@
 // ==UserScript==
 // @name           3gokushi-Beyond
 // @namespace      3gokushi-hatt
-// @description    ブラウザ三国志用便利機能色々ごった煮 by hatt+ろむ+etc
+// @description    ブラウザ三国志用便利機能色々ごった煮 by hatt+ろむ+α
 // @include        http://*.3gokushi.jp/*
+// @include        https://*.3gokushi.jp/*
 // @author         hatt
 // @maintainer     romer,etc
-// @version        1.27.2.13
+// @version        1.28.0.0
 // ==/UserScript==
-//
-// FireFox / Google Chrome対応です。
-// ver1.00 2010.03.19
-// ver1.01 2010.03.20
-// ver1.02 2010.03.20
-// ver1.03 2010.03.21
-// ver1.10 2010.03.22
-// ver1.11 2010.03.23
-// ver1.12 2010.03.25
-// ver1.13 2010.03.26
-// ver1.14 2010.03.27
-// ver1.15 2010.03.28
-// ver1.16 2010.03.29
-// ver1.17 2010.03.31
-// ver1.18 2010.04.02
-// ver1.19 2010.04.05
-// ver1.20 2010.04.08
-// ver1.21 2010.04.09
-// ver1.22 2010.04.13
-// ver1.23 2010.04.19
-// ver1.24 2010.04.28
-// ver1.25 2010.05.02
-// ver1.26 2010.05.10
-// ver1.27 2010.05.
-// ver1.27.0.1 2010.08.19
-// ver1.27.0.2 2010.09.21
-// ver1.27.0.4 2010.09.22
-// ver1.27.1.0 2010.09.23
-// ver1.27.1.2 2010.09.24
-// ver1.27.1.4 2010.09.25
-// ver1.27.1.7 2010.09.26
-// ver1.27.2.2 2010.09.29
-// ver1.27.2.3 2010.10.01
-// ver1.27.2.4 2010.10.02
-// ver1.27.2.5 2010.10.07
-// ver1.27.2.6 2010.10.12
+// FireFox / Google Chrome / Opera / Safari対応です。
 ( function(){
 
-if(document.getElementById("beyond_basepanel") ) return ;
+if(document.getElementById('beyond_basepanel') ) return ;
 
-var VERSION_NAME = "ブラウザ三国志Beyond Ver1.27.2.13 by hatt+ろむ+etc";
-var IMG_DIR = "/20100510-01/img/";
+var VERSION_NAME = 'ブラウザ三国志Beyond Ver 1.28.0.0 by hatt+ろむ+etc';
+var IMG_DIR = '/20110414-01/img/';
 
-initGMFunctions();
-var myJSON = initJSON();
-
-///////////////////////////////////////////////
-//配列のindexOf対策
-if (!Array.prototype.indexOf)
-{
-  Array.prototype.indexOf = function(elt /*, from*/)
-  {
-    var len = this.length;
-
-    var from = Number(arguments[1]) || 0;
-    from = (from < 0)
-         ? Math.ceil(from)
-         : Math.floor(from);
-    if (from < 0)
-      from += len;
-
-    for (; from < len; from++)
-    {
-      if (from in this &&
-          this[from] === elt)
-        return from;
-    }
-    return -1;
-  };
-}
-
+var crossBrowserUtility = initCrossBrowserSupport();
 
 var d = document;
-var $ = function(id) { return d.getElementById(id); };
-var $x = function(xp,dc) { return d.evaluate(xp, dc||d, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue; };
-var $a = function(xp,dc) { var r = d.evaluate(xp, dc||d, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null); var a=[]; for(var i=0; i<r.snapshotLength; i++){ a.push(r.snapshotItem(i)); } return a; };
-var $e = function(dc,e,f) { if (!dc) return; dc.addEventListener(e, f, false); };
-var isNarrow = location.host.match(/^[m|y]\d+\./i) ? true : false;
+var $ = function (id,pd) {return pd ? pd.getElementById(id) : document.getElementById(id);};
+/**
+ * function $x
+ * 以前の$a
+ * @param {String} xp
+ * @param {Node} dc
+ * @returns {Array}
+ * @throws
+ */
+var $x = function(xp,dc){function c(f){var g='';if(typeof f=='object'&&typeof f.nodeName=='string'){g=f.outerHTML}else if(typeof f=='string'){g=f}var h=function(a){var b=document.implementation.createHTMLDocument('');var c=b.createRange();c.selectNodeContents(b.documentElement);c.deleteContents();b.documentElement.appendChild(c.createContextualFragment(a));return b};if(0<=navigator.userAgent.toLowerCase().indexOf('firefox')){h=function(a){var b=document.implementation.createDocumentType('html','-//W3C//DTD HTML 4.01//EN','http://www.w3.org/TR/html4/strict.dtd');var c=document.implementation.createDocument(null,'html',b);var d=document.createRange();d.selectNodeContents(document.documentElement);var e=c.adoptNode(d.createContextualFragment(a));c.documentElement.appendChild(e);return c}}return h(g)}var m=[],r=null,n=null;var o=dc||d.documentElement;var p=o.ownerDocument;if(typeof dc=='object'){if(dc instanceof HTMLElement&&dc.nodeName.toUpperCase()=='HTML'){o=c(dc.innerHTML);p=o}else if(dc instanceof HTMLDocument){o=dc.documentElement;p=dc}}try{r=p.evaluate(xp,o,null,XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,null);for(var i=0,l=r.snapshotLength;i<l;i++){m.push(r.snapshotItem(i))}}catch(e){try{var q=p.evaluate(xp,o,null,XPathResult.ANY_TYPE,null);while(n=q.iterateNext()){m.push(n)}}catch(e){throw new Error(e.message);}}return m};
+/**
+ * function $s
+ * 以前の$x
+ * @param {String} xp
+ * @param {Node} dc
+ * @returns {Node}
+ * @throws
+ */
+var $s = function(xp, dc) {return $x(xp,dc).shift();};
+
+/**
+ * function $e
+ * @param {Node} doc
+ * @param {Object} event string or event.click=f event.click=[f,f,f]
+ * @param {Function} func
+ * @param {Boolean} optional useCapture
+ */
+var $e = function(doc, event, func, useCapture) {var eventList = event;var eType = null;var capture = useCapture || false;if (typeof event == 'string') {eventList = new Object();eventList[event] = new Array(func);} else {for (eType in eventList) {if (typeof eventList[eType] == 'object'&& eventList[eType] instanceof Array) {continue;}eventList[eType] = [ event[eType] ];}}for (eType in eventList) {var eventName = eType;for ( var i = 0; i < eventList[eType].length; i++) {doc.addEventListener(eventName, eventList[eType][i], capture);}}};
+var isNarrow = location.host.match(/^(?:[m|y]\d+\.3gokushi)\.jp/i) ? true : false;
+
 
 var MAP_X_MIN = -600;
 var MAP_X_MAX = 600;
@@ -123,16 +87,15 @@ var OPT_TTDISTANCE_ITEMS = new Array();
 
 var OPT_TTALLYPRSN = 1;
 
-var OPT_MEMO_FONT_SIZE = "10";
-var OPT_MEMO_WIDTH = "20";
-var OPT_MEMO_HEIGHT = "5";
-var OPT_MEMO_COUNT = "1";
+var OPT_MEMO_FONT_SIZE = '10';
+var OPT_MEMO_WIDTH = '20';
+var OPT_MEMO_HEIGHT = '5';
+var OPT_MEMO_COUNT = '1';
 
-var OPT_MAPLINK_FONT_SIZE = "10";
+var OPT_MAPLINK_FONT_SIZE = '10';
 
 var OPT_USER_STAR = 1;
 var OPT_USER_LEVEL = 1;
-//var OPT_REPORT_NP = 0;
 
 var OPT_MAPCENTER = 0;
 var OPT_TBREST = 0;
@@ -165,8 +128,8 @@ var g_MY;
 var BASE_X = -9999;
 var BASE_Y = -9999;
 
-var USER_ID = "";
-var ALLY_ID = "";
+var USER_ID = '';
+var ALLY_ID = '';
 
 var RES_NOW = [];
 var RES_MAX = [];
@@ -227,7 +190,6 @@ if( OPT_MAPLIST)    disp_MapList();
 
 if( OPT_USER_STAR)  disp_UserStar();
 if( OPT_USER_LEVEL) disp_UserLevel();
-//if( OPT_REPORT_NP)    disp_ReportNextPrior();
 if( OPT_MAPCENTER)  disp_MapCenter();
 if( OPT_TBREST)     disp_ToubatsuRestTime();
 if( OPT_DELMSG)     disp_DeleteMessages();
@@ -377,10 +339,10 @@ function initImages()
 //////////////////////
 function initStyle()
 {
-    GM_addStyle("span.beyond_panel_ctlbox {width:35px; height:14px; display:block; position:absolute; right:-5px; top:-4px; }" +
-                "span.beyond_panel_ctlbox img {width:8px;height:9px; float:right; }" +
-                "div#beyond_basepanel img{vertical-align:middle; margin:1px 1px 1px 0px; padding-left:2px}" +
-                 "#beyond_basepanel fieldset{border:groove 1px black; margin:1px; padding:1px;}"
+    GM_addStyle('span.beyond_panel_ctlbox {width:35px; height:14px; display:block; position:absolute; right:-5px; top:-4px; }' +
+                'span.beyond_panel_ctlbox img {width:8px;height:9px; float:right; }' +
+                'div#beyond_basepanel img{vertical-align:middle; margin:1px 1px 1px 0px; padding-left:2px}' +
+                 '#beyond_basepanel fieldset{border:groove 1px black; margin:1px; padding:1px;}'
                 );
 }
 
@@ -398,22 +360,22 @@ function initResources()
         RES_GROW[name] = parseInt( $('output_'+name).innerHTML, 10 );
     }
 
-    var spns = $a('(id("sidebar") | id("status_left")//p[@class="status_bottom"])//span[@class="increase" or @class="resource"]');
+    var spns = $x('(id("sidebar") | id("status_left")//p[contains(concat(" ",normalize-space(@class)," "), " status_bottom ")])//span[contains(concat(" ",normalize-space(@class)," "), " increase ") or contains(concat(" ",normalize-space(@class)," "), " resource ")]');
     for(var i=0 ; i<spns.length ; i++) {
         var str = spns[i].previousSibling.nodeValue.match(/(木|石|鉄|糧)\s+(-?\d+)/);
         if( str ) {
-            var name = "";
+            var name = '';
             switch( str[1] ) {
-            case "木":
+            case '木':
                 name = 'wood';
                 break;
-            case "石":
+            case '石':
                 name = 'stone';
                 break;
-            case "鉄":
+            case '鉄':
                 name = 'iron';
                 break;
-            case "糧":
+            case '糧':
                 name = 'rice';
                 break;
             }
@@ -423,13 +385,13 @@ function initResources()
     }
 
     //名声
-    RES_NOW["fame"] = 0;
-    RES_MAX["fame"] = 0;
-    var fameText = $x('id("status_left")/img[contains(@src,"ico_fame.gif")]').nextSibling;
+    RES_NOW['fame'] = 0;
+    RES_MAX['fame'] = 0;
+    var fameText = $s('id("status_left")/img[contains(@src,"ico_fame.gif")]').nextSibling;
     if( fameText ) {
         var tmp = fameText.nodeValue.match(/\s*(\d+)\s*\/\s*(\d+)/);
-        RES_NOW["fame"] = parseInt(tmp[1],10);
-        RES_MAX["fame"] = parseInt(tmp[2],10);
+        RES_NOW['fame'] = parseInt(tmp[1],10);
+        RES_MAX['fame'] = parseInt(tmp[2],10);
     }
 }
 
@@ -439,17 +401,17 @@ function initResources()
 //////////////////////
 function initPanel()
 {
-    var panelBox = $("sidebar");
+    var panelBox = $('sidebar');
     if (isNarrow) {
-        var panelBoxWrapper = $x('id("wrapper")');
+        var panelBoxWrapper = $s('id("wrapper")');
 
         if (!panelBoxWrapper) return false;
 
-        panelBox = d.createElement("div");
-        panelBox.id = "sidebar";
-        panelBox.style.width = "auto";
-        panelBox.style.cssFloat = "left";
-        panelBox.style.marginTop = "10px";
+        panelBox = d.createElement('div');
+        panelBox.id = 'sidebar';
+        panelBox.style.width = 'auto';
+        panelBox.style.cssFloat = 'left';
+        panelBox.style.marginTop = '10px';
 
         panelBoxWrapper.appendChild(panelBox);
     }
@@ -457,16 +419,16 @@ function initPanel()
     if( !panelBox ) return false;
 
 
-    var basepanel = d.createElement("div");
-    basepanel.id = "beyond_basepanel";
+    var basepanel = d.createElement('div');
+    basepanel.id = 'beyond_basepanel';
 
-    var fixpanel = d.createElement("div");
-    fixpanel.id = "beyond_fixpanel";
-    var floatpanel = d.createElement("div");
-    floatpanel.id = "beyond_floatpanel";
-    var tmppanel = d.createElement("div");
-    tmppanel.id = "beyond_tmp";
-    tmppanel.style.display = "none";
+    var fixpanel = d.createElement('div');
+    fixpanel.id = 'beyond_fixpanel';
+    var floatpanel = d.createElement('div');
+    floatpanel.id = 'beyond_floatpanel';
+    var tmppanel = d.createElement('div');
+    tmppanel.id = 'beyond_tmp';
+    tmppanel.style.display = 'none';
 
     basepanel.appendChild(fixpanel);
     basepanel.appendChild(floatpanel);
@@ -486,22 +448,22 @@ function disp_Options()
     if( !location.pathname.match(/^(\/user\/|\/bbs\/personal_)/) ) return;
 
     if( location.pathname.match(/ranking\.php/) ) return;
-    var ul = $("statMenu");
+    var ul = $('statMenu');
     if( !ul ) return;
 
-    var cl = d.createElement("a");
-    cl.href = "javascript:void(0);";
-    cl.innerHTML = "三国志Beyond";
-    $e(cl, "click", function() {openOptions();});
+    var cl = d.createElement('a');
+    cl.href = 'javascript:void(0);';
+    cl.innerHTML = '三国志Beyond';
+    $e(cl, 'click', function() {openOptions();});
 
-    var li = d.createElement("li");
+    var li = d.createElement('li');
     li.appendChild(cl);
-    li.className = "last";
+    li.className = 'last';
     ul.appendChild(li);
 
-    var lst = $x("//li[@class=\"last\"]");
+    var lst = $s('//li[contains(concat(" ",normalize-space(@class)," "), " last ")]');
     if( lst ) {
-        lst.className = "";
+        lst.className = '';
     }
 
 
@@ -509,222 +471,219 @@ function disp_Options()
 
 function loadOptions()
 {
-    OPT_VILLAGE = cloadData( "OPT_VILLAGE", 1 );
-    OPT_BASELINK = cloadData( "OPT_BASELINK", 0 );
-    OPT_MAPLINK = cloadData( "OPT_MAPLINK", 1 );
-    OPT_XYLINK = cloadData( "OPT_XYLINK", 1 );
-    OPT_XYLINK_NK = cloadData( "OPT_XYLINK_NK", 0 );
-    OPT_LARGEICON = cloadData( "OPT_LARGEICON", 0 );
-    OPT_TTBL = cloadData( "OPT_TTBL", 1 );
-    OPT_MEMO = cloadData( "OPT_MEMO", 1 );
-    OPT_MEMO_FONT_SIZE = cloadData( "OPT_MEMO_FONT_SIZE", "10" );
-    OPT_MEMO_WIDTH = cloadData( "OPT_MEMO_WIDTH", "20" );
-    OPT_MEMO_HEIGHT = cloadData( "OPT_MEMO_HEIGHT", "5" );
-    OPT_MEMO_COUNT = cloadData( "OPT_MEMO_COUNT", "1" );
-    OPT_MAPLINK_FONT_SIZE = cloadData( "OPT_MAPLINK_FONT_SIZE", "10" );
-    OPT_DETAILS = cloadData( "OPT_DETAILS", 1 );
-    OPT_DETAILS_UP = cloadData( "OPT_DETAILS_UP", 0 );
-//  OPT_DECK = cloadData( "OPT_DECK", 1 );
-    OPT_DECK_SET = cloadData( "OPT_DECK_SET", 1 );
-    OPT_CTIME_B = cloadData( "OPT_CTIME_B", 1 );
-    OPT_CTIME_U = cloadData( "OPT_CTIME_U", 1 );
-    OPT_ALLY = cloadData( "OPT_ALLY", 1 );
-    OPT_ALLY_IS = cloadData( "OPT_ALLY_IS", 1 );
-    OPT_ALLY_XY = cloadData( "OPT_ALLY_XY", 0 );
-    OPT_ALLY_CSV = cloadData( "OPT_ALLY_CSV", 0 );
-    OPT_RES_T = cloadData( "OPT_RES_T", 0 );
-    OPT_RES_TIME = cloadData( "OPT_RES_TIME", 1 );
-    OPT_REMOVELIST = cloadData( "OPT_REMOVELIST", 1 );
-    OPT_MAPLIST = cloadData( "OPT_MAPLIST", 1 );
-    OPT_TTDISTANCE = cloadData( "OPT_DISTANCE", 1 );
-    OPT_TTDISTANCE_ITEMS = cloadData("OPT_DISTANCE_ITEMS", "[\"剣兵(6)\", \"槍兵(7)\", \"弓兵(5)\", \"騎兵(12)\", \"衝車(3)\"]", true, true);
-    OPT_TTALLYPRSN = cloadData( "OPT_TTALLYPRSN", 1 );
-    OPT_USER_STAR = cloadData( "OPT_USER_STAR", 1 );
-    OPT_USER_LEVEL = cloadData( "OPT_USER_LEVEL", 1 );
-//  OPT_REPORT_NP = cloadData( "OPT_REPORT_NP", 1 );
-    OPT_MAPCENTER = cloadData( "OPT_MAPCENTER", 1 );
-    OPT_TBREST = cloadData( "OPT_TBREST", 1 );
-    OPT_DELMSG = cloadData( "OPT_DELMSG", 1 );
-    OPT_TSENDTIME = cloadData( "OPT_TSENDTIME", 1 );
-    OPT_SMALLBTN = cloadData( "OPT_SMALLBTN", 0 );
-    OPT_ATTACKMAP = cloadData( "OPT_ATTACKMAP", 1 );
-    OPT_CARD_CMB = cloadData( "OPT_CARD_CMB", 1 );
+    OPT_VILLAGE = cloadData( 'OPT_VILLAGE', 1 );
+    OPT_BASELINK = cloadData( 'OPT_BASELINK', 0 );
+    OPT_MAPLINK = cloadData( 'OPT_MAPLINK', 1 );
+    OPT_XYLINK = cloadData( 'OPT_XYLINK', 1 );
+    OPT_XYLINK_NK = cloadData( 'OPT_XYLINK_NK', 0 );
+    OPT_LARGEICON = cloadData( 'OPT_LARGEICON', 0 );
+    OPT_TTBL = cloadData( 'OPT_TTBL', 1 );
+    OPT_MEMO = cloadData( 'OPT_MEMO', 1 );
+    OPT_MEMO_FONT_SIZE = cloadData( 'OPT_MEMO_FONT_SIZE', '10' );
+    OPT_MEMO_WIDTH = cloadData( 'OPT_MEMO_WIDTH', '20' );
+    OPT_MEMO_HEIGHT = cloadData( 'OPT_MEMO_HEIGHT', '5' );
+    OPT_MEMO_COUNT = cloadData( 'OPT_MEMO_COUNT', '1' );
+    OPT_MAPLINK_FONT_SIZE = cloadData( 'OPT_MAPLINK_FONT_SIZE', '10' );
+    OPT_DETAILS = cloadData( 'OPT_DETAILS', 1 );
+    OPT_DETAILS_UP = cloadData( 'OPT_DETAILS_UP', 0 );
+//  OPT_DECK = cloadData( 'OPT_DECK', 1 );
+    OPT_DECK_SET = cloadData( 'OPT_DECK_SET', 1 );
+    OPT_CTIME_B = cloadData( 'OPT_CTIME_B', 1 );
+    OPT_CTIME_U = cloadData( 'OPT_CTIME_U', 1 );
+    OPT_ALLY = cloadData( 'OPT_ALLY', 1 );
+    OPT_ALLY_IS = cloadData( 'OPT_ALLY_IS', 1 );
+    OPT_ALLY_XY = cloadData( 'OPT_ALLY_XY', 0 );
+    OPT_ALLY_CSV = cloadData( 'OPT_ALLY_CSV', 0 );
+    OPT_RES_T = cloadData( 'OPT_RES_T', 0 );
+    OPT_RES_TIME = cloadData( 'OPT_RES_TIME', 1 );
+    OPT_REMOVELIST = cloadData( 'OPT_REMOVELIST', 1 );
+    OPT_MAPLIST = cloadData( 'OPT_MAPLIST', 1 );
+    OPT_TTDISTANCE = cloadData( 'OPT_DISTANCE', 1 );
+    OPT_TTDISTANCE_ITEMS = cloadData('OPT_DISTANCE_ITEMS', '["剣兵(6)", "槍兵(7)", "弓兵(5)", "騎兵(12)", "衝車(3)"]', true, true);
+    OPT_TTALLYPRSN = cloadData( 'OPT_TTALLYPRSN', 1 );
+    OPT_USER_STAR = cloadData( 'OPT_USER_STAR', 1 );
+    OPT_USER_LEVEL = cloadData( 'OPT_USER_LEVEL', 1 );
+    OPT_MAPCENTER = cloadData( 'OPT_MAPCENTER', 1 );
+    OPT_TBREST = cloadData( 'OPT_TBREST', 1 );
+    OPT_DELMSG = cloadData( 'OPT_DELMSG', 1 );
+    OPT_TSENDTIME = cloadData( 'OPT_TSENDTIME', 1 );
+    OPT_SMALLBTN = cloadData( 'OPT_SMALLBTN', 0 );
+    OPT_ATTACKMAP = cloadData( 'OPT_ATTACKMAP', 1 );
+    OPT_CARD_CMB = cloadData( 'OPT_CARD_CMB', 1 );
 
-    OPT_PIKA_YOROZU = cloadData( "OPT_PIKA_YOROZU", 0 );
-    OPT_PIKA_HPREST = cloadData( "OPT_PIKA_HPREST", 0 );
-    OPT_PIKA_MAPHELP = cloadData( "OPT_PIKA_MAPHELP", 0 );
-    OPT_PIKA_TRDHELP = cloadData( "OPT_PIKA_TRDHELP", 0 );
-    OPT_PIKA_BLINKBLD = cloadData( "OPT_PIKA_BLINKBLD", 0 );
+    OPT_PIKA_YOROZU = cloadData( 'OPT_PIKA_YOROZU', 0 );
+    OPT_PIKA_HPREST = cloadData( 'OPT_PIKA_HPREST', 0 );
+    OPT_PIKA_MAPHELP = cloadData( 'OPT_PIKA_MAPHELP', 0 );
+    OPT_PIKA_TRDHELP = cloadData( 'OPT_PIKA_TRDHELP', 0 );
+    OPT_PIKA_BLINKBLD = cloadData( 'OPT_PIKA_BLINKBLD', 0 );
 
-    OPT_SUZAN_SEISAN = cloadData( "OPT_SUZAN_SEISAN", 0 );
+    OPT_SUZAN_SEISAN = cloadData( 'OPT_SUZAN_SEISAN', 0 );
 
-    OPT_CASTLE_AID = cloadData( "OPT_CASTLE_AID", 0 );
-    OPT_NEXT_MEISEI = cloadData( "OPT_NEXT_MEISEI", 0 );
-    OPT_TIMER_LINK_DEPOT = cloadData( "OPT_TIMER_LINK_DEPOT", 0 );
+    OPT_CASTLE_AID = cloadData( 'OPT_CASTLE_AID', 0 );
+    OPT_NEXT_MEISEI = cloadData( 'OPT_NEXT_MEISEI', 0 );
+    OPT_TIMER_LINK_DEPOT = cloadData( 'OPT_TIMER_LINK_DEPOT', 0 );
     if (isNarrow) {
-        OPT_VILLAGE_LIST_BOX = cloadData( "OPT_VILLAGE_LIST_BOX", 0 );
+        OPT_VILLAGE_LIST_BOX = cloadData( 'OPT_VILLAGE_LIST_BOX', 0 );
     }
 }
 function saveOptions()
 {
-    OPT_VILLAGE = cgetCheckBoxValue("OPT_VILLAGE");
-    OPT_BASELINK = cgetCheckBoxValue("OPT_BASELINK");
-    OPT_MAPLINK = cgetCheckBoxValue("OPT_MAPLINK");
-    OPT_XYLINK = cgetCheckBoxValue("OPT_XYLINK");
-    OPT_XYLINK_NK = cgetCheckBoxValue("OPT_XYLINK_NK");
-    OPT_LARGEICON = cgetCheckBoxValue("OPT_LARGEICON");
-    OPT_TTBL = cgetCheckBoxValue("OPT_TTBL");
-    OPT_MEMO = cgetCheckBoxValue("OPT_MEMO");
-    OPT_MEMO_FONT_SIZE = cgetTextBoxValue("OPT_MEMO_FONT_SIZE");
-    OPT_MEMO_WIDTH = cgetTextBoxValue("OPT_MEMO_WIDTH");
-    OPT_MEMO_HEIGHT = cgetTextBoxValue("OPT_MEMO_HEIGHT");
-    OPT_MEMO_COUNT = cgetTextBoxValue("OPT_MEMO_COUNT");
-    OPT_MAPLINK_FONT_SIZE = cgetTextBoxValue("OPT_MAPLINK_FONT_SIZE");
-    OPT_DETAILS = cgetCheckBoxValue("OPT_DETAILS");
-    OPT_DETAILS_UP = cgetCheckBoxValue("OPT_DETAILS_UP");
-//  OPT_DECK = cgetCheckBoxValue("OPT_DECK");
-    OPT_DECK_SET = cgetCheckBoxValue("OPT_DECK_SET");
-    OPT_CTIME_B = cgetCheckBoxValue("OPT_CTIME_B");
-    OPT_CTIME_U = cgetCheckBoxValue("OPT_CTIME_U");
-    OPT_ALLY = cgetCheckBoxValue("OPT_ALLY");
-    OPT_ALLY_IS = cgetCheckBoxValue("OPT_ALLY_IS");
-    OPT_ALLY_XY = cgetCheckBoxValue("OPT_ALLY_XY");
-    OPT_ALLY_CSV = cgetCheckBoxValue("OPT_ALLY_CSV");
-    OPT_RES_T = cgetCheckBoxValue("OPT_RES_T");
-    OPT_RES_TIME = cgetCheckBoxValue("OPT_RES_TIME");
-    OPT_REMOVELIST = cgetCheckBoxValue("OPT_REMOVELIST");
-    OPT_MAPLIST = cgetCheckBoxValue("OPT_MAPLIST");
-    OPT_TTDISTANCE = cgetCheckBoxValue("OPT_DISTANCE");
+    OPT_VILLAGE = cgetCheckBoxValue('OPT_VILLAGE');
+    OPT_BASELINK = cgetCheckBoxValue('OPT_BASELINK');
+    OPT_MAPLINK = cgetCheckBoxValue('OPT_MAPLINK');
+    OPT_XYLINK = cgetCheckBoxValue('OPT_XYLINK');
+    OPT_XYLINK_NK = cgetCheckBoxValue('OPT_XYLINK_NK');
+    OPT_LARGEICON = cgetCheckBoxValue('OPT_LARGEICON');
+    OPT_TTBL = cgetCheckBoxValue('OPT_TTBL');
+    OPT_MEMO = cgetCheckBoxValue('OPT_MEMO');
+    OPT_MEMO_FONT_SIZE = cgetTextBoxValue('OPT_MEMO_FONT_SIZE');
+    OPT_MEMO_WIDTH = cgetTextBoxValue('OPT_MEMO_WIDTH');
+    OPT_MEMO_HEIGHT = cgetTextBoxValue('OPT_MEMO_HEIGHT');
+    OPT_MEMO_COUNT = cgetTextBoxValue('OPT_MEMO_COUNT');
+    OPT_MAPLINK_FONT_SIZE = cgetTextBoxValue('OPT_MAPLINK_FONT_SIZE');
+    OPT_DETAILS = cgetCheckBoxValue('OPT_DETAILS');
+    OPT_DETAILS_UP = cgetCheckBoxValue('OPT_DETAILS_UP');
+//  OPT_DECK = cgetCheckBoxValue('OPT_DECK');
+    OPT_DECK_SET = cgetCheckBoxValue('OPT_DECK_SET');
+    OPT_CTIME_B = cgetCheckBoxValue('OPT_CTIME_B');
+    OPT_CTIME_U = cgetCheckBoxValue('OPT_CTIME_U');
+    OPT_ALLY = cgetCheckBoxValue('OPT_ALLY');
+    OPT_ALLY_IS = cgetCheckBoxValue('OPT_ALLY_IS');
+    OPT_ALLY_XY = cgetCheckBoxValue('OPT_ALLY_XY');
+    OPT_ALLY_CSV = cgetCheckBoxValue('OPT_ALLY_CSV');
+    OPT_RES_T = cgetCheckBoxValue('OPT_RES_T');
+    OPT_RES_TIME = cgetCheckBoxValue('OPT_RES_TIME');
+    OPT_REMOVELIST = cgetCheckBoxValue('OPT_REMOVELIST');
+    OPT_MAPLIST = cgetCheckBoxValue('OPT_MAPLIST');
+    OPT_TTDISTANCE = cgetCheckBoxValue('OPT_DISTANCE');
     OPT_TTDISTANCE_ITEMS = getDistanceBox(5);
-    OPT_TTALLYPRSN = cgetCheckBoxValue("OPT_TTALLYPRSN");
-    OPT_USER_STAR = cgetCheckBoxValue("OPT_USER_STAR");
-    OPT_USER_LEVEL = cgetCheckBoxValue("OPT_USER_LEVEL");
-//  OPT_REPORT_NP = cgetCheckBoxValue("OPT_REPORT_NP");
-    OPT_MAPCENTER = cgetCheckBoxValue("OPT_MAPCENTER");
-    OPT_TBREST = cgetCheckBoxValue("OPT_TBREST");
-    OPT_DELMSG = cgetCheckBoxValue("OPT_DELMSG");
-    OPT_TSENDTIME = cgetCheckBoxValue("OPT_TSENDTIME");
-    OPT_SMALLBTN = cgetCheckBoxValue("OPT_SMALLBTN");
-    OPT_ATTACKMAP = cgetCheckBoxValue("OPT_ATTACKMAP");
-    OPT_CARD_CMB = cgetCheckBoxValue("OPT_CARD_CMB");
-    OPT_PIKA_YOROZU = cgetCheckBoxValue("OPT_PIKA_YOROZU");
-    OPT_PIKA_HPREST = cgetCheckBoxValue("OPT_PIKA_HPREST");
-    OPT_PIKA_MAPHELP = cgetCheckBoxValue("OPT_PIKA_MAPHELP");
-    OPT_PIKA_TRDHELP = cgetCheckBoxValue("OPT_PIKA_TRDHELP");
-    OPT_PIKA_BLINKBLD = cgetCheckBoxValue("OPT_PIKA_BLINKBLD");
-    OPT_SUZAN_SEISAN = cgetCheckBoxValue("OPT_SUZAN_SEISAN");
+    OPT_TTALLYPRSN = cgetCheckBoxValue('OPT_TTALLYPRSN');
+    OPT_USER_STAR = cgetCheckBoxValue('OPT_USER_STAR');
+    OPT_USER_LEVEL = cgetCheckBoxValue('OPT_USER_LEVEL');
+    OPT_MAPCENTER = cgetCheckBoxValue('OPT_MAPCENTER');
+    OPT_TBREST = cgetCheckBoxValue('OPT_TBREST');
+    OPT_DELMSG = cgetCheckBoxValue('OPT_DELMSG');
+    OPT_TSENDTIME = cgetCheckBoxValue('OPT_TSENDTIME');
+    OPT_SMALLBTN = cgetCheckBoxValue('OPT_SMALLBTN');
+    OPT_ATTACKMAP = cgetCheckBoxValue('OPT_ATTACKMAP');
+    OPT_CARD_CMB = cgetCheckBoxValue('OPT_CARD_CMB');
+    OPT_PIKA_YOROZU = cgetCheckBoxValue('OPT_PIKA_YOROZU');
+    OPT_PIKA_HPREST = cgetCheckBoxValue('OPT_PIKA_HPREST');
+    OPT_PIKA_MAPHELP = cgetCheckBoxValue('OPT_PIKA_MAPHELP');
+    OPT_PIKA_TRDHELP = cgetCheckBoxValue('OPT_PIKA_TRDHELP');
+    OPT_PIKA_BLINKBLD = cgetCheckBoxValue('OPT_PIKA_BLINKBLD');
+    OPT_SUZAN_SEISAN = cgetCheckBoxValue('OPT_SUZAN_SEISAN');
 
-    OPT_CASTLE_AID = cgetCheckBoxValue("OPT_CASTLE_AID");
-    OPT_NEXT_MEISEI = cgetCheckBoxValue("OPT_NEXT_MEISEI");
-    OPT_TIMER_LINK_DEPOT = cgetCheckBoxValue("OPT_TIMER_LINK_DEPOT");
+    OPT_CASTLE_AID = cgetCheckBoxValue('OPT_CASTLE_AID');
+    OPT_NEXT_MEISEI = cgetCheckBoxValue('OPT_NEXT_MEISEI');
+    OPT_TIMER_LINK_DEPOT = cgetCheckBoxValue('OPT_TIMER_LINK_DEPOT');
     if (isNarrow) {
-        OPT_VILLAGE_LIST_BOX = cgetCheckBoxValue( "OPT_VILLAGE_LIST_BOX");
+        OPT_VILLAGE_LIST_BOX = cgetCheckBoxValue( 'OPT_VILLAGE_LIST_BOX');
     }
 
-    csaveData( "OPT_VILLAGE", OPT_VILLAGE );
-    csaveData( "OPT_BASELINK", OPT_BASELINK );
-    csaveData( "OPT_MAPLINK", OPT_MAPLINK );
-    csaveData( "OPT_XYLINK", OPT_XYLINK );
-    csaveData( "OPT_XYLINK_NK", OPT_XYLINK_NK );
-    csaveData( "OPT_LARGEICON", OPT_LARGEICON );
-    csaveData( "OPT_TTBL", OPT_TTBL );
-    csaveData( "OPT_MEMO", OPT_MEMO );
-    csaveData( "OPT_MEMO_FONT_SIZE", OPT_MEMO_FONT_SIZE );
-    csaveData( "OPT_MEMO_WIDTH", OPT_MEMO_WIDTH );
-    csaveData( "OPT_MEMO_HEIGHT", OPT_MEMO_HEIGHT );
-    csaveData( "OPT_MEMO_COUNT", OPT_MEMO_COUNT );
-    csaveData( "OPT_MAPLINK_FONT_SIZE", OPT_MAPLINK_FONT_SIZE );
-    csaveData( "OPT_DETAILS", OPT_DETAILS );
-    csaveData( "OPT_DETAILS_UP", OPT_DETAILS_UP );
-//  csaveData( "OPT_DECK", OPT_DECK );
-    csaveData( "OPT_DECK_SET", OPT_DECK_SET );
-    csaveData( "OPT_CTIME_B", OPT_CTIME_B );
-    csaveData( "OPT_CTIME_U", OPT_CTIME_U );
-    csaveData( "OPT_ALLY", OPT_ALLY );
-    csaveData( "OPT_ALLY_IS", OPT_ALLY_IS );
-    csaveData( "OPT_ALLY_XY", OPT_ALLY_XY );
-    csaveData( "OPT_ALLY_CSV", OPT_ALLY_CSV );
-    csaveData( "OPT_RES_T", OPT_RES_T );
-    csaveData( "OPT_RES_TIME", OPT_RES_TIME );
-    csaveData( "OPT_REMOVELIST", OPT_REMOVELIST );
-    csaveData( "OPT_MAPLIST", OPT_MAPLIST );
-    csaveData( "OPT_DISTANCE", OPT_TTDISTANCE );
-    csaveData( "OPT_DISTANCE_ITEMS", OPT_TTDISTANCE_ITEMS, true, true );
-    csaveData( "OPT_TTALLYPRSN", OPT_TTALLYPRSN );
-    csaveData( "OPT_USER_STAR", OPT_USER_STAR );
-    csaveData( "OPT_USER_LEVEL", OPT_USER_LEVEL );
-//  csaveData( "OPT_REPORT_NP", OPT_REPORT_NP );
-    csaveData( "OPT_MAPCENTER", OPT_MAPCENTER );
-    csaveData( "OPT_TBREST", OPT_TBREST );
-    csaveData( "OPT_DELMSG", OPT_DELMSG );
-    csaveData( "OPT_TSENDTIME", OPT_TSENDTIME );
-    csaveData( "OPT_SMALLBTN", OPT_SMALLBTN );
-    csaveData( "OPT_ATTACKMAP", OPT_ATTACKMAP );
-    csaveData( "OPT_CARD_CMB", OPT_CARD_CMB );
-    csaveData( "OPT_PIKA_YOROZU", OPT_PIKA_YOROZU );
-    csaveData( "OPT_PIKA_HPREST", OPT_PIKA_HPREST );
-    csaveData( "OPT_PIKA_MAPHELP", OPT_PIKA_MAPHELP );
-    csaveData( "OPT_PIKA_TRDHELP", OPT_PIKA_TRDHELP );
-    csaveData( "OPT_PIKA_BLINKBLD", OPT_PIKA_BLINKBLD );
-    csaveData( "OPT_SUZAN_SEISAN", OPT_SUZAN_SEISAN );
+    csaveData( 'OPT_VILLAGE', OPT_VILLAGE );
+    csaveData( 'OPT_BASELINK', OPT_BASELINK );
+    csaveData( 'OPT_MAPLINK', OPT_MAPLINK );
+    csaveData( 'OPT_XYLINK', OPT_XYLINK );
+    csaveData( 'OPT_XYLINK_NK', OPT_XYLINK_NK );
+    csaveData( 'OPT_LARGEICON', OPT_LARGEICON );
+    csaveData( 'OPT_TTBL', OPT_TTBL );
+    csaveData( 'OPT_MEMO', OPT_MEMO );
+    csaveData( 'OPT_MEMO_FONT_SIZE', OPT_MEMO_FONT_SIZE );
+    csaveData( 'OPT_MEMO_WIDTH', OPT_MEMO_WIDTH );
+    csaveData( 'OPT_MEMO_HEIGHT', OPT_MEMO_HEIGHT );
+    csaveData( 'OPT_MEMO_COUNT', OPT_MEMO_COUNT );
+    csaveData( 'OPT_MAPLINK_FONT_SIZE', OPT_MAPLINK_FONT_SIZE );
+    csaveData( 'OPT_DETAILS', OPT_DETAILS );
+    csaveData( 'OPT_DETAILS_UP', OPT_DETAILS_UP );
+//  csaveData( 'OPT_DECK', OPT_DECK );
+    csaveData( 'OPT_DECK_SET', OPT_DECK_SET );
+    csaveData( 'OPT_CTIME_B', OPT_CTIME_B );
+    csaveData( 'OPT_CTIME_U', OPT_CTIME_U );
+    csaveData( 'OPT_ALLY', OPT_ALLY );
+    csaveData( 'OPT_ALLY_IS', OPT_ALLY_IS );
+    csaveData( 'OPT_ALLY_XY', OPT_ALLY_XY );
+    csaveData( 'OPT_ALLY_CSV', OPT_ALLY_CSV );
+    csaveData( 'OPT_RES_T', OPT_RES_T );
+    csaveData( 'OPT_RES_TIME', OPT_RES_TIME );
+    csaveData( 'OPT_REMOVELIST', OPT_REMOVELIST );
+    csaveData( 'OPT_MAPLIST', OPT_MAPLIST );
+    csaveData( 'OPT_DISTANCE', OPT_TTDISTANCE );
+    csaveData( 'OPT_DISTANCE_ITEMS', OPT_TTDISTANCE_ITEMS, true, true );
+    csaveData( 'OPT_TTALLYPRSN', OPT_TTALLYPRSN );
+    csaveData( 'OPT_USER_STAR', OPT_USER_STAR );
+    csaveData( 'OPT_USER_LEVEL', OPT_USER_LEVEL );
+    csaveData( 'OPT_MAPCENTER', OPT_MAPCENTER );
+    csaveData( 'OPT_TBREST', OPT_TBREST );
+    csaveData( 'OPT_DELMSG', OPT_DELMSG );
+    csaveData( 'OPT_TSENDTIME', OPT_TSENDTIME );
+    csaveData( 'OPT_SMALLBTN', OPT_SMALLBTN );
+    csaveData( 'OPT_ATTACKMAP', OPT_ATTACKMAP );
+    csaveData( 'OPT_CARD_CMB', OPT_CARD_CMB );
+    csaveData( 'OPT_PIKA_YOROZU', OPT_PIKA_YOROZU );
+    csaveData( 'OPT_PIKA_HPREST', OPT_PIKA_HPREST );
+    csaveData( 'OPT_PIKA_MAPHELP', OPT_PIKA_MAPHELP );
+    csaveData( 'OPT_PIKA_TRDHELP', OPT_PIKA_TRDHELP );
+    csaveData( 'OPT_PIKA_BLINKBLD', OPT_PIKA_BLINKBLD );
+    csaveData( 'OPT_SUZAN_SEISAN', OPT_SUZAN_SEISAN );
 
-    csaveData( "OPT_CASTLE_AID", OPT_CASTLE_AID );
-    csaveData( "OPT_NEXT_MEISEI", OPT_NEXT_MEISEI );
-    csaveData( "OPT_TIMER_LINK_DEPOT", OPT_TIMER_LINK_DEPOT );
+    csaveData( 'OPT_CASTLE_AID', OPT_CASTLE_AID );
+    csaveData( 'OPT_NEXT_MEISEI', OPT_NEXT_MEISEI );
+    csaveData( 'OPT_TIMER_LINK_DEPOT', OPT_TIMER_LINK_DEPOT );
     if (isNarrow) {
-        csaveData( "OPT_VILLAGE_LIST_BOX", OPT_VILLAGE_LIST_BOX );
+        csaveData( 'OPT_VILLAGE_LIST_BOX', OPT_VILLAGE_LIST_BOX );
     }
 
-    alert("設定を保存しました");
+    alert('設定を保存しました');
     deleteOptionsHtml();
 }
 function getMyInfo()
 {
-    if( (location.pathname == "/user/index.php" || location.pathname == "/user/" ) && !URL_PARAM.user_id ) {
+    if( (location.pathname == '/user/index.php' || location.pathname == '/user/' ) && !URL_PARAM.user_id ) {
 
         var uid=0, aid=0;
-        var uidtd = $x("//table[@class=\"commonTables\"]//tr[2]//td[3]");
+        var uidtd = $s('//table[contains(concat(" ",normalize-space(@class)," "), " commonTables ")]//tr[2]//td[3]');
         if( uidtd ) {
             uid = uidtd.innerHTML.match(/\/bbs\/personal_topic_view\.php\?user_id\=(\d+)/);
         }
-        var aidtd = $x("//table[@class=\"commonTables\"]//tr[3]//td[4]");
+        var aidtd = $s('//table[contains(concat(" ",normalize-space(@class)," "), " commonTables ")]//tr[3]//td[4]');
         if( aidtd ) {
             aid = d.body.innerHTML.match(/\/alliance\/info\.php\?id\=(\d+)/);
         }
         if( uid && aid ) {
-            csaveData( "user_id", uid[1], true );
-            csaveData( "ally_id", aid[1], true );
+            csaveData( 'user_id', uid[1], true );
+            csaveData( 'ally_id', aid[1], true );
         }
     }
 
-    USER_ID = cloadData( "user_id", "", true );
-    ALLY_ID = cloadData( "ally_id", "", true );
+    USER_ID = cloadData( 'user_id', '', true );
+    ALLY_ID = cloadData( 'ally_id', '', true );
 
 }
 
 
 
 function resetMapLink() {
-    if( !confirm("登録済みリンクを全て削除します。\nよろしいですか？") ) return;
+    if( !confirm('登録済みリンクを全て削除します。\nよろしいですか？') ) return;
 
-    var maplinks = cloadData( "links", 0, true );
+    var maplinks = cloadData( 'links', 0, true );
     for(i=0 ; i<maplinks ; i++) {
-        cdelData( "link" + i, true );
+        cdelData( 'link' + i, true );
     }
-    cdelData( "links", true);
+    cdelData( 'links', true);
 
     resetMapLinks();
 }
 
 function resetUserXY() {
-    if( !confirm("同盟員一覧の座標情報を全て削除します。\nよろしいですか？") ) return;
+    if( !confirm('同盟員一覧の座標情報を全て削除します。\nよろしいですか？') ) return;
     cresetUserXY();
 }
 
 function resetUserStar() {
-    if( !confirm("君主の★情報と自領地のLevel情報を全て削除します。\nよろしいですか？") ) return;
+    if( !confirm('君主の★情報と自領地のLevel情報を全て削除します。\nよろしいですか？') ) return;
     cresetUserStar();
-    cdelData("MyLevelList",true);
+    cdelData('MyLevelList',true);
 }
 
 function openOptions() {
@@ -733,78 +692,78 @@ function openOptions() {
 }
 
 function deleteOptionsHtml() {
-    var elem = $("beyond_OptionsWindow");
+    var elem = $('beyond_OptionsWindow');
     if (!elem ) return;
-    $("beyond_floatpanel").removeChild(elem);
+    $('beyond_floatpanel').removeChild(elem);
 }
 
 function addOptionsHtml() {
 
-    var oc = d.createElement("div");
-    oc.id = "beyond_OptionsWindow";
-    oc.style.position = "absolute";
-    oc.style.backgroundColor = "lightblue";
-    oc.style.border = "outset 2px lightblue";
-    oc.style.fontSize = "12px";
-    oc.style.padding = "15px";
+    var oc = d.createElement('div');
+    oc.id = 'beyond_OptionsWindow';
+    oc.style.position = 'absolute';
+    oc.style.backgroundColor = 'lightblue';
+    oc.style.border = 'outset 2px lightblue';
+    oc.style.fontSize = '12px';
+    oc.style.padding = '15px';
     oc.style.zIndex = 1000;
 
-    var x = cloadData("config_window_x", 20);
-    var y = cloadData("config_window_y", 20);
+    var x = cloadData('config_window_x', 20);
+    var y = cloadData('config_window_y', 20);
     if(x < 0) x = 0;
     if(y < 0) y = 0;
-    oc.style.left = x + "px";
-    oc.style.top = y + "px";
+    oc.style.left = x + 'px';
+    oc.style.top = y + 'px';
 
-    $e(oc, "mousedown", function(event){
-                if( event.target != $("beyond_OptionsWindow")) {return false;}
-                g_MD="beyond_OptionsWindow";
+    $e(oc, 'mousedown', function(event){
+                if( event.target != $('beyond_OptionsWindow')) {return false;}
+                g_MD='beyond_OptionsWindow';
                 g_MX=event.pageX-parseInt(this.style.left,10);
                 g_MY=event.pageY-parseInt(this.style.top,10);
                 event.preventDefault();});
-    $e(d, "mousemove", function(event){
-                if(g_MD != "beyond_OptionsWindow") return true;
-                var oc = $("beyond_OptionsWindow");
+    $e(d, 'mousemove', function(event){
+                if(g_MD != 'beyond_OptionsWindow') return true;
+                var oc = $('beyond_OptionsWindow');
                 if( !oc ) return true;
                 var x = event.pageX - g_MX;
                 var y = event.pageY - g_MY;
-                oc.style.left = x + "px";
-                oc.style.top = y + "px";
-                csaveData("config_window_x", x);
-                csaveData("config_window_y", y);
+                oc.style.left = x + 'px';
+                oc.style.top = y + 'px';
+                csaveData('config_window_x', x);
+                csaveData('config_window_y', y);
                 });
-    $e(d, "mouseup", function(event){g_MD="";});
+    $e(d, 'mouseup', function(event){g_MD='';});
 
-    var tx = d.createElement("div");
+    var tx = d.createElement('div');
 
-    var ah = d.createElement("a");
-    ah.href = "http://www1.ocn.ne.jp/~hatt/3gkb/";
+    var ah = d.createElement('a');
+    ah.href = 'http://www1.ocn.ne.jp/~hatt/3gkb/';
     tx.title = ah.href;
-    ah.target = "_blank";
+    ah.target = '_blank';
     ah.appendChild(d.createTextNode(VERSION_NAME));
     tx.appendChild(ah);
-    tx.style.padding = "4px";
-    tx.style.fontSize = "10px";
-    tx.style.color = "steelblue";
+    tx.style.padding = '4px';
+    tx.style.fontSize = '10px';
+    tx.style.color = 'steelblue';
     oc.appendChild(tx);
 
-    $("beyond_floatpanel").appendChild(oc);
+    $('beyond_floatpanel').appendChild(oc);
 
-    var tbl = d.createElement("table");
-    tbl.style.border ="0px";
-    var tr = d.createElement("tr");
-    var td1 = d.createElement("td");
-    td1.style.padding = "15px";
-    td1.style.verticalAlign = "top";
-    var td2 = d.createElement("td");
-    td2.style.padding = "15px";
-    td2.style.verticalAlign = "top";
-    var td3 = d.createElement("td");
-    td3.style.padding = "15px";
-    td3.style.verticalAlign = "top";
-    var td4 = d.createElement("td");
-    td4.style.padding = "15px";
-    td4.style.verticalAlign = "top";
+    var tbl = d.createElement('table');
+    tbl.style.border ='0px';
+    var tr = d.createElement('tr');
+    var td1 = d.createElement('td');
+    td1.style.padding = '15px';
+    td1.style.verticalAlign = 'top';
+    var td2 = d.createElement('td');
+    td2.style.padding = '15px';
+    td2.style.verticalAlign = 'top';
+    var td3 = d.createElement('td');
+    td3.style.padding = '15px';
+    td3.style.verticalAlign = 'top';
+    var td4 = d.createElement('td');
+    td4.style.padding = '15px';
+    td4.style.verticalAlign = 'top';
     tr.appendChild(td1);
     tr.appendChild(td2);
     tr.appendChild(td3);
@@ -814,121 +773,120 @@ function addOptionsHtml() {
 
 
     //設定項目
-    ccreateCheckBox(td1, "OPT_VILLAGE", OPT_VILLAGE, "建築表示機能","村の表示で資源不足で建築不可能な場合、LV表示を黄色にします",0);
-    ccreateCheckBox(td1, "OPT_BASELINK", OPT_BASELINK, "拠点リンク機能","城や村のリンクにマップ・内政などのリンクを追加します",0);
-    ccreateCheckBox(td1, "OPT_MAPLINK", OPT_MAPLINK, "領地リンク機能","領地や敵地・NPC砦等へのリンク",0);
-    ccreateTextBox(td1, "OPT_MAPLINK_FONT_SIZE", OPT_MAPLINK_FONT_SIZE, "フォントサイズ","領地リンクのフォントサイズを指定します。デフォルト=10", 5, 20);
-    ccreateCheckBox(td1, "OPT_LARGEICON", OPT_LARGEICON, "大きめアイコン","拠点リンク・領地リンクなどのアイコンを14x14サイズにします（アイコン提供:ゆう＠てらおとめん様）",0);
-    ccreateCheckBox(td1, "OPT_XYLINK", OPT_XYLINK, "座標リンク機能","掲示板などの(xx,yy)にリンク機能を追加します",0);
-    ccreateCheckBox(td1, "OPT_XYLINK_NK", OPT_XYLINK_NK, "両端のカッコ無視","xx,yyだけでもリンクします。1,000などの数字もリンクになってしまいます",20);
-    ccreateCheckBox(td1, "OPT_TTBL", OPT_TTBL, "兵力整形機能","掲示板に貼り付けた兵力一覧を整形します",0);
-    ccreateCheckBox(td1, "OPT_MEMO", OPT_MEMO, "メモ機能","メモ機能",0);
-    ccreateTextBox(td1, "OPT_MEMO_FONT_SIZE", OPT_MEMO_FONT_SIZE, "フォントサイズ","メモのフォントサイズを指定します。デフォルト=10",5,20);
-    ccreateTextBox(td1, "OPT_MEMO_WIDTH", OPT_MEMO_WIDTH, "メモ幅","メモの幅を指定します。デフォルト=20",5,20);
-    ccreateTextBox(td1, "OPT_MEMO_HEIGHT", OPT_MEMO_HEIGHT, "メモ高","メモの高さを指定します。デフォルト=5",5,20);
-    ccreateTextBox(td1, "OPT_MEMO_COUNT", OPT_MEMO_COUNT, "メモ数(1～5)","メモ欄の数を指定します。デフォルト=1",5,20);
-    ccreateCheckBox(td1, "OPT_DETAILS", OPT_DETAILS, "ログ合計表示機能","同盟ログの兵力＋援軍の合計を表示します",0);
-    ccreateCheckBox(td1, "OPT_DETAILS_UP", OPT_DETAILS_UP, "合計を上に出す","合計表示を、下じゃなくて上に出します",20);
-//  ccreateCheckBox(td1, "OPT_DECK", OPT_DECK, "デッキ画面改善","デッキ画面の改善を行います",0);
-    ccreateCheckBox(td1, "OPT_DECK_SET", OPT_DECK_SET, "デッキセット先自動選択","初期表示のセット先拠点を現在選択中の拠点にします",0);
-    ccreateCheckBox(td2, "OPT_CTIME_B", OPT_CTIME_B, "完了時刻の表示(建物)","建築作成時に完了予定日時を表示します。",0);
-    ccreateCheckBox(td2, "OPT_CTIME_U", OPT_CTIME_U, "完了時刻の表示(ユニット)","ユニット作成時に完了予定日時を表示します。",0);
-    ccreateCheckBox(td2, "OPT_ALLY", OPT_ALLY, "同盟表示改善","同盟員一覧の表示改善",0);
-    ccreateCheckBox(td2, "OPT_ALLY_IS", OPT_ALLY_IS, "同盟表示のソート","同盟員一覧の並べ替えを追加します",20);
-    ccreateCheckBox(td2, "OPT_ALLY_XY", OPT_ALLY_XY, "同盟員座標表示","同盟員一覧に本居城の座標を追加します",20);
-    ccreateCheckBox(td2, "OPT_ALLY_CSV", OPT_ALLY_CSV, "同盟員情報CSV","同盟員一覧の詳細をCSV表示します。",20);
-    ccreateCheckBox(td2, "OPT_RES_T", OPT_RES_T, "資源生産合計表示","資源生産量の合計を表示します",0);
-    ccreateCheckBox(td2, "OPT_RES_TIME", OPT_RES_TIME, "資源時間の表示","資源の残り時間を表示します",0);
-    ccreateCheckBox(td2, "OPT_REMOVELIST", OPT_REMOVELIST, "破棄中の領地表示","破棄中の領地一覧を表示し、マップにマークを付けます",0);
-    ccreateCheckBox(td2, "OPT_MAPLIST", OPT_MAPLIST, "マップの地形一覧","マップ上の拠点・領地リストを表示します",0);
-    ccreateCheckBox(td2, "OPT_DISTANCE", OPT_TTDISTANCE, "移動時間表示","全ての[兵を送る]リンクのToolTipsを移動時間の目安表示に変更します",0);
+    ccreateCheckBox(td1, 'OPT_VILLAGE', OPT_VILLAGE, '建築表示機能','村の表示で資源不足で建築不可能な場合、LV表示を黄色にします',0);
+    ccreateCheckBox(td1, 'OPT_BASELINK', OPT_BASELINK, '拠点リンク機能','城や村のリンクにマップ・内政などのリンクを追加します',0);
+    ccreateCheckBox(td1, 'OPT_MAPLINK', OPT_MAPLINK, '領地リンク機能','領地や敵地・NPC砦等へのリンク',0);
+    ccreateTextBox(td1, 'OPT_MAPLINK_FONT_SIZE', OPT_MAPLINK_FONT_SIZE, 'フォントサイズ','領地リンクのフォントサイズを指定します。デフォルト=10', 5, 20);
+    ccreateCheckBox(td1, 'OPT_LARGEICON', OPT_LARGEICON, '大きめアイコン','拠点リンク・領地リンクなどのアイコンを14x14サイズにします（アイコン提供:ゆう＠てらおとめん様）',0);
+    ccreateCheckBox(td1, 'OPT_XYLINK', OPT_XYLINK, '座標リンク機能','掲示板などの(xx,yy)にリンク機能を追加します',0);
+    ccreateCheckBox(td1, 'OPT_XYLINK_NK', OPT_XYLINK_NK, '両端のカッコ無視','xx,yyだけでもリンクします。1,000などの数字もリンクになってしまいます',20);
+    ccreateCheckBox(td1, 'OPT_TTBL', OPT_TTBL, '兵力整形機能','掲示板に貼り付けた兵力一覧を整形します',0);
+    ccreateCheckBox(td1, 'OPT_MEMO', OPT_MEMO, 'メモ機能','メモ機能',0);
+    ccreateTextBox(td1, 'OPT_MEMO_FONT_SIZE', OPT_MEMO_FONT_SIZE, 'フォントサイズ','メモのフォントサイズを指定します。デフォルト=10',5,20);
+    ccreateTextBox(td1, 'OPT_MEMO_WIDTH', OPT_MEMO_WIDTH, 'メモ幅','メモの幅を指定します。デフォルト=20',5,20);
+    ccreateTextBox(td1, 'OPT_MEMO_HEIGHT', OPT_MEMO_HEIGHT, 'メモ高','メモの高さを指定します。デフォルト=5',5,20);
+    ccreateTextBox(td1, 'OPT_MEMO_COUNT', OPT_MEMO_COUNT, 'メモ数(1～5)','メモ欄の数を指定します。デフォルト=1',5,20);
+    ccreateCheckBox(td1, 'OPT_DETAILS', OPT_DETAILS, 'ログ合計表示機能','同盟ログの兵力＋援軍の合計を表示します',0);
+    ccreateCheckBox(td1, 'OPT_DETAILS_UP', OPT_DETAILS_UP, '合計を上に出す','合計表示を、下じゃなくて上に出します',20);
+//  ccreateCheckBox(td1, 'OPT_DECK', OPT_DECK, 'デッキ画面改善','デッキ画面の改善を行います',0);
+    ccreateCheckBox(td1, 'OPT_DECK_SET', OPT_DECK_SET, 'デッキセット先自動選択','初期表示のセット先拠点を現在選択中の拠点にします',0);
+    ccreateCheckBox(td2, 'OPT_CTIME_B', OPT_CTIME_B, '完了時刻の表示(建物)','建築作成時に完了予定日時を表示します。',0);
+    ccreateCheckBox(td2, 'OPT_CTIME_U', OPT_CTIME_U, '完了時刻の表示(ユニット)','ユニット作成時に完了予定日時を表示します。',0);
+    ccreateCheckBox(td2, 'OPT_ALLY', OPT_ALLY, '同盟表示改善','同盟員一覧の表示改善',0);
+    ccreateCheckBox(td2, 'OPT_ALLY_IS', OPT_ALLY_IS, '同盟表示のソート','同盟員一覧の並べ替えを追加します',20);
+    ccreateCheckBox(td2, 'OPT_ALLY_XY', OPT_ALLY_XY, '同盟員座標表示','同盟員一覧に本居城の座標を追加します',20);
+    ccreateCheckBox(td2, 'OPT_ALLY_CSV', OPT_ALLY_CSV, '同盟員情報CSV','同盟員一覧の詳細をCSV表示します。',20);
+    ccreateCheckBox(td2, 'OPT_RES_T', OPT_RES_T, '資源生産合計表示','資源生産量の合計を表示します',0);
+    ccreateCheckBox(td2, 'OPT_RES_TIME', OPT_RES_TIME, '資源時間の表示','資源の残り時間を表示します',0);
+    ccreateCheckBox(td2, 'OPT_REMOVELIST', OPT_REMOVELIST, '破棄中の領地表示','破棄中の領地一覧を表示し、マップにマークを付けます',0);
+    ccreateCheckBox(td2, 'OPT_MAPLIST', OPT_MAPLIST, 'マップの地形一覧','マップ上の拠点・領地リストを表示します',0);
+    ccreateCheckBox(td2, 'OPT_DISTANCE', OPT_TTDISTANCE, '移動時間表示','全ての[兵を送る]リンクのToolTipsを移動時間の目安表示に変更します',0);
     createDistanceBox(td2, OPT_TTDISTANCE_ITEMS, 5);
-    ccreateCheckBox(td2, "OPT_TTALLYPRSN", OPT_TTALLYPRSN, "同盟/君主表示","全ての[拠点/領地]リンクのToolTipsを同盟/君主表示に変更します",0);
-    ccreateCheckBox(td3, "OPT_USER_STAR", OPT_USER_STAR, "君主★情報表示","プロフィール画面に領地の★表示を追加します",0);
-    ccreateCheckBox(td3, "OPT_USER_LEVEL", OPT_USER_LEVEL, "領地レベル表示","プロフィール画面に領地のレベル表示を追加します",0);
-//  ccreateCheckBox(td3, "OPT_REPORT_NP", OPT_REPORT_NP, "同盟ログ前後表示","同盟ログの詳細に、[前のログ]・[次のログ]を追加します（限定的）",0);
-    ccreateCheckBox(td2, "OPT_MAPCENTER", OPT_MAPCENTER, "マップ中央表示","マップ中央に目印を表示し、中央座標を表示します",0);
-    ccreateCheckBox(td3, "OPT_TBREST", OPT_TBREST, "討伐ゲージ回復時間予測機能","武将の討伐ゲージが300 or 500になる時間を表示します",0);
-    ccreateCheckBox(td3, "OPT_DELMSG", OPT_DELMSG, "書簡/報告書削除機能","書簡や報告書の内容ページに、削除ボタンを付けます",0);
-    ccreateCheckBox(td3, "OPT_TSENDTIME", OPT_TSENDTIME, "出発時刻計算","出兵画面で、到着希望時間から出発時刻を計算します",0);
-    ccreateCheckBox(td3, "OPT_SMALLBTN", OPT_SMALLBTN, "小さいボタン","右上の4つのボタンを小さくします。状況も1行にします。",0);
+    ccreateCheckBox(td2, 'OPT_TTALLYPRSN', OPT_TTALLYPRSN, '同盟/君主表示','全ての[拠点/領地]リンクのToolTipsを同盟/君主表示に変更します',0);
+    ccreateCheckBox(td3, 'OPT_USER_STAR', OPT_USER_STAR, '君主★情報表示','プロフィール画面に領地の★表示を追加します',0);
+    ccreateCheckBox(td3, 'OPT_USER_LEVEL', OPT_USER_LEVEL, '領地レベル表示','プロフィール画面に領地のレベル表示を追加します',0);
+    ccreateCheckBox(td2, 'OPT_MAPCENTER', OPT_MAPCENTER, 'マップ中央表示','マップ中央に目印を表示し、中央座標を表示します',0);
+    ccreateCheckBox(td3, 'OPT_TBREST', OPT_TBREST, '討伐ゲージ回復時間予測機能','武将の討伐ゲージが300 or 500になる時間を表示します',0);
+    ccreateCheckBox(td3, 'OPT_DELMSG', OPT_DELMSG, '書簡/報告書削除機能','書簡や報告書の内容ページに、削除ボタンを付けます',0);
+    ccreateCheckBox(td3, 'OPT_TSENDTIME', OPT_TSENDTIME, '出発時刻計算','出兵画面で、到着希望時間から出発時刻を計算します',0);
+    ccreateCheckBox(td3, 'OPT_SMALLBTN', OPT_SMALLBTN, '小さいボタン','右上の4つのボタンを小さくします。状況も1行にします。',0);
 
-    ccreateCheckBox(td3, "OPT_ATTACKMAP", OPT_ATTACKMAP, "出兵表示機能","マップ上に、現在出兵中の目印を付けます",0);
-    ccreateCheckBox(td3, "OPT_CARD_CMB", OPT_CARD_CMB, "同一カード合成ボタン","カード合成後に、同一カードで合成を続けるボタンを追加します",0);
+    ccreateCheckBox(td3, 'OPT_ATTACKMAP', OPT_ATTACKMAP, '出兵表示機能','マップ上に、現在出兵中の目印を付けます',0);
+    ccreateCheckBox(td3, 'OPT_CARD_CMB', OPT_CARD_CMB, '同一カード合成ボタン','カード合成後に、同一カードで合成を続けるボタンを追加します',0);
 
-    td3.appendChild(d.createElement("br"));
-    var fs = d.createElement("fieldset");
-    var lg = d.createElement("legend");
-    lg.appendChild(d.createTextNode("　プレゼンツ by ピカチュウ　") );
+    td3.appendChild(d.createElement('br'));
+    var fs = d.createElement('fieldset');
+    var lg = d.createElement('legend');
+    lg.appendChild(d.createTextNode('　プレゼンツ by ピカチュウ　') );
     fs.appendChild(lg);
     td3.appendChild(fs);
-    ccreateCheckBox(fs, "OPT_PIKA_YOROZU", OPT_PIKA_YOROZU, "ヨロズダス引き忘れ防止機能","ヨロズダスがリセットされたら通知してくれます",0);
-    ccreateCheckBox(fs, "OPT_PIKA_HPREST", OPT_PIKA_HPREST, "武将の回復時間予測機能","武将のHPが100になる時間を表示します",0);
-    ccreateCheckBox(fs, "OPT_PIKA_MAPHELP", OPT_PIKA_MAPHELP, "マップ画面検索改善","X座標のところに999,999等を入れてもジャンプしてくれます",0);
-    ccreateCheckBox(fs, "OPT_PIKA_TRDHELP", OPT_PIKA_TRDHELP, "トレード画面入力改善","4桁数字を入力するとカードNoとして検索します",0);
-    ccreateCheckBox(fs, "OPT_PIKA_BLINKBLD", OPT_PIKA_BLINKBLD, "都市画面改善","建設中を点滅させます",0);
+    ccreateCheckBox(fs, 'OPT_PIKA_YOROZU', OPT_PIKA_YOROZU, 'ヨロズダス引き忘れ防止機能','ヨロズダスがリセットされたら通知してくれます',0);
+    ccreateCheckBox(fs, 'OPT_PIKA_HPREST', OPT_PIKA_HPREST, '武将の回復時間予測機能','武将のHPが100になる時間を表示します',0);
+    ccreateCheckBox(fs, 'OPT_PIKA_MAPHELP', OPT_PIKA_MAPHELP, 'マップ画面検索改善','X座標のところに999,999等を入れてもジャンプしてくれます',0);
+    ccreateCheckBox(fs, 'OPT_PIKA_TRDHELP', OPT_PIKA_TRDHELP, 'トレード画面入力改善','4桁数字を入力するとカードNoとして検索します',0);
+    ccreateCheckBox(fs, 'OPT_PIKA_BLINKBLD', OPT_PIKA_BLINKBLD, '都市画面改善','建設中を点滅させます',0);
 
-    td3.appendChild(d.createElement("br"));
-    var fs = d.createElement("fieldset");
-    var lg = d.createElement("legend");
-    lg.appendChild(d.createTextNode("　プレゼンツ by su-zan　") );
+    td3.appendChild(d.createElement('br'));
+    var fs = d.createElement('fieldset');
+    var lg = d.createElement('legend');
+    lg.appendChild(d.createTextNode('　プレゼンツ by su-zan　') );
     fs.appendChild(lg);
     td3.appendChild(fs);
-    ccreateCheckBox(fs, "OPT_SUZAN_SEISAN", OPT_SUZAN_SEISAN, "拠点生産量表示","拠点の生産量を表示します",0);
+    ccreateCheckBox(fs, 'OPT_SUZAN_SEISAN', OPT_SUZAN_SEISAN, '拠点生産量表示','拠点の生産量を表示します',0);
 
-    var fs = d.createElement("fieldset");
-    var lg = d.createElement("legend");
-    lg.appendChild(d.createTextNode("　プレゼンツ by ろむ　") );
+    var fs = d.createElement('fieldset');
+    var lg = d.createElement('legend');
+    lg.appendChild(d.createTextNode('　プレゼンツ by ろむ　') );
     fs.appendChild(lg);
     td4.appendChild(fs);
-    ccreateCheckBox(fs, "OPT_CASTLE_AID", OPT_CASTLE_AID, "拠点援軍ボタン機能","城や村のリンクの横に援軍ボタンを表示します",0);
-    ccreateCheckBox(fs, "OPT_NEXT_MEISEI", OPT_NEXT_MEISEI, "名声獲得タイマー機能","次の名声値獲得までの時間を表示します",0);
-    ccreateCheckBox(fs, "OPT_TIMER_LINK_DEPOT", OPT_TIMER_LINK_DEPOT, "ブラ三タイマー格納機能","浮浪プログラマさん作成のブラウザ三国志タイマーをサイドボックスに格納します",0);
+    ccreateCheckBox(fs, 'OPT_CASTLE_AID', OPT_CASTLE_AID, '拠点援軍ボタン機能','城や村のリンクの横に援軍ボタンを表示します',0);
+    ccreateCheckBox(fs, 'OPT_NEXT_MEISEI', OPT_NEXT_MEISEI, '名声獲得タイマー機能','次の名声値獲得までの時間を表示します',0);
+    ccreateCheckBox(fs, 'OPT_TIMER_LINK_DEPOT', OPT_TIMER_LINK_DEPOT, 'ブラ三タイマー格納機能','浮浪プログラマさん作成のブラウザ三国志タイマーをサイドボックスに格納します',0);
     if (isNarrow) {
-        ccreateCheckBox(fs, "OPT_VILLAGE_LIST_BOX", OPT_VILLAGE_LIST_BOX, "都市リスト表示機能","都市のタブ以外でも都市のリストを表示できるようにします",0);
+        ccreateCheckBox(fs, 'OPT_VILLAGE_LIST_BOX', OPT_VILLAGE_LIST_BOX, '都市リスト表示機能','都市のタブ以外でも都市のリストを表示できるようにします',0);
     }
 
 
-    ccreateButton(oc, "保存", "設定内容を保存します", function() {saveOptions();});
-    ccreateButton(oc, "閉じる", "設定内容を保存せず閉じます", function() {deleteOptionsHtml();});
-    ccreateButton(oc, "領地リンクのクリア", "領地・君主リンクの内容を初期化します", function() {resetMapLink();});
-    ccreateButton(oc, "同盟員座標のクリア", "同盟員座標を全て初期化します", function() {resetUserXY();});
-    ccreateButton(oc, "★/Level情報のクリア", "君主の★情報と自領地のLevel情報を全て初期化します", function() {resetUserStar();});
-    ccreateButton(oc, "領地リンクの直接編集", "領地リンクをテキストで自由に変更できます", function(event) {mapLinkList(event);});
+    ccreateButton(oc, '保存', '設定内容を保存します', function() {saveOptions();});
+    ccreateButton(oc, '閉じる', '設定内容を保存せず閉じます', function() {deleteOptionsHtml();});
+    ccreateButton(oc, '領地リンクのクリア', '領地・君主リンクの内容を初期化します', function() {resetMapLink();});
+    ccreateButton(oc, '同盟員座標のクリア', '同盟員座標を全て初期化します', function() {resetUserXY();});
+    ccreateButton(oc, '★/Level情報のクリア', '君主の★情報と自領地のLevel情報を全て初期化します', function() {resetUserStar();});
+    ccreateButton(oc, '領地リンクの直接編集', '領地リンクをテキストで自由に変更できます', function(event) {mapLinkList(event);});
 }
 
 function createDistanceBox(container, items, num)
 {
-    var sels = ["その他", "無し", "剣兵(6)",
-                "槍兵(7)", "弓兵(5)", "騎兵(12)", "斥候(9)", "衝車(3)",
-                "矛槍兵(10)", "弩兵(8)", "近衛騎兵(15)", "斥候騎兵(20)", "投石機(6)"];
+    var sels = ['その他', '無し', '剣兵(6)',
+                '槍兵(7)', '弓兵(5)', '騎兵(12)', '斥候(9)', '衝車(3)',
+                '矛槍兵(10)', '弩兵(8)', '近衛騎兵(15)', '斥候騎兵(20)', '投石機(6)'];
     for(var i=0 ; i<num ; i++ ) {
-        var src = "";
+        var src = '';
         if( sels.indexOf(items[i]) != -1 ) src = items[i];
-        var cb = ccreateComboBox(container, "OPT_DISTANCE_CB" + i , sels, src, "表示" + (i+1), (i+1) + "行目の表示", 20 );
+        var cb = ccreateComboBox(container, 'OPT_DISTANCE_CB' + i , sels, src, '表示' + (i+1), (i+1) + '行目の表示', 20 );
 
-        var tb = d.createElement("input");
-        tb.type = "text";
-        tb.id = "OPT_DISTANCE_TX" + i;
-        tb.title = "例) 「超早い馬(50)」など、半角カッコの中に速度を入れて下さい";
-        if( src == "" ) {
+        var tb = d.createElement('input');
+        tb.type = 'text';
+        tb.id = 'OPT_DISTANCE_TX' + i;
+        tb.title = '例) 「超早い馬(50)」など、半角カッコの中に速度を入れて下さい';
+        if( src == '' ) {
             tb.value = items[i];
         }else{
-            tb.disabled ="disabled";
+            tb.disabled ='disabled';
         }
         tb.size = 12;
 
-        cb.parentNode.appendChild(d.createTextNode(" "));
+        cb.parentNode.appendChild(d.createTextNode(' '));
         cb.parentNode.appendChild(tb);
         (function(no) {
-            $e(cb, "change", function() {
-                var cb = $("OPT_DISTANCE_CB" + no);
-                var tb = $("OPT_DISTANCE_TX" + no);
+            $e(cb, 'change', function() {
+                var cb = $('OPT_DISTANCE_CB' + no);
+                var tb = $('OPT_DISTANCE_TX' + no);
                 if( !cb || !tb ) return;
                 if( cb.value == sels[0] ) {
-                    tb.disabled ="";
+                    tb.disabled ='';
                 }else{
-                    tb.disabled ="disabled";
+                    tb.disabled ='disabled';
                 }
             });
         })(i);
@@ -938,13 +896,13 @@ function getDistanceBox(num)
 {
     var ret = new Array();
     for(var i=0 ; i<num ; i++ ) {
-        var cb = $("OPT_DISTANCE_CB" + i);
-        var tb = $("OPT_DISTANCE_TX" + i);
+        var cb = $('OPT_DISTANCE_CB' + i);
+        var tb = $('OPT_DISTANCE_TX' + i);
         if( !cb || !tb ) return null;
-        if( cb.value == "その他" ) {
+        if( cb.value == 'その他' ) {
             ret.push( tb.value );
-        }else if( cb.value == "無し" ) {
-            ret.push("");
+        }else if( cb.value == '無し' ) {
+            ret.push('');
         }else {
             ret.push( cb.value );
         }
@@ -956,7 +914,7 @@ function getDistanceBox(num)
 //建築表示処理
 //////////////////////
 function disp_village() {
-    if( location.pathname != "/village.php" ) {
+    if( location.pathname != '/village.php' ) {
         return ;
     }
 
@@ -1319,7 +1277,7 @@ function disp_village() {
         [122355,171297,122355,73413],
         [159062,222686,159062,95437],
         [206780,289492,206780,124068],
-        [,,,],
+        [268814,376340,268814,161288],
         [349458,489242,349458,209675],
         [419350,587090,419350,251610],
         [503220,704508,503220,301932]
@@ -1363,10 +1321,11 @@ function disp_village() {
         [384509,598125,790379,363147],
         [512678,692116,897187,461410],
         [645974,830539,1045863,553692],
-        [,,,],
-        [,,,],
-        [,,,],
-        [,,,]
+        [812082, 959734, 1218123, 701344],
+        [812082, 959734, 1218123, 701344],
+        [1018794, 1151680, 1417453, 841613],
+        [1275708, 1382016, 1647789, 1009935],
+        [1594635, 1658420, 1913561, 1211922]
     ];
     var cost_syuugyousyo = [
         [1600,1200,600,600],
@@ -1393,33 +1352,33 @@ function disp_village() {
 
 
     var costs = [];
-    costs["伐採所"] = cost_wood;
-    costs["石切り場"] = cost_stone;
-    costs["製鉄所"] = cost_iron;
-    costs["畑"] = cost_rice;
-    costs["倉庫"] = cost_souko;
-    costs["宿舎"] = cost_syukusya;
-    costs["工場"] = cost_kojo;
-    costs["水車"] = cost_suisya;
-    costs["市場"] = cost_ichiba;
-    costs["研究所"] = cost_kenkyu;
-    costs["訓練所"] = cost_kunren;
-    costs["鍛冶場"] = cost_kajiba;
-    costs["防具工場"] = cost_bougu;
-    costs["兵器工房"] = cost_heiki;
-    costs["銅雀台"] = cost_doujaku;
-    costs["練兵所"] = cost_renpei;
-    costs["兵舎"] = cost_heisya;
-    costs["弓兵舎"] = cost_yumi;
-    costs["厩舎"] = cost_uma;
-    costs["城"] = cost_shiro;
-    costs["砦"] = cost_toride;
-    costs["村"] = cost_mura;
+    costs['伐採所'] = cost_wood;
+    costs['石切り場'] = cost_stone;
+    costs['製鉄所'] = cost_iron;
+    costs['畑'] = cost_rice;
+    costs['倉庫'] = cost_souko;
+    costs['宿舎'] = cost_syukusya;
+    costs['工場'] = cost_kojo;
+    costs['水車'] = cost_suisya;
+    costs['市場'] = cost_ichiba;
+    costs['研究所'] = cost_kenkyu;
+    costs['訓練所'] = cost_kunren;
+    costs['鍛冶場'] = cost_kajiba;
+    costs['防具工場'] = cost_bougu;
+    costs['兵器工房'] = cost_heiki;
+    costs['銅雀台'] = cost_doujaku;
+    costs['練兵所'] = cost_renpei;
+    costs['兵舎'] = cost_heisya;
+    costs['弓兵舎'] = cost_yumi;
+    costs['厩舎'] = cost_uma;
+    costs['城'] = cost_shiro;
+    costs['砦'] = cost_toride;
+    costs['村'] = cost_mura;
 
-    costs["見張り台"] = cost_mihari;
-    costs["大宿舎"] = cost_daisyukusya;
-    costs["遠征訓練所"] = cost_enseikunren;
-    costs["修行所"] = cost_syuugyousyo;
+    costs['見張り台'] = cost_mihari;
+    costs['大宿舎'] = cost_daisyukusya;
+    costs['遠征訓練所'] = cost_enseikunren;
+    costs['修行所'] = cost_syuugyousyo;
 
     var img_lv = new Array();
 
@@ -1613,7 +1572,7 @@ function disp_village() {
     Pika_prepareForDisplayBuildStatus();//Lv0表示
 
     var xybld_a = new Array();
-    var allbld = $a("//li/span[@class=\"buildStatus\" and contains(text(),\"建設\")]/a");
+    var allbld = $x('//li/span[contains(concat(" ",normalize-space(@class)," "), " buildStatus ") and contains(text(),"建設")]/a');
     for(var idx=0 ; idx<allbld.length ; idx++) {
         var tmp = allbld[idx].href.match(/x=([\-0-9]+).*y=([\-0-9]+)/);
         if( tmp != null ) {
@@ -1621,7 +1580,7 @@ function disp_village() {
         }
     }
 
-    allbld = $a("//li[contains(text(), \"削除中\")]/span[@class=\"buildStatus\"]/a");
+    allbld = $x('//li[contains(text(), "削除中")]/span[contains(concat(" ",normalize-space(@class)," "), " buildStatus ")]/a');
     var xybld_d = new Array();
     for(var idx=0 ; idx<allbld.length ; idx++) {
         var tmp = allbld[idx].href.match(/x=([\-0-9]+).*y=([\-0-9]+)/);
@@ -1629,15 +1588,15 @@ function disp_village() {
             xybld_d.push(tmp);
         }
     }
-    var allarea = $a("//area");
+    var allarea = $x('//area');
     for(var idx=0 ; idx < allarea.length ; idx++) {
-        var title = allarea[idx].getAttribute("title").match(/^(.*) LV\.([0-9]+)$/);
+        var title = allarea[idx].getAttribute('title').match(/^(.*) LV\.([0-9]+)$/);
         if( !title ) {
-            title = [allarea[idx].getAttribute("title"), allarea[idx].getAttribute("title"), 0];
+            title = [allarea[idx].getAttribute('title'), allarea[idx].getAttribute('title'), 0];
         }
         if( costs[title[1]] ) {
             if(costs[title[1]][title[2]]) {
-                var xy = allarea[idx].getAttribute("href").match(/^.*(?:\?|&)x=([\-0-9]+)&y=([\-0-9]+)+(?:&[^=]+=[^&]+)*$/);
+                var xy = allarea[idx].getAttribute('href').match(/^.*(?:\?|&)x=([\-0-9]+)&y=([\-0-9]+)+(?:&[^=]+=[^&]+)*$/);
                 var level = parseInt(title[2],10);
                 var blding = 0;
                 var dlting = 0;
@@ -1659,21 +1618,21 @@ function disp_village() {
                         RES_NOW.iron < costs[title[1]][level][2] ||
                         RES_NOW.rice < costs[title[1]][level][3] ) {
                             //lvを黄色に
-                            var thisimg = getLevelImageHTML(xy[1], xy[2], "mapicon");
+                            var thisimg = getLevelImageHTML(xy[1], xy[2], 'mapicon');
                             if( thisimg  ) {
                                 thisimg.src = img_lv[parseInt(title[2],10)];
                             }
                     }
                 }catch(e) {
-                    GM_log("catched");
+                    GM_log('catched');
                 }
                 if( (blding || dlting) && !OPT_PIKA_BLINKBLD ) {
                     //建築中
-                    var thisimg = getLevelImageHTML(xy[1], xy[2], "mapicon");
+                    var thisimg = getLevelImageHTML(xy[1], xy[2], 'mapicon');
                     if( thisimg  ) {
-                        thisimg.style.outlineColor = (blding) ? "red" : "blue";
-                        thisimg.style.outlineStyle = "dotted";
-                        thisimg.style.outlineWidth = "2px";
+                        thisimg.style.outlineColor = (blding) ? 'red' : 'blue';
+                        thisimg.style.outlineStyle = 'dotted';
+                        thisimg.style.outlineWidth = '2px';
                     }
                 }
             }
@@ -1682,13 +1641,12 @@ function disp_village() {
     if( OPT_PIKA_BLINKBLD) Pika_displayBuildStatus();
 
     function getLevelImageHTML(x, y, cls) {
-        var xdom = "";
+        var xdom = '';
         var no = (101 + parseInt(x,10) * 7 + parseInt(y,10)).toString().substr(-2);
-        xdom = "//img[@class=\"" + cls + no + "\"]";
+        xdom = '//img[contains(concat(" ",normalize-space(@class)," "), " ' + cls + no + ' ")]';
 
-//      var maps = document.getElementById("maps");
 
-        return $x(xdom, $("maps") );
+        return $s(xdom, $('maps') );
     }
 }
 
@@ -1704,7 +1662,7 @@ function disp_memo()
                     'NhIAOw==';
 
     var cnt = parseInt(OPT_MEMO_COUNT, 10);
-    if( isNaN(""+cnt) || cnt < 1 ) cnt = 1;
+    if( isNaN(''+cnt) || cnt < 1 ) cnt = 1;
     if( cnt > 5 ) cnt = 5;
     for(var i=0 ; i<cnt ; i++){
         createMemoTab(i);
@@ -1712,14 +1670,14 @@ function disp_memo()
 
     function createMemoTab(no)
     {
-        if( !no ) no = "";
+        if( !no ) no = '';
 
-        var title = "メモ";
+        var title = 'メモ';
         if( no ) title += (no +1 );
-        var elms = ccreateSideBox("beyond_sidebox_memo" + no, icon_memo, title);
+        var elms = ccreateSideBox('beyond_sidebox_memo' + no, icon_memo, title);
 
-        var ta = d.createElement("textarea");
-        ta.id = "beyond_memobox" + no;
+        var ta = d.createElement('textarea');
+        ta.id = 'beyond_memobox' + no;
         ta.rows = OPT_MEMO_HEIGHT;
         ta.cols = OPT_MEMO_WIDTH;
 
@@ -1728,23 +1686,23 @@ function disp_memo()
             ta.cols = OPT_MEMO_WIDTH - 4;
         }
 
-        ta.style.fontSize= OPT_MEMO_FONT_SIZE + "px";
-        ta.value= cloadData( "memo" + no, "", true );
+        ta.style.fontSize= OPT_MEMO_FONT_SIZE + 'px';
+        ta.value= cloadData( 'memo' + no, '', true );
 
         elms.sideBoxInner.appendChild(ta);
 
 
-        var sv = d.createElement("a");
-        sv.href = "javascript:void(0);";
-        sv.innerHTML = "保存";
-        $e(sv, "click", function() {
-            var memoBox = $("beyond_memobox" + no);
+        var sv = d.createElement('a');
+        sv.href = 'javascript:void(0);';
+        sv.innerHTML = '保存';
+        $e(sv, 'click', function() {
+            var memoBox = $('beyond_memobox' + no);
             if( memoBox ) {
-                csaveData( "memo" + no, memoBox.value, true );
-                alert("保存しました");
+                csaveData( 'memo' + no, memoBox.value, true );
+                alert('保存しました');
             }
         });
-        var dv = d.createElement("div");
+        var dv = d.createElement('div');
         dv.appendChild(sv);
         elms.sideBoxInner.appendChild(dv);
     }
@@ -1754,10 +1712,10 @@ function disp_memo()
 //////////////////////
 function disp_baseLink()
 {
-    var elm = $x('id("lodgment")/div[contains(concat(" ",normalize-space(@class)," "), " floatInner ")] | //div[contains(concat(" ",normalize-space(@class)," "), " sideBoxInner ") and contains(concat(" ",normalize-space(@class)," "), " basename ")]');
+    var elm = $s('id("lodgment")/div[contains(concat(" ",normalize-space(@class)," "), " floatInner ")] | //div[contains(concat(" ",normalize-space(@class)," "), " sideBoxInner ") and contains(concat(" ",normalize-space(@class)," "), " basename ")]');
     if( !elm ) return;
 
-    var bases = $a("//li/child::*", elm);
+    var bases = $x('//li/child::*', elm);
 
     for( var idx=0 ; idx < bases.length ; idx++) {
         addBaseLink(bases[idx]);
@@ -1774,40 +1732,40 @@ function disp_baseLink()
 
         var a_m, a_v, a_n;
 
-        var a_m_img = d.createElement("img");
-        a_m_img.style.paddingLeft = "3px";
+        var a_m_img = d.createElement('img');
+        a_m_img.style.paddingLeft = '3px';
         a_m_img.src = img_map;
-        var a_v_img = d.createElement("img");
-        a_v_img.style.paddingLeft = "3px";
+        var a_v_img = d.createElement('img');
+        a_v_img.style.paddingLeft = '3px';
         a_v_img.src = img_mura;
-        var a_n_img = d.createElement("img");
-        a_n_img.style.paddingLeft = "3px";
+        var a_n_img = d.createElement('img');
+        a_n_img.style.paddingLeft = '3px';
         a_n_img.src = img_naisei;
 
-        a_m = d.createElement("a");
-        a_m.href = caddSessionId("/map.php?x=" + xy[1] + "&y=" + xy[2]);
-        a_m.title = "マップ(" + xy[1] + "," + xy[2] + ")" ;
+        a_m = d.createElement('a');
+        a_m.href = caddSessionId('/map.php?x=' + xy[1] + '&y=' + xy[2]);
+        a_m.title = 'マップ(' + xy[1] + ',' + xy[2] + ')' ;
         a_m.appendChild(a_m_img);
 
-        a_v = d.createElement("a");
-        a_v.title = "表示";
+        a_v = d.createElement('a');
+        a_v.title = '表示';
         a_v.appendChild(a_v_img);
-        a_n = d.createElement("a");
-        a_n.title = "内政";
+        a_n = d.createElement('a');
+        a_n.title = '内政';
         a_n.appendChild(a_n_img);
 
         if( elem.href ) {
             var id = elem.href.match(/^.*\?village_id=([0-9]+).*$/);
             if( id ) {
-                a_v.href = caddSessionId("/village_change.php?village_id=" + id[1] + "&from=menu&page=/village.php#ptop");
-                a_n.href = caddSessionId("/village_change.php?village_id=" + id[1] + "&from=menu&page=/card/domestic_setting.php#ptop");
+                a_v.href = caddSessionId('/village_change.php?village_id=' + id[1] + '&from=menu&page=/village.php#ptop');
+                a_n.href = caddSessionId('/village_change.php?village_id=' + id[1] + '&from=menu&page=/card/domestic_setting.php#ptop');
             }
         } else {
-            a_v.href = caddSessionId("/village.php#ptop");
-            a_n.href = caddSessionId("/card/domestic_setting.php#ptop");
+            a_v.href = caddSessionId('/village.php#ptop');
+            a_n.href = caddSessionId('/card/domestic_setting.php#ptop');
         }
 
-        var spn = d.createElement("span");
+        var spn = d.createElement('span');
         spn.appendChild(a_v);
         spn.appendChild(a_m);
         spn.appendChild(a_n);
@@ -1822,26 +1780,26 @@ function disp_baseLink()
 function disp_mapLink()
 {
 
-    //暫定的にsplit("\n")で3なら領地リンク、4なら君主リンクに
-    if( location.pathname == "/land.php" ) {
+    //暫定的にsplit('\n')で3なら領地リンク、4なら君主リンクに
+    if( location.pathname == '/land.php' ) {
 
-        var div = $("tMenu");
+        var div = $('tMenu');
         if( div ) {
-            var lnk = d.createElement("a");
-            lnk.href = "javascript:void(0);";
-            lnk.innerHTML = "領地リンクの追加";
+            var lnk = d.createElement('a');
+            lnk.href = 'javascript:void(0);';
+            lnk.innerHTML = '領地リンクの追加';
             div.appendChild(lnk);
-            $e(lnk, "click", function() {saveMapLink();});
+            $e(lnk, 'click', function() {saveMapLink();});
 
         }
-    }else if( location.pathname == "/user/index.php" || location.pathname == "/user/" ) {
+    }else if( location.pathname == '/user/index.php' || location.pathname == '/user/' ) {
 
-        var table = $x("//table[@class=\"commonTables\"]");
+        var table = $s('//table[contains(concat(" ",normalize-space(@class)," "), " commonTables ")]');
         if( table ) {
-            var lnk = d.createElement("a");
-            lnk.href = "javascript:void(0);";
-            lnk.innerHTML = "君主リンクの追加";
-            $e(lnk, "click", function() {saveMapLink();});
+            var lnk = d.createElement('a');
+            lnk.href = 'javascript:void(0);';
+            lnk.innerHTML = '君主リンクの追加';
+            $e(lnk, 'click', function() {saveMapLink();});
             table.parentNode.insertBefore(lnk, table.nextSibling);
         }
     }
@@ -1852,8 +1810,8 @@ function disp_mapLink()
                 'AAAAACH5BAQUAP8ALAAAAAARAA8AAARL0MhJq50InVsT+wknIctnIhZZmmZYIWy8CAFATLGpADwQ'+
                 'TCuGYljo9W4Gz2dnNP4MMNOgaQRKqT3BJJFACLC9C1bLqfWeIpqATIkAADs=';
 
-    var elms = ccreateSideBox("beyond_sidebox_xylink", icon_map, "領地/君主ﾘﾝｸ");
-    elms.sideBoxInner.id = "beyond_sidebox_xylink_inner";
+    var elms = ccreateSideBox('beyond_sidebox_xylink', icon_map, '領地/君主ﾘﾝｸ');
+    elms.sideBoxInner.id = 'beyond_sidebox_xylink_inner';
 
     resetMapLinks();
 
@@ -1862,50 +1820,50 @@ function disp_mapLink()
 
 function saveMapLink( )
 {
-    if( location.pathname == "/land.php" ) {
+    if( location.pathname == '/land.php' ) {
         var allDivs, thisDiv;
-        var v_name = "";
+        var v_name = '';
 
-        var basename = $x("//span[@class=\"basename\"]");
+        var basename = $s('//span[contains(concat(" ",normalize-space(@class)," "), " basename ")]');
 
         var xy = location.search.match(/^\?x=([\-0-9]+)\&y=([\-0-9]+)+$/);
 
         if( basename ) {
             v_name = basename.innerHTML;
-            if( v_name =="空き地" ) {
-                v_name += xy[1] + "," + xy[2];
+            if( v_name =='空き地' ) {
+                v_name += xy[1] + ',' + xy[2];
             }
         }
 
-        v_name = prompt("名前を入力してください", v_name);
+        v_name = prompt('名前を入力してください', v_name);
         if( !v_name ) return;
 
-        var maplinks = cloadData( "links", 0, true );
-        var value = v_name + "\n" + xy[1] + "\n" + xy[2];
-        csaveData( "link" + maplinks  , value, true );
+        var maplinks = cloadData( 'links', 0, true );
+        var value = v_name + '\n' + xy[1] + '\n' + xy[2];
+        csaveData( 'link' + maplinks  , value, true );
         maplinks++;
-        csaveData( "links"  , maplinks, true );
+        csaveData( 'links'  , maplinks, true );
 
         resetMapLinks();
 
-    }else if( location.pathname == "/user/index.php" || location.pathname == "/user/" ) {
+    }else if( location.pathname == '/user/index.php' || location.pathname == '/user/' ) {
         var user_id = URL_PARAM.user_id;
         var tmp = d.body.innerHTML.match(/<td>君主<\/td>[^<]*?<td>(.+)<\/td>/);
         if( !tmp ) return;
         var user_name = tmp[1];
 
-        var comment = "";
+        var comment = '';
 
-        disp_name = prompt("名前を入力してください", user_name);
+        disp_name = prompt('名前を入力してください', user_name);
         if( !disp_name ) return;
 
-        comment = prompt("コメントを入力してください", comment);
+        comment = prompt('コメントを入力してください', comment);
 
-        var maplinks = cloadData( "links", 0, true );
-        var value = user_id + "\n" + user_name + "\n" + disp_name + "\n" + comment;
-        csaveData( "link" + maplinks  , value, true );
+        var maplinks = cloadData( 'links', 0, true );
+        var value = user_id + '\n' + user_name + '\n' + disp_name + '\n' + comment;
+        csaveData( 'link' + maplinks  , value, true );
         maplinks++;
-        csaveData( "links"  , maplinks, true );
+        csaveData( 'links'  , maplinks, true );
 
         resetMapLinks();
 
@@ -1914,72 +1872,72 @@ function saveMapLink( )
 
 function configMapLinkClose()
 {
-    var elem = $("beyond_mapLinkWindow");
+    var elem = $('beyond_mapLinkWindow');
     if( !elem ) return;
-    $("beyond_floatpanel").removeChild(elem);
+    $('beyond_floatpanel').removeChild(elem);
 }
 
 function configMapLink(n, evt)
 {
-    var tmp = cloadData( "link" + n , "", true );
+    var tmp = cloadData( 'link' + n , '', true );
     if( !tmp ) return ;
 
     configMapLinkClose();
 
-    data = tmp.split("\n");
+    data = tmp.split('\n');
 
-    var lw = d.createElement("div");
-    lw.id = "beyond_mapLinkWindow";
-    lw.style.position = "absolute";
+    var lw = d.createElement('div');
+    lw.id = 'beyond_mapLinkWindow';
+    lw.style.position = 'absolute';
     if( data.length == 3 ) {
-        lw.style.backgroundColor = "thistle";
-        lw.style.border = "outset 2px thistle";
+        lw.style.backgroundColor = 'thistle';
+        lw.style.border = 'outset 2px thistle';
     }else if( data.length == 4 ) {
-        lw.style.backgroundColor = "lightgreen";
-        lw.style.border = "outset 2px lightgreen";
+        lw.style.backgroundColor = 'lightgreen';
+        lw.style.border = 'outset 2px lightgreen';
     }
-    lw.style.fontSize = "10px";
-    lw.style.padding = "10px";
+    lw.style.fontSize = '10px';
+    lw.style.padding = '10px';
     lw.style.zIndex = 1000;
-    lw.style.left = evt.pageX - 176 + "px";
-    lw.style.top = evt.pageY - 111 + "px";
+    lw.style.left = evt.pageX - 176 + 'px';
+    lw.style.top = evt.pageY - 111 + 'px';
 
     if( data.length == 3 ) {
-        ccreateTextBox(lw, "LINK_TITLE", data[0], "名称","名称",20, 0);
-        ccreateTextBox(lw, "LINK_X", data[1], "X座標","X座標",10, 0);
-        ccreateTextBox(lw, "LINK_Y", data[2], "Y座標","Y座標",10, 0);
+        ccreateTextBox(lw, 'LINK_TITLE', data[0], '名称','名称',20, 0);
+        ccreateTextBox(lw, 'LINK_X', data[1], 'X座標','X座標',10, 0);
+        ccreateTextBox(lw, 'LINK_Y', data[2], 'Y座標','Y座標',10, 0);
     }else if( data.length == 4 ) {
-        var dv = d.createElement("div");
-        dv.innerHTML = "id=" + data[0] + "　　" + data[1] + "<br>";
+        var dv = d.createElement('div');
+        dv.innerHTML = 'id=' + data[0] + '　　' + data[1] + '<br>';
         lw.appendChild(dv);
-        ccreateTextBox(lw, "LINK_TITLE", data[2], "表示名","表示名",20, 0);
-        ccreateTextBox(lw, "LINK_COMMENT", data[3], "コメント","コメント",20, 0);
+        ccreateTextBox(lw, 'LINK_TITLE', data[2], '表示名','表示名',20, 0);
+        ccreateTextBox(lw, 'LINK_COMMENT', data[3], 'コメント','コメント',20, 0);
     }
     //設定ボタン
-    ccreateButton(lw, "保存", "内容を保存します", function() {
-        var v = "";
+    ccreateButton(lw, '保存', '内容を保存します', function() {
+        var v = '';
         if( data.length == 3 ) {
-            v = cgetTextBoxValue("LINK_TITLE") + "\n"
-                + cgetTextBoxValue("LINK_X") + "\n"
-                + cgetTextBoxValue("LINK_Y");
+            v = cgetTextBoxValue('LINK_TITLE') + '\n'
+                + cgetTextBoxValue('LINK_X') + '\n'
+                + cgetTextBoxValue('LINK_Y');
         }else if( data.length == 4 ) {
-            v = data[0] + "\n" + data[1] + "\n"
-                + cgetTextBoxValue("LINK_TITLE") + "\n"
-                + cgetTextBoxValue("LINK_COMMENT");
+            v = data[0] + '\n' + data[1] + '\n'
+                + cgetTextBoxValue('LINK_TITLE') + '\n'
+                + cgetTextBoxValue('LINK_COMMENT');
         }
-        csaveData( "link" + n  , v, true );
+        csaveData( 'link' + n  , v, true );
         configMapLinkClose();
         resetMapLinks();
     });
 
     //削除
-    ccreateButton(lw, "削除", "削除", function() {
-        if(!confirm("削除してよろしいですか？") ) return false;
+    ccreateButton(lw, '削除', '削除', function() {
+        if(!confirm('削除してよろしいですか？') ) return false;
 
-        var maplinks = cloadData( "links", 0, true );
+        var maplinks = cloadData( 'links', 0, true );
         for(var i = n+1 ; i < maplinks ; i++) {
-            var tmp = cloadData( "link" + i, "", true );
-            csaveData( "link" + (i-1), tmp, true );
+            var tmp = cloadData( 'link' + i, '', true );
+            csaveData( 'link' + (i-1), tmp, true );
         }
         csaveData( 'links'  , maplinks-1, true );
         configMapLinkClose();
@@ -1988,87 +1946,87 @@ function configMapLink(n, evt)
 
     //上に移動
     if( n != 0 ) {
-        ccreateButton(lw, "▲", "上に移動", function() {
-            var tmp = cloadData( "link" + (n-1), "", true );
-            csaveData( "link" + (n-1), cloadData( "link" + n, "", true ), true );
-            csaveData( "link" + n, tmp, true );
+        ccreateButton(lw, '▲', '上に移動', function() {
+            var tmp = cloadData( 'link' + (n-1), '', true );
+            csaveData( 'link' + (n-1), cloadData( 'link' + n, '', true ), true );
+            csaveData( 'link' + n, tmp, true );
             configMapLinkClose();
             resetMapLinks();
         });
     }
     //下に移動
-    var maplinks = cloadData( "links", 0, true );
+    var maplinks = cloadData( 'links', 0, true );
     if( n + 1 < maplinks ) {
-        ccreateButton(lw, "▼", "下に移動", function() {
-            var tmp = cloadData( "link" + (n+1), "", true );
-            csaveData( "link" + (n+1), cloadData( "link" + n, "", true ), true );
-            csaveData( "link" + n, tmp, true );
+        ccreateButton(lw, '▼', '下に移動', function() {
+            var tmp = cloadData( 'link' + (n+1), '', true );
+            csaveData( 'link' + (n+1), cloadData( 'link' + n, '', true ), true );
+            csaveData( 'link' + n, tmp, true );
             configMapLinkClose();
             resetMapLinks();
         });
     }
 
     //閉じる
-    ccreateButton(lw, "閉じる", "閉じる", function() {configMapLinkClose();});
+    ccreateButton(lw, '閉じる', '閉じる', function() {configMapLinkClose();});
 
-    $("beyond_floatpanel").appendChild(lw);
+    $('beyond_floatpanel').appendChild(lw);
 }
 
 function resetMapLinks()
 {
-    var ul = $("beyond_sidebox_xylink_ul");
+    var ul = $('beyond_sidebox_xylink_ul');
     if( ul ) {
         ul.parentNode.removeChild(ul);
     }
-    ul = d.createElement("ul");
-    ul.id = "beyond_sidebox_xylink_ul";
+    ul = d.createElement('ul');
+    ul.id = 'beyond_sidebox_xylink_ul';
 
-    var maplinks = cloadData( "links", 0, true );
+    var maplinks = cloadData( 'links', 0, true );
     for(var i=0 ; i<maplinks ; i++) {
-        var tmp = cloadData( "link" + i , "", true );
-        if( tmp != "" ) {
-            var li = d.createElement("li");
+        var tmp = cloadData( 'link' + i , '', true );
+        if( tmp != '' ) {
+            var li = d.createElement('li');
 
-            var data = tmp.split("\n");
+            var data = tmp.split('\n');
 
             if( data.length == 3 ) {
                 //領地リンク
-                var link1 = d.createElement("a");
-                link1.href = caddSessionId("/land.php?x=" + data[1] + "&y=" + data[2] + "#ptop");
-                link1.title = "表示(" + data[1] + "," + data[2] + ")";
+                var link1 = d.createElement('a');
+                link1.href = caddSessionId('/land.php?x=' + data[1] + '&y=' + data[2] + '#ptop');
+                link1.title = '表示(' + data[1] + ',' + data[2] + ')';
                 link1.innerHTML = data[0];
-                link1.style.fontSize = OPT_MAPLINK_FONT_SIZE + "px";
+                link1.style.fontSize = OPT_MAPLINK_FONT_SIZE + 'px';
 
-                var link2 = d.createElement("a");
-                link2.href = caddSessionId("/map.php?x=" + data[1] + "&y=" + data[2] + "#ptop");
-                link2.title="マップ(" + data[1] + "," + data[2] + ")";
+                var link2 = d.createElement('a');
+                link2.href = caddSessionId('/map.php?x=' + data[1] + '&y=' + data[2] + '#ptop');
+                link2.title='マップ(' + data[1] + ',' + data[2] + ')';
 
-                var a_m_img = d.createElement("img");
+                var a_m_img = d.createElement('img');
                 a_m_img.src = img_map;
                 link2.appendChild(a_m_img);
 
-                var m = "";
+                var m = '';
                 var dist = cgetDistanceFromBase(data[1], data[2]);
                 if( dist != -1 ) {
-                    m ="　距離[" + dist.toFixed(2) + "]";
+                    m ='　距離[' + dist.toFixed(2) + ']';
                 }
-                var link3 = d.createElement("a");
-                link3.href = caddSessionId("/facility/castle_send_troop.php?x=" + data[1] + "&y=" + data[2] + "#ptop");
-                link3.title = "兵を送る(" + data[1] + "," + data[2] + ")" + m;
+                var link3 = d.createElement('a');
+                link3.href = caddSessionId('/facility/castle_send_troop.php?x=' + data[1] + '&y=' + data[2] + '#ptop');
+                link3.title = '兵を送る(' + data[1] + ',' + data[2] + ')' + m;
 
-                var a_s_img = d.createElement("img");
+                var a_s_img = d.createElement('img');
                 a_s_img.src = img_ken;
                 link3.appendChild(a_s_img);
 
-                var link4 = d.createElement("a");
-                link4.href="javascript:void(0)";
-                link4.title="設定";
+                var link4 = d.createElement('a');
+                link4.href='javascript:void(0)';
+                link4.title='設定';
 
-                var a_d_img = d.createElement("img");
+                var a_d_img = d.createElement('img');
                 a_d_img.src = img_hanma;
                 link4.appendChild(a_d_img);
                 (function(n){
-                    $e(link4, "click", function(event){configMapLink(n,event);});
+                    $e(link4, 'click', function(event){configMapLink(n,event);});
                 })(i);
 
                 li.appendChild(link1);
@@ -2078,33 +2036,33 @@ function resetMapLinks()
                 ul.appendChild(li);
             }else if( data.length == 4 ) {
                 //君主リンク
-                var img = d.createElement("img");
+                var img = d.createElement('img');
                 img.src = img_user;
                 li.appendChild(img);
 
-                var link1 = d.createElement("a");
-                link1.href = caddSessionId("/user/index.php?user_id=" + data[0] + "#ptop");
+                var link1 = d.createElement('a');
+                link1.href = caddSessionId('/user/index.php?user_id=' + data[0] + '#ptop');
                 link1.title = data[3];
                 link1.innerHTML = data[2];
-                link1.style.fontSize = OPT_MAPLINK_FONT_SIZE + "px";
+                link1.style.fontSize = OPT_MAPLINK_FONT_SIZE + 'px';
 
-                var link2 = d.createElement("a");
-                link2.href=caddSessionId("/message/new.php?user_id=" + data[0] + "#ptop");
-                link2.title="[" + data[1] + "]宛に書簡を送る";
+                var link2 = d.createElement('a');
+                link2.href=caddSessionId('/message/new.php?user_id=' + data[0] + '#ptop');
+                link2.title='[' + data[1] + ']宛に書簡を送る';
 
-                var a_m_img = d.createElement("img");
+                var a_m_img = d.createElement('img');
                 a_m_img.src = img_mail;
                 link2.appendChild(a_m_img);
 
-                var link3 = d.createElement("a");
-                link3.href="javascript:void(0)";
-                link3.title="設定";
+                var link3 = d.createElement('a');
+                link3.href='javascript:void(0)';
+                link3.title='設定';
 
-                var a_d_img = d.createElement("img");
+                var a_d_img = d.createElement('img');
                 a_d_img.src = img_hanma;
                 link3.appendChild(a_d_img);
                 (function(n){
-                    $e(link3, "click", function(event){configMapLink(n,event);});
+                    $e(link3, 'click', function(event){configMapLink(n,event);});
                 })(i);
 
                 li.appendChild(link1);
@@ -2115,7 +2073,7 @@ function resetMapLinks()
         }
     }
 
-    $("beyond_sidebox_xylink_inner").appendChild(ul);
+    $('beyond_sidebox_xylink_inner').appendChild(ul);
 
 }
 
@@ -2124,34 +2082,34 @@ function resetMapLinks()
 //////////////////////
 function mapLinkList(evt)
 {
-    if( $("beyond_SaveMapLinkWindow") ) return;
+    if( $('beyond_SaveMapLinkWindow') ) return;
 
-    var mc = d.createElement("div");
-    mc.id = "beyond_SaveMapLinkWindow";
-    mc.style.position = "absolute";
-    mc.style.backgroundColor = "blueviolet";
-    mc.style.border = "outset 2px blueviolet";
-    mc.style.fontSize = "12px";
-    mc.style.padding = "15px";
+    var mc = d.createElement('div');
+    mc.id = 'beyond_SaveMapLinkWindow';
+    mc.style.position = 'absolute';
+    mc.style.backgroundColor = 'blueviolet';
+    mc.style.border = 'outset 2px blueviolet';
+    mc.style.fontSize = '12px';
+    mc.style.padding = '15px';
     mc.style.zIndex = 1000+1;
-    mc.style.left = evt.pageX - 250 + "px";
-    mc.style.top = evt.pageY - 220 + "px";
-    var ta = d.createElement("textarea");
-    ta.id = "beyond_SaveMapLinkWindow_text";
+    mc.style.left = evt.pageX - 250 + 'px';
+    mc.style.top = evt.pageY - 220 + 'px';
+    var ta = d.createElement('textarea');
+    ta.id = 'beyond_SaveMapLinkWindow_text';
     ta.rows = 10;
     ta.cols = 40;
-    var txt = "";
-    var maplinks = cloadData( "links", 0, true );
+    var txt = '';
+    var maplinks = cloadData( 'links', 0, true );
     for(var i=0 ; i<maplinks ; i++) {
-        var tmp = cloadData( "link" + i , "", true );
+        var tmp = cloadData( 'link' + i , '', true );
         if( tmp ) {
-            txt += tmp.replace(/\n/g, "\t" ) + "\n";
+            txt += tmp.replace(/\n/g, '\t' ) + '\n';
         }
     }
     ta.value = txt;
 
     mc.appendChild(ta);
-    $e(ta, "keydown", function(event) {
+    $e(ta, 'keydown', function(event) {
         //TAB入力
         var kC = event.keyCode ? event.keyCode : event.charCode ? event.charCode : event.which;
         if (kC == 9 && !event.shiftKey && !event.ctrlKey && !event.altKey)
@@ -2159,7 +2117,7 @@ function mapLinkList(evt)
             var oS = this.scrollTop;
             var sS = this.selectionStart;
             var sE = this.selectionEnd;
-            this.value = this.value.substring(0, sS) + "\t" + this.value.substr(sE);
+            this.value = this.value.substring(0, sS) + '\t' + this.value.substr(sE);
             this.setSelectionRange(sS + 1, sS + 1);
             this.focus();
             this.scrollTop = oS;
@@ -2172,44 +2130,44 @@ function mapLinkList(evt)
         return true;
     } );
 
-    var sv = d.createElement("a");
-    sv.href = "javascript:void(0);";
-    sv.innerHTML = "保存";
-    $e(sv, "click", function() {
-        if( confirm("上書き保存します。よろしいですか？") == false) return;
-        var  ta = $("beyond_SaveMapLinkWindow_text");
+    var sv = d.createElement('a');
+    sv.href = 'javascript:void(0);';
+    sv.innerHTML = '保存';
+    $e(sv, 'click', function() {
+        if( confirm('上書き保存します。よろしいですか？') == false) return;
+        var  ta = $('beyond_SaveMapLinkWindow_text');
         if( ta ) {
-            var lines = ta.value.split("\n");
+            var lines = ta.value.split('\n');
             var saveLines = new Array();
             for( var i=0 ; i<lines.length ; i++) {
-                if( lines[i] == "" ) continue;
-                var dat = lines[i].split("\t");
+                if( lines[i] == '' ) continue;
+                var dat = lines[i].split('\t');
                 if( dat.length != 3 && dat.length != 4 ) {
-                    alert("解析エラーです。処理を中断します。\n( " + lines[i] + " )" );
+                    alert('解析エラーです。処理を中断します。\n( ' + lines[i] + ' )' );
                     return;
                 }
                 //チェック
                 if( dat.length == 3 ) {
                     if( !dat[1].match(/[\-0-9]+/g)  || !dat[2].match(/[\-0-9]+/g) ) {
-                        alert("解析エラーです。処理を中断します。\n( " + lines[i] + " )" );
+                        alert('解析エラーです。処理を中断します。\n( ' + lines[i] + ' )' );
                         return;
                     }
                 }else if ( dat.length == 4 ) {
-                    if( dat[3] == "" && dat[1].match(/[\-0-9]+/g) && dat[2].match(/[\-0-9]+/g) ) {
+                    if( dat[3] == '' && dat[1].match(/[\-0-9]+/g) && dat[2].match(/[\-0-9]+/g) ) {
                         dat.pop();
                     }else  if( !dat[0].match(/[\-0-9]+/g) ) {
-                        alert("解析エラーです。処理を中断します。\n( " + lines[i] + " )" );
+                        alert('解析エラーです。処理を中断します。\n( ' + lines[i] + ' )' );
                         return;
                     }
                 }else{
-                    alert("解析エラーです。処理を中断します。\n( " + lines[i] + " )" );
+                    alert('解析エラーです。処理を中断します。\n( ' + lines[i] + ' )' );
                     return;
                 }
-                var linedata = "";
+                var linedata = '';
                 for( var j=0 ; j<dat.length ; j++ ){
-                    dat[j] = dat[j].replace(/(^\s+)|(\s+$)/g, "");
-                    if( linedata != "" ) {
-                        linedata += "\n";
+                    dat[j] = dat[j].replace(/(^\s+)|(\s+$)/g, '');
+                    if( linedata != '' ) {
+                        linedata += '\n';
                     }
                     linedata += dat[j];
                 }
@@ -2217,39 +2175,39 @@ function mapLinkList(evt)
             }
 
             //削除
-            var maplinks = cloadData( "links", 0, true );
+            var maplinks = cloadData( 'links', 0, true );
             for(i=0 ; i<maplinks ; i++) {
-                cdelData( "link" + i, true );
+                cdelData( 'link' + i, true );
             }
             //追加
             for(var i=0 ; i<saveLines.length ; i++ ) {
-                csaveData( "link" + i  , saveLines[i], true );
+                csaveData( 'link' + i  , saveLines[i], true );
             }
-            csaveData( "links"  , saveLines.length, true );
+            csaveData( 'links'  , saveLines.length, true );
 
 
-            alert("上書き保存しました");
+            alert('上書き保存しました');
             resetMapLinks();
         }
     });
 
-    var cl = d.createElement("a");
-    cl.href = "javascript:void(0);";
-    cl.innerHTML = "閉じる";
-    $e(cl, "click", function() {
-        var mc = $("beyond_SaveMapLinkWindow");
+    var cl = d.createElement('a');
+    cl.href = 'javascript:void(0);';
+    cl.innerHTML = '閉じる';
+    $e(cl, 'click', function() {
+        var mc = $('beyond_SaveMapLinkWindow');
         if( mc ) {
             mc.parentNode.removeChild(mc);
         }
     });
-    var dv = d.createElement("div");
+    var dv = d.createElement('div');
     dv.appendChild(sv);
-    dv.appendChild(d.createTextNode(" ") );
+    dv.appendChild(d.createTextNode(' ') );
     dv.appendChild(cl);
 
 
     mc.appendChild(dv);
-    $("beyond_floatpanel").appendChild(mc);
+    $('beyond_floatpanel').appendChild(mc);
 
 }
 
@@ -2262,7 +2220,7 @@ function disp_XYLink()
     var flg_include_a = false;
 
     //1行コメント
-    var comment = $a("//*[@id=\"commentList\"]//tr/td[2]");
+    var comment = $x('id("commentList")//tr/td[2]');
 
     for(var i=0 ; i< comment.length ; i++) {
         setXYLink( comment[i] );
@@ -2271,31 +2229,31 @@ function disp_XYLink()
     //各エレメント
     var targetPath = new Array();
 
-    if( location.pathname == "/alliance/chat_view.php" ) {
-        targetPath.push( "//div[@class=\"hitokotoList\"]/p[2]" );
+    if( location.pathname == '/alliance/chat_view.php' ) {
+        targetPath.push( '//div[contains(concat(" ",normalize-space(@class)," "), " hitokotoList ")]/p[2]' );
     }
-    if( location.pathname == "/alliance/info.php" ) {
-        targetPath.push( "//tr[th[contains(text(),\"コメント\")]]/td" );
+    if( location.pathname == '/alliance/info.php' ) {
+        targetPath.push( '//tr[th[contains(text(),"コメント")]]/td' );
     }
-    if( location.pathname == "/message/detail.php" ) {
-        targetPath.push( "//tr[th[contains(text(),\"件名\")]]/td" );
-        targetPath.push( "//tr[th[contains(text(),\"本文\")]]/td" );
+    if( location.pathname == '/message/detail.php' ) {
+        targetPath.push( '//tr[th[contains(text(),"件名")]]/td' );
+        targetPath.push( '//tr[th[contains(text(),"本文")]]/td' );
     }
-    if( location.pathname == "/bbs/res_view.php" ||
-        location.pathname == "/bbs/personal_res_view.php" ) {
-        targetPath.push( "//th[@class=\"mainTtl\"]/div[@class=\"threadTtl\"]" );
-        targetPath.push( "//td[@class=\"contents\"]" );
-        targetPath.push( "//table[@class=\"commonTables\"]//tr[2]/td[1]" );
+    if( location.pathname == '/bbs/res_view.php' ||
+        location.pathname == '/bbs/personal_res_view.php' ) {
+        targetPath.push( '//th[contains(concat(" ",normalize-space(@class)," "), " mainTtl ")]/div[contains(concat(" ",normalize-space(@class)," "), " threadTtl ")]' );
+        targetPath.push( '//td[contains(concat(" ",normalize-space(@class)," "), " contents ")]' );
+        targetPath.push( '//table[contains(concat(" ",normalize-space(@class)," "), " commonTables ")]//tr[2]/td[1]' );
     }
-    if( location.pathname == "/user/index.php" || location.pathname == "/user/" ) {
+    if( location.pathname == '/user/index.php' || location.pathname == '/user/' ) {
         if( URL_PARAM.user_id && USER_ID != URL_PARAM.user_id ) {
-            targetPath.push( "//table[@class=\"commonTables\"]//tr[position()>12]/td[2]" );
+            targetPath.push( '//table[contains(concat(" ",normalize-space(@class)," "), " commonTables ")]//tr[position()>12]/td[2]' );
             flg_profile_xy = true;
         }
     }
 
     for(var i=0 ; i< targetPath.length ; i++) {
-        var elms = $a(targetPath[i]);
+        var elms = $x(targetPath[i]);
         for(var j=0 ; j<elms.length ; j++) {
             setXYLink(elms[j]);
         }
@@ -2311,7 +2269,7 @@ function disp_XYLink()
 
         var elm_child_a = null;
         if( flg_include_a ) {
-            elm_child_a = $x("descendant::a", elm);
+            elm_child_a = $s('descendant::a', elm);
         }
 
         tmpHTML = tmpHTML.replace(reg, XYLinkReg );
@@ -2320,17 +2278,17 @@ function disp_XYLink()
 
         function XYLinkReg() {
 
-            var img_send = IMG_DIR + "report/icon_go.gif";
-            var img_mp = IMG_DIR + "report/icon_scout.gif";
-            var m = "";
+            var img_send = IMG_DIR + 'report/icon_go.gif';
+            var img_mp = IMG_DIR + 'report/icon_scout.gif';
+            var m = '';
             var dist = cgetDistanceFromBase(arguments[2], arguments[4]);
             if( dist != -1 ) {
-                m = "　距離[" + dist.toFixed(2) + "]";
+                m = '　距離[' + dist.toFixed(2) + ']';
             }
             var x = toHankaku(arguments[1]);
             var y = toHankaku(arguments[3]);
             var disp = x + arguments[2] + y;
-            if( !OPT_XYLINK_NK && !flg_profile_xy) disp = "(" + disp + ")";
+            if( !OPT_XYLINK_NK && !flg_profile_xy) disp = '(' + disp + ')';
             var txt = '<a href="'+caddSessionId('/land.php?x=' + x + '&y=' + y + '#ptop')+'" title="表示" style="display:inline;">' + disp + '</a>';
             txt += '<a href="'+caddSessionId('/map.php?x=' + x + '&y=' + y + '#ptop')+'" title="マップ' + x + ',' + y + '" style="display:inline;"><img src="' + img_mp + '" style="width:14px; height:14px; vertical-align:middle;"></a>';
             txt += '<a href="'+caddSessionId('/facility/castle_send_troop.php?x=' + x + '&y=' + y + '#ptop')+'" title="兵を送る' + x + ',' + y + m + '" style="display:inline;"><img src="' + img_send + '" style="width:14px; height:14px; vertical-align:middle;"></a>';
@@ -2338,7 +2296,6 @@ function disp_XYLink()
             //Aの入れ子は連結し直してみる
             if( elm_child_a ) {
                 txt = '</a>' + txt + '<a href="' + elm_child_a.href +  '">';
-            //    GM_log(txt);
             }
 
             return txt;
@@ -2356,31 +2313,29 @@ function disp_XYLink()
 //////////////////////
 function disp_TTable()
 {
-    if( location.pathname == "/message/inbox.php" ||
-        location.pathname == "/message/outbox.php"  ||
-        location.pathname == "/message/new.php" ||
-        location.pathname == "/bbs/topic_view.php"  ||
-        location.pathname == "/facility/unit_status.php" ||
-        location.pathname == "/facility/castle_send_troop.php") {
+    if( location.pathname == '/message/inbox.php' ||
+        location.pathname == '/message/outbox.php'  ||
+        location.pathname == '/message/new.php' ||
+        location.pathname == '/bbs/topic_view.php'  ||
+        location.pathname == '/facility/unit_status.php' ||
+        location.pathname == '/facility/castle_send_troop.php') {
         return ;
     }
 
     //■仮対処
-    var ta = $a("//textarea");
+    var ta = $x('//textarea');
     for(var i=0 ; i<ta.length ; i++) {
-        if( ta[i].innerHTML != "" ) return;
+        if( ta[i].innerHTML != '' ) return;
     }
 
     var targetPath = [
-        "//div[@id='commentList']",
-//      "//td[@class='contents']",
-        "//table[@class='commonTables']",
-        "//p[@class='hitokoto']",
-//      "//span[@class='xy']"
+        'id("commentList")',
+        '//table[contains(concat(" ",normalize-space(@class)," "), " commonTables ")]',
+        '//p[contains(concat(" ",normalize-space(@class)," "), " hitokoto ")]',
     ];
 
     for(var i=0 ; i<targetPath.length ; i++) {
-        var elms = $a(targetPath[i]);
+        var elms = $x(targetPath[i]);
         for(var j=0 ; j<elms.length ; j++) {
             setTTable(elms[j]);
         }
@@ -2389,39 +2344,38 @@ function disp_TTable()
     function setTTable(elm) {
 
         var tmpHTML = elm.innerHTML;
-    //  tmpHTML = tmpHTML.replace(/[\n\r]/g,"");
         var reg = /剣兵\s+槍兵\s+弓兵\s+騎兵\s+矛槍兵\s+弩兵\s+近衛騎兵\s+斥候\s+斥候騎兵\s+衝車\s+投石機\s+武将.*(\n兵士\s+|\n)(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+).*(\n死傷\s+|\n)(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/g;
         tmpHTML = tmpHTML.replace(reg,
             function() {
-                var txt = "<table class='tables'><tr><th class='solClass'>　</th>" +
-                            "<th class='solClass'>剣兵</th><th class='solClass'>槍兵</th><th class='solClass'>弓兵</th><th class='solClass'>騎兵</th>" +
-                            "<th class='solClass'>矛槍兵</th><th class='solClass'>弩兵</th><th class='solClass'>近衛騎兵</th><th class='solClass'>斥候</th>" +
-                            "<th class='solClass'>斥候騎兵</th><th class='solClass'>衝車</th><th class='solClass'>投石機</th><th class='solClass'>武将</th>" +
-                            "</tr><tr><th class='solClass'>兵士</th>";
+                var txt = '<table class="tables"><tr><th class="solClass">　</th>' +
+                            '<th class="solClass">剣兵</th><th class="solClass">槍兵</th><th class="solClass">弓兵</th><th class="solClass">騎兵</th>' +
+                            '<th class="solClass">矛槍兵</th><th class="solClass">弩兵</th><th class="solClass">近衛騎兵</th><th class="solClass">斥候</th>' +
+                            '<th class="solClass">斥候騎兵</th><th class="solClass">衝車</th><th class="solClass">投石機</th><th class="solClass">武将</th>' +
+                            '</tr><tr><th class="solClass">兵士</th>';
                 for(var i = 2 ; i<= 13 ; i++) {
-                    txt += "<td>" + arguments[i] + "</td>";
+                    txt += '<td>' + arguments[i] + '</td>';
                 }
 
-                txt += "</tr><tr><th class='solClass'>死傷</th>";
+                txt += '</tr><tr><th class="solClass">死傷</th>';
                 for(var i = 15 ; i<= 26 ; i++) {
-                    txt += "<td>" + arguments[i] + "</td>";
+                    txt += '<td>' + arguments[i] + '</td>';
                 }
-                txt += "</tr></table>";
+                txt += '</tr></table>';
                 return txt;
             } );
 
         reg = /剣兵\s+槍兵\s+弓兵\s+騎兵\s+矛槍兵\s+弩兵\s+近衛騎兵\s+斥候\s+斥候騎兵\s+衝車\s+投石機\s+武将.*(\n兵士\s+|\n)(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/g;
         tmpHTML = tmpHTML.replace(reg ,
             function() {
-                var txt = "<table class='tables'><tr><th class='solClass'>　</th>" +
-                            "<th class='solClass'>剣兵</th><th class='solClass'>槍兵</th><th class='solClass'>弓兵</th><th class='solClass'>騎兵</th>" +
-                            "<th class='solClass'>矛槍兵</th><th class='solClass'>弩兵</th><th class='solClass'>近衛騎兵</th><th class='solClass'>斥候</th>" +
-                            "<th class='solClass'>斥候騎兵</th><th class='solClass'>衝車</th><th class='solClass'>投石機</th><th class='solClass'>武将</th>" +
-                            "</tr><tr><th class='solClass'>兵士</th>";
+                var txt = '<table class="tables"><tr><th class="solClass">　</th>' +
+                            '<th class="solClass">剣兵</th><th class="solClass">槍兵</th><th class="solClass">弓兵</th><th class="solClass">騎兵</th>' +
+                            '<th class="solClass">矛槍兵</th><th class="solClass">弩兵</th><th class="solClass">近衛騎兵</th><th class="solClass">斥候</th>' +
+                            '<th class="solClass">斥候騎兵</th><th class="solClass">衝車</th><th class="solClass">投石機</th><th class="solClass">武将</th>' +
+                            '</tr><tr><th class="solClass">兵士</th>';
                 for(var i = 2 ; i<= 13 ; i++) {
-                    txt += "<td>" + arguments[i] + "</td>";
+                    txt += '<td>' + arguments[i] + '</td>';
                 }
-                txt += "</tr></table>";
+                txt += '</tr></table>';
 
                 return txt;
             } );
@@ -2436,20 +2390,20 @@ function disp_TTable()
 //////////////////////
 function disp_Details()
 {
-    if( location.pathname != "/alliance/detail.php" &&
-        location.pathname != "/report/detail.php") return ;
+    if( location.pathname != '/alliance/detail.php' &&
+        location.pathname != '/report/detail.php') return ;
 
     var troops = [[0,0,0,0,0,0,0,0,0,0,0,0],
                 [0,0,0,0,0,0,0,0,0,0,0,0]] ;
-    var tbls = $a("//table[@class=\"tables\"][@summary=\"防御者\"]");
+    var tbls = $x('//table[contains(concat(" ",normalize-space(@class)," "), " tables ")][@summary="防御者"]');
 
     if(tbls.length <2 ) return;
 
     for(var i=0 ; i<tbls.length ; i++) {
-        var trs = $a("descendant::tr", tbls[i]);
+        var trs = $x('descendant::tr', tbls[i]);
         if( trs.length >=4 ) {
             for(var j=0; j < 2 ; j++) {
-                var tds = $a("descendant::td", trs[j+2]);
+                var tds = $x('descendant::td', trs[j+2]);
                 if(tds.length != 12) continue;
                 for(var k=0 ; k<tds.length ; k++) {
                     troops[j][k] += parseInt(tds[k].innerHTML,10);
@@ -2458,42 +2412,42 @@ function disp_Details()
         }
     }
 
-    var tbl = d.createElement("table");
-    tbl.className = "tables";
+    var tbl = d.createElement('table');
+    tbl.className = 'tables';
 
-    var tr = d.createElement("tr");
-    var th = d.createElement("th");
-    th.className = "attacker";
-    th.appendChild(d.createTextNode("防御合計"));
+    var tr = d.createElement('tr');
+    var th = d.createElement('th');
+    th.className = 'attacker';
+    th.appendChild(d.createTextNode('防御合計'));
     tr.appendChild(th);
-    th = d.createElement("th");
-    th.className = "attackerBase";
-    th.setAttribute("colspan","12");
+    th = d.createElement('th');
+    th.className = 'attackerBase';
+    th.setAttribute('colspan','12');
     tr.appendChild(th);
     tbl.appendChild(tr);
 
-    var tr = d.createElement("tr");
-    var thtxt = ["剣兵","槍兵","弓兵","騎兵","矛槍兵","弩兵","近衛騎兵","斥候","斥候騎兵","衝車","投石機","武将" ];
-    var th = d.createElement("th");
-    th.className = "blank";
+    var tr = d.createElement('tr');
+    var thtxt = ['剣兵','槍兵','弓兵','騎兵','矛槍兵','弩兵','近衛騎兵','斥候','斥候騎兵','衝車','投石機','武将' ];
+    var th = d.createElement('th');
+    th.className = 'blank';
     tr.appendChild(th);
     for(var i=0; i<12 ; i++){
-        th = d.createElement("th");
-        th.className = "solClass";
+        th = d.createElement('th');
+        th.className = 'solClass';
         th.appendChild(d.createTextNode(thtxt[i]));
         tr.appendChild(th);
     }
     tbl.appendChild(tr);
 
-    var hd =["兵士","死傷"];
+    var hd =['兵士','死傷'];
     for(var i=0 ; i<2 ; i++) {
-        var tr = d.createElement("tr");
-        var th = d.createElement("th");
-        th.className = "blank";
+        var tr = d.createElement('tr');
+        var th = d.createElement('th');
+        th.className = 'blank';
         th.appendChild(d.createTextNode(hd[i]));
         tr.appendChild(th);
         for(var j=0; j<12 ; j++){
-            var td = d.createElement("td");
+            var td = d.createElement('td');
             td.appendChild(d.createTextNode(troops[i][j]));
             tr.appendChild(td);
         }
@@ -2512,7 +2466,7 @@ function disp_Details()
 //////////////////////
 function disp_Deck()
 {
-    if( location.pathname != "/card/deck.php" ) return ;
+    if( location.pathname != '/card/deck.php' ) return ;
 
 
     if( OPT_DECK_SET ) dispDeckSet();
@@ -2520,10 +2474,10 @@ function disp_Deck()
     function dispDeckSet() {
         var nam = cgetCurrentBaseName();
 
-        var sels = $a("//select",d);
+        var sels = $x('//select',d);
         for(var i=0 ; i<sels.length ; i++) {
             if( !sels[i].id.match(/selected_village_/) ) continue;
-            var opts = $a("descendant::option",sels[i]);
+            var opts = $x('descendant::option',sels[i]);
             for(var j=0 ; j<opts.length ; j++) {
                 if(opts[j].innerHTML == nam ) {
                     opts[j].selected = true;
@@ -2542,17 +2496,17 @@ function disp_CompleteTimeBuild()
     var lastTime = cgetNow();
     var villageId = cgetCurrentVillageId();
 
-    if( location.pathname == "/village.php" ) {
+    if( location.pathname == '/village.php' ) {
         //最終建築時間の保存
-        var spans = $a('id("actionLog")//li//span[@class="buildStatus" and (contains(text(),"建設中") or contains(text(),"建設準備中"))]/../span[@class="buildClock"]');
+        var spans = $x('id("actionLog")//li//span[contains(concat(" ",normalize-space(@class)," "), " buildStatus ") and (contains(text(),"建設中") or contains(text(),"建設準備中"))]/../span[contains(concat(" ",normalize-space(@class)," "), " buildClock ")]');
         if (!spans || spans.length == 0) {
-            cdelData("lastBuildTime"+villageId,true);
+            cdelData('lastBuildTime'+villageId,true);
             return;
         }
 
-        var saveDate = new Date(caddDate(lastTime, spans[spans.length - 1].innerHTML.replace(/^[\s|　]*|[\s|　]*$/,"")).replace(/-/g,"/"));
+        var saveDate = new Date(caddDate(lastTime, spans[spans.length - 1].innerHTML.replace(/^[\s|　]*|[\s|　]*$/,'')).replace(/-/g,'/'));
         saveDate.setMinutes(saveDate.getMinutes() + 1);
-        csaveData( "lastBuildTime"+villageId, saveDate.toString(), true);
+        csaveData( 'lastBuildTime'+villageId, saveDate.toString(), true);
         return;
     }
 
@@ -2563,12 +2517,12 @@ function disp_CompleteTimeBuild()
     }
 
     var spans = new Array();
-    var tds = $a('id("gray02Wrapper")//th[contains(text(),"所要時間")]//..//td[@class="contents"]');
+    var tds = $x('id("gray02Wrapper")//th[contains(text(),"所要時間")]//..//td[contains(concat(" ",normalize-space(@class)," "), " contents ")]');
     for(var i=0 ; i<tds.length ; i++){
         var td = tds[i];
-        var th = $x('.//th[contains(text(),"建設に必要な食糧消費量") or contains(text(),"建設に必要な資材")]', td.parentNode.parentNode);
+        var th = $s('.//th[contains(text(),"建設に必要な食糧消費量") or contains(text(),"建設に必要な資材")]', td.parentNode.parentNode);
         if (th) {
-            var span = d.createElement("span");
+            var span = d.createElement('span');
             td.appendChild(span);
             spans.push(span);
         }
@@ -2576,7 +2530,7 @@ function disp_CompleteTimeBuild()
 
     if (!spans.length) return;
 
-    lastTime = new Date(cloadData( "lastBuildTime"+villageId, lastTime.toString(), true));
+    lastTime = new Date(cloadData( 'lastBuildTime'+villageId, lastTime.toString(), true));
 
     timerfunc();
 
@@ -2590,7 +2544,7 @@ function disp_CompleteTimeBuild()
             var span = spans[i];
             var ctime = caddDate(lastTime, span.parentNode.firstChild.nodeValue);
             if( ctime ) {
-                span.innerHTML = "　(" + ctime + "完了)";
+                span.innerHTML = '　(' + ctime + '完了)';
             }
         }
 
@@ -2603,29 +2557,29 @@ function disp_CompleteTimeBuild()
 //////////////////////
 function disp_CompleteTimeUnit()
 {
-    if( location.pathname == "/facility/facility.php" ) {
+    if( location.pathname == '/facility/facility.php' ) {
 
         //ユニット作成の最終時刻の保存
-        var lastTd = $x('id("gray02Wrapper")/table[@class="commonTables"][2]//tr[last()]/td');
+        var lastTd = $s('id("gray02Wrapper")/table[contains(concat(" ",normalize-space(@class)," "), " commonTables ")][2]//tr[last()]/td');
         if( !lastTd ) {
-            cdelData("lastUnitTime",true);
+            cdelData('lastUnitTime',true);
             return;
         }
-        csaveData( "lastUnitTime", new Date(lastTd.innerHTML.replace(/^[\s|\n|\r|\t]*|[\s|\n|\r|\t]*$/,"").replace(/-/g,"/")).toString(), true);
+        csaveData( 'lastUnitTime', new Date(lastTd.innerHTML.replace(/^[\s|\n|\r|\t]*|[\s|\n|\r|\t]*$/,'').replace(/-/g,'/')).toString(), true);
         return;
     }
 
-    if( location.pathname != "/facility/unit_confirm.php" ) {
+    if( location.pathname != '/facility/unit_confirm.php' ) {
         return;
     }
 
-    var td = $x('//table[@class="commonTables" and @summary="object"]//th[contains(text(),"作成するまでに必要な時間")]/../td');
+    var td = $s('//table[contains(concat(" ",normalize-space(@class)," "), " commonTables ") and @summary="object"]//th[contains(text(),"作成するまでに必要な時間")]/../td');
 
     if (!td) return;
-    var span = d.createElement("span");
+    var span = d.createElement('span');
     td.appendChild(span);
 
-    var lastTime = new Date(cloadData( "lastUnitTime", null, true ));
+    var lastTime = new Date(cloadData( 'lastUnitTime', null, true ));
 
     timerfunc();
 
@@ -2637,7 +2591,7 @@ function disp_CompleteTimeUnit()
 
         var ctime = caddDate(lastTime, span.parentNode.firstChild.nodeValue);
         if( ctime ) {
-            span.innerHTML = "　(" + ctime + "完了)";
+            span.innerHTML = '　(' + ctime + '完了)';
         }
         setTimeout( timerfunc, 1000);
     }
@@ -2656,44 +2610,44 @@ function disp_AllianceInfo()
     //同盟表示のソート
     function allianceSort()
     {
-        if( location.pathname != "/alliance/info.php" ) return;
+        if( location.pathname != '/alliance/info.php' ) return;
 
         var sort_kind, sort_order;
 
-        var sort_list = ["num", "str", "num", "num", "num", "str", "str"];
+        var sort_list = ['num', 'str', 'num', 'num', 'num', 'str', 'str'];
 
         for(var i=0 ; i<8 ; i++) {
-            var th = $x("//table[@summary=\"ランキング\"]//tr[2]//th[" + (i+1) + "]");
+            var th = $s('//table[@summary="ランキング"]//tr[2]//th[' + (i+1) + ']');
             if( th ) {
 
                 sort_kind = sort_list[i];
-                if( th.id == "beyond_ally_xy" ) sort_kind = "xy";
+                if( th.id == 'beyond_ally_xy' ) sort_kind = 'xy';
 
-                th.appendChild(d.createElement("br"));
+                th.appendChild(d.createElement('br'));
 
-                var a = d.createElement("a");
-                a.href = "javascript:void(0)";
+                var a = d.createElement('a');
+                a.href = 'javascript:void(0)';
                 (function(n, k){
-                    $e(a, "click", function(){row_sort(n, k, "asc"); } );
+                    $e(a, 'click', function(){row_sort(n, k, 'asc'); } );
                 })(i+1, sort_kind);
 
-                var img = d.createElement("img");
-                img.src= IMG_DIR + "trade/icon_up.gif";
-                img.alt = "昇順に並べ替え";
+                var img = d.createElement('img');
+                img.src= IMG_DIR + 'trade/icon_up.gif';
+                img.alt = '昇順に並べ替え';
                 img.title = img.alt;
                 a.appendChild(img);
 
                 th.appendChild(a);
-                th.appendChild(d.createTextNode(" "));
-                a = d.createElement("a");
-                a.href = "javascript:void(0)";
+                th.appendChild(d.createTextNode(' '));
+                a = d.createElement('a');
+                a.href = 'javascript:void(0)';
                 (function(n, k){
-                    $e(a, "click", function(){row_sort(n, k, "dsc"); } );
+                    $e(a, 'click', function(){row_sort(n, k, 'dsc'); } );
                 })(i+1, sort_kind);
 
-                img = d.createElement("img");
-                img.src= IMG_DIR + "trade/icon_down.gif";
-                img.alt = "降順に並べ替え";
+                img = d.createElement('img');
+                img.src= IMG_DIR + 'trade/icon_down.gif';
+                img.alt = '降順に並べ替え';
                 img.title = img.alt;
                 a.appendChild(img);
 
@@ -2703,24 +2657,24 @@ function disp_AllianceInfo()
         }
 
         function row_sort(col, kind, order) {
-            var tbl = $x("//table[@summary=\"ランキング\"]");
-            var trs = $a("descendant::tr[position()>2]", tbl);
+            var tbl = $s('//table[@summary="ランキング"]');
+            var trs = $x("descendant::tr[position()>2]", tbl);
             sort_kind = kind;
             sort_order = order;
 
             var strs = new Array();
-            if( col == 2 || kind == "xy" ) {
+            if( col == 2 || kind == 'xy' ) {
                 //名前 or座標はaの下
                 for(var i=0; i<trs.length ; i++) {
-                    var td = $x("descendant::td[" + col + "]", trs[i]);
-                    var a = $x("descendant::a", td);
-                    if( a ) strs.push({"node":trs[i], "value":a.innerHTML});
-                    else strs.push({"node":trs[i], "value":""});
+                    var td = $s('descendant::td[' + col + ']', trs[i]);
+                    var a = $s('descendant::a', td);
+                    if( a ) strs.push({'node':trs[i], 'value':a.innerHTML});
+                    else strs.push({'node':trs[i], 'value':''});
                 }
             } else {
                 for(var i=0; i<trs.length ; i++) {
-                    var td = $x("descendant::td[" + col + "]", trs[i]);
-                    strs.push({"node":trs[i], "value":td.innerHTML});
+                    var td = $s('descendant::td[' + col + ']', trs[i]);
+                    strs.push({'node':trs[i], 'value':td.innerHTML});
                 }
             }
 
@@ -2735,16 +2689,16 @@ function disp_AllianceInfo()
         function row_cmp(a, b)
         {
             var ret = 0;
-            if( sort_kind == "num" ){
+            if( sort_kind == 'num' ){
                 ret = parseInt(a.value, 10) - parseInt(b.value, 10);
-            }else if (sort_kind == "xy") {
+            }else if (sort_kind == 'xy') {
                 //座標
                 if( !a.value && !b.value ) ret =  0;
                 else if( !a.value ) ret = 1;
                 else if( !b.value ) ret = -1;
                 else {
-                    var a_xy = a.value.split(",");
-                    var b_xy = b.value.split(",");
+                    var a_xy = a.value.split(',');
+                    var b_xy = b.value.split(',');
                     ret = ( Math.pow(parseInt(a_xy[0], 10), 2) + Math.pow(parseInt(a_xy[1], 10), 2) ) -
                           ( Math.pow(parseInt(b_xy[0], 10), 2) + Math.pow(parseInt(b_xy[1], 10), 2) );
                 }
@@ -2757,7 +2711,7 @@ function disp_AllianceInfo()
                     ret = -1;
                 }
             }
-            if( sort_order == "dsc") {
+            if( sort_order == 'dsc') {
                 ret = 0 - ret;
             }
             return ret;
@@ -2769,17 +2723,17 @@ function disp_AllianceInfo()
     function allianceXY()
     {
         //座標の収集
-        if( location.pathname =="/user/" || location.pathname == "/user/index.php" ) {
+        if( location.pathname =='/user/' || location.pathname == '/user/index.php' ) {
             if( USER_ID || URLPARAM.user_id ) {
                 var uid, aid;
                 if( URL_PARAM.user_id ) uid = URL_PARAM.user_id;
                 else uid = USER_ID;
-                var allytd = $x("//table[@class=\"commonTables\"]//tr[3]//td[4]");
+                var allytd = $s('//table[contains(concat(" ",normalize-space(@class)," "), " commonTables ")]//tr[3]//td[4]');
                 if( !allytd ) return;
                 var aids = allytd.innerHTML.match(/\/alliance\/info\.php\?id\=(\d+)/);
                 if( !aids ) return;
                 aid = aids[1];
-                var table = $x("//table[@class=\"commonTables\"]");
+                var table = $s('//table[contains(concat(" ",normalize-space(@class)," "), " commonTables ")]');
                 if( table ) {
                     var xy = getXYfromUserHTML(table.innerHTML);
                     if( xy ) {
@@ -2790,38 +2744,37 @@ function disp_AllianceInfo()
         }
 
         //表示
-        if( location.pathname == "/alliance/info.php" ) {
+        if( location.pathname == '/alliance/info.php' ) {
             if( ALLY_ID || URL_PARAM.id ) {
                 var aid;
                 if( URL_PARAM.id ) aid = URL_PARAM.id;
                 else aid = ALLY_ID;
 
-                var head1 = $x("//table[@summary=\"ランキング\"]//tr[1]//th[@class=\"ttl\"]");
+                var head1 = $s('//table[@summary="ランキング"]//tr[1]//th[contains(concat(" ",normalize-space(@class)," "), " ttl ")]');
                 if( head1 ) {
-                    head1.setAttribute("colspan", parseInt(head1.getAttribute("colspan"),10) + 1 + "");
+                    head1.setAttribute('colspan', parseInt(head1.getAttribute('colspan'),10) + 1 + '');
                 }
-                var head2 = $x("//table[@summary=\"ランキング\"]//tr[2]");
+                var head2 = $s('//table[@summary="ランキング"]//tr[2]');
                 if( head2 ) {
-                    var th = d.createElement("th");
-                    th.className = "all";
-                    th.style.width = "110px";
-                    th.id = "beyond_ally_xy";
-                    th.innerHTML = "座標";
-                    var lnk = d.createElement("a");
-                    lnk.href = "javascript:void(0)";
-                    lnk.innerHTML ="(GET)";
-                    lnk.style.fontSize = "9px";
+                    var th = d.createElement('th');
+                    th.className = 'all';
+                    th.style.width = '110px';
+                    th.id = 'beyond_ally_xy';
+                    th.innerHTML = '座標';
+                    var lnk = d.createElement('a');
+                    lnk.href = 'javascript:void(0)';
+                    lnk.innerHTML ='(GET)';
+                    lnk.style.fontSize = '9px';
 
                     var running = false;
 
-                    $e(lnk, "click", function() {
+                    $e(lnk, 'click', function() {
 
                         if( running ) return ;
 
-                        if( confirm("同盟員の情報を一気に取得するためサーバに負荷をかけます。\n何度も実行するとDOS攻撃と同じなので、実行には注意して下さい") == false ) return;
+                        if( confirm('同盟員の情報を一気に取得するためサーバに負荷をかけます。\n何度も実行するとDOS攻撃と同じなので、実行には注意して下さい') == false ) return;
                         running = true;
-//                      cdeleteUserXY(aid);
-                        var trs = $a("//table[@summary=\"ランキング\"]//tr[position()>2]");
+                        var trs = $x('//table[@summary="ランキング"]//tr[position()>2]');
 
                         var now_num = 0;
                         var all_num = trs.length;
@@ -2829,31 +2782,31 @@ function disp_AllianceInfo()
 
                         function timerFunc()
                         {
-                            var idtd = $x("descendant::td[2]",trs[now_num]);
+                            var idtd = $s('descendant::td[2]',trs[now_num]);
                             if( !idtd ) {
-                                alert("ページフォーマットが変わったみたい");
+                                alert('ページフォーマットが変わったみたい');
                                 return ;
                             }
                             var ids = idtd.innerHTML.match(/\/user\/\?user_id\=(\d+)/);
                             if( !ids ) {
-                                alert("ページフォーマットが変わったみたい");
+                                alert('ページフォーマットが変わったみたい');
                                 return ;
                             }
 
-                            var tmp = $("beyond_xylink_" + ids[1] );
-                            if( tmp.innerHTML != "　" ) {
+                            var tmp = $('beyond_xylink_' + ids[1] );
+                            if( tmp.innerHTML != '　' ) {
                                 now_num ++;
                                 if( now_num < all_num ) {
                                     window.setTimeout(timerFunc, 0);
                                 }else{
                                     running = false;
-                                    alert("全ての座標を取得しました");
+                                    alert('全ての座標を取得しました');
                                 }
                                 return ;
                             }
 
-                            cajaxRequest("/user/?user_id=" + ids[1], "GET", "", function(req) {
-                                var xytd = $("beyond_xylink_" + ids[1] );
+                            cajaxRequest('/user/?user_id=' + ids[1], 'GET', '', function(req) {
+                                var xytd = $('beyond_xylink_' + ids[1] );
                                 if(xytd) {
                                     var xy = getXYfromUserHTML(req.responseText);
                                     if( xy ) {
@@ -2866,7 +2819,7 @@ function disp_AllianceInfo()
                                     window.setTimeout(timerFunc, 0);
                                 }else{
                                     running = false;
-                                    alert("全ての座標を取得しました");
+                                    alert('全ての座標を取得しました');
                                 }
                             });
                         }
@@ -2876,36 +2829,36 @@ function disp_AllianceInfo()
                     head2.appendChild(th);
                 }
 
-                var trs = $a("//table[@summary=\"ランキング\"]//tr[position()>2]");
+                var trs = $x('//table[@summary="ランキング"]//tr[position()>2]');
                 var xylists = cloadData( "allyXYList" + aid, "[]", true, true );
 
                 //ハッシュに書き換え
                 var xylist = new Array();
                 for(var i=0 ; i<xylists.length ; i++) {
-                    xylist["id" + xylists[i].id ] = {"x":xylists[i].x, "y":xylists[i].y};
-                    if( xylist["id" + xylists[i].id].x == null )  xylist["id" + xylists[i].id].x = 0;
-                    if( xylist["id" + xylists[i].id].y == null )  xylist["id" + xylists[i].id].y = 0;
+                    xylist['id' + xylists[i].id ] = {'x':xylists[i].x, 'y':xylists[i].y};
+                    if( xylist['id' + xylists[i].id].x == null )  xylist['id' + xylists[i].id].x = 0;
+                    if( xylist['id' + xylists[i].id].y == null )  xylist['id' + xylists[i].id].y = 0;
                 }
 
                 for(var i=0; i<trs.length ; i++) {
-                    var idtd = $x("descendant::td[2]",trs[i]);
+                    var idtd = $s('descendant::td[2]',trs[i]);
                     if( !idtd ) continue;
                     var ids = idtd.innerHTML.match(/\/user\/\?user_id\=(\d+)/);
                     if( !ids ) continue;
 
-                    var td = d.createElement("td");
-                    td.id = "beyond_xylink_" + ids[1];
-                    if( xylist["id" + ids[1] ] ) {
-                        td.innerHTML = cgetXYHtml(xylist["id" + ids[1] ].x, xylist["id" + ids[1] ].y);
+                    var td = d.createElement('td');
+                    td.id = 'beyond_xylink_' + ids[1];
+                    if( xylist['id' + ids[1] ] ) {
+                        td.innerHTML = cgetXYHtml(xylist['id' + ids[1] ].x, xylist['id' + ids[1] ].y);
                     }else{
-                        td.innerHTML ="　";
+                        td.innerHTML ='　';
                     }
                     trs[i].appendChild(td);
 
-                    var yaku = $x("descendant::td[7]",trs[i]);
+                    var yaku = $s('descendant::td[7]',trs[i]);
                     if( yaku.innerHTML.match(/盟主補佐/) ) {
                         //盟主補佐がぎりぎり2行になるので後ろの空白カット
-                        yaku.innerHTML = yaku.innerHTML.replace(/[ 　\t\r\n]+$/g, "");
+                        yaku.innerHTML = yaku.innerHTML.replace(/[ 　\t\r\n]+$/g, '');
 
                     }
                 }
@@ -2917,7 +2870,7 @@ function disp_AllianceInfo()
     {
         var xy = html.match(/<\/a>\(本拠地\)<\/td>[^<]*<td[^>]*>([\-0-9]+),([\-0-9]+)<\/td>/);
         if( xy ) {
-            return {"x":parseInt(xy[1],10),"y":parseInt(xy[2],10)};
+            return {'x':parseInt(xy[1],10),'y':parseInt(xy[2],10)};
         }
         return null;
     }
@@ -2927,36 +2880,36 @@ function disp_AllianceInfo()
         var ret = [];
         var tmp = html.match(/<td[^>]*>ランク<\/td>[^<]*<td[^>]*>([0-9]+)<\/td>/);
         if( !tmp ) return null;
-        ret["all_rank"] = parseInt(tmp[1] ,10);
+        ret['all_rank'] = parseInt(tmp[1] ,10);
 
         tmp = html.match(/<td[^>]*>総合<\/td>[^<]*<td[^>]*>([0-9]+)<\/td>/);
         if( !tmp ) return null;
-        ret["all_point"] = parseInt(tmp[1] ,10);
+        ret['all_point'] = parseInt(tmp[1] ,10);
 
         tmp = html.match(/<td[^>]*>総人口<\/td>[^<]*<td[^>]*>([0-9]+)<\/td>/);
         if( !tmp ) return null;
-        ret["jinko"] = parseInt(tmp[1] ,10);
+        ret['jinko'] = parseInt(tmp[1] ,10);
 
         tmp = html.match(/<td[^>]*>攻撃<\/td>[^<]*<td[^>]*>([0-9]+)<\/td>/);
         if( !tmp ) return null;
-        ret["attack"] = parseInt(tmp[1] ,10);
+        ret['attack'] = parseInt(tmp[1] ,10);
 
         tmp = html.match(/<td[^>]*>防御<\/td>[^<]*<td[^>]*>([0-9]+)<\/td>/);
         if( !tmp ) return null;
-        ret["defence"] = parseInt(tmp[1] ,10);
+        ret['defence'] = parseInt(tmp[1] ,10);
 
         tmp = html.match(/<td[^>]*>撃破スコア<\/td>[^<]*<td[^>]*>([0-9]+)<\/td>/);
         if( !tmp ) return null;
-        ret["attack_score"] = parseInt(tmp[1] ,10);
+        ret['attack_score'] = parseInt(tmp[1] ,10);
 
         tmp = html.match(/<td[^>]*>防衛スコア<\/td>[^<]*<td[^>]*>([0-9]+)<\/td>/);
         if( !tmp ) return null;
-        ret["defence_score"] = parseInt(tmp[1] ,10);
+        ret['defence_score'] = parseInt(tmp[1] ,10);
 
         tmp = html.match(/<\/a>\(本拠地\)<\/td>[^<]*<td[^>]*>([\-0-9]+),([\-0-9]+)<\/td>/);
         if ( !tmp ) return null;
-        ret["x"] = parseInt(tmp[1],10);
-        ret["y"] = parseInt(tmp[2],10);
+        ret['x'] = parseInt(tmp[1],10);
+        ret['y'] = parseInt(tmp[2],10);
 
         return ret;
     }
@@ -2973,7 +2926,6 @@ function disp_AllianceInfo()
         var ally_name = tmp[1];
 
         var pos;
-        //var reg = /<a href=\"(?:\.\.\/land\.php|\.\.\/village_change\.php).*\">([\s\S]+?)<\/a>[\s\S]+?<td>([\-0-9]+),([\-0-9]+)<\/td>[\s\S]+?<td>([0-9]+|\&nbsp\;)<\/td>/;
         var reg = /<a href="\.\.\/(?:land|village_change)\.php[^"]*">\s*([^<\s]+)\s*<\/a>[^<]*<\/td>[^<]*<td[^>]*>([\-0-9]+),([\-0-9]+)<\/td>[^<]*<td[^>]*>([0-9]+|&nbsp;)<\/td>/;
         var honkyo = 1;
         while((pos = html.search(reg) ) != -1 ) {
@@ -2983,10 +2935,10 @@ function disp_AllianceInfo()
             var dat = html.match(reg);
             if( !dat ) break;
 
-            if( dat[4] == "&nbsp;" ) dat[4] = "";
+            if( dat[4] == '&nbsp;' ) dat[4] = '';
 
-            ret.push({"user_name":user_name, "ally_name":ally_name, "area_name":dat[1].replace(/(^\s+|\s+$)/g, ""), "x":dat[2], "y":dat[3], "jinko":dat[4], "honkyo":honkyo});
-            honkyo="";
+            ret.push({'user_name':user_name, 'ally_name':ally_name, 'area_name':dat[1].replace(/(^\s+|\s+$)/g, ''), 'x':dat[2], 'y':dat[3], 'jinko':dat[4], 'honkyo':honkyo});
+            honkyo='';
             html = html.substr(dat[0].length);
 
         }
@@ -2996,31 +2948,25 @@ function disp_AllianceInfo()
 
     function allianceCSV()
     {
-        if( location.pathname != "/alliance/info.php" ) return;
-/*
-        if( URL_PARAM.id ) {
-            if( ALLY_ID != URL_PARAM.id ) {
-                return;
-            }
-        }
-*/
+        if( location.pathname != '/alliance/info.php' ) return;
+
         var aid;
         if( URL_PARAM.id ) aid = URL_PARAM.id;
         else aid = ALLY_ID;
 
         //CSV出力用
-        var tbl = $x("//table[@summary=\"ランキング\"]");
+        var tbl = $s('//table[@summary="ランキング"]');
         if( !tbl ) return;
 
-        var lnk = d.createElement("a");
-        lnk.href = "javascript:void(0)";
-        lnk.innerHTML ="同盟員詳細情報csv";
+        var lnk = d.createElement('a');
+        lnk.href = 'javascript:void(0)';
+        lnk.innerHTML ='同盟員詳細情報csv';
         tbl.parentNode.insertBefore(lnk, tbl.nextSibling);
-        $e(lnk, "click", function() {
+        $e(lnk, 'click', function() {
 
-            if( $("beyond_csvWindow") ) return;
+            if( $('beyond_csvWindow') ) return;
 
-            if( confirm("同盟員の情報を一気に取得するためサーバに負荷をかけます。\n何度も実行するとDOS攻撃と同じなので、実行には注意して下さい") == false ) return;
+            if( confirm('同盟員の情報を一気に取得するためサーバに負荷をかけます。\n何度も実行するとDOS攻撃と同じなので、実行には注意して下さい') == false ) return;
 
             //窓作成
             var elm_xy = cgetElementXY( this );
@@ -3028,11 +2974,11 @@ function disp_AllianceInfo()
             if( yy < 0 ) yy = 0;
             createCSVWindow(10, yy);
 
-            var trs = $a("//table[@summary=\"ランキング\"]//tr[position()>2]");
+            var trs = $x('//table[@summary="ランキング"]//tr[position()>2]');
 
-            var elm_msg = $("beyond_csvWindow_message");
+            var elm_msg = $('beyond_csvWindow_message');
             if( !elm_msg ) return;
-            var elm_csv = $("beyond_csvWindow_csv");
+            var elm_csv = $('beyond_csvWindow_csv');
             if( !elm_csv ) return;
 
             var now_num = 0;
@@ -3040,85 +2986,85 @@ function disp_AllianceInfo()
 
             if( all_num == 0 ) return;
 
-            var csv_txt = "同盟内ランク\tuser_id\t名前\t同盟内point\t寄付\t拠点\t全体ランク\t全体point\t人口\t攻撃\t防御\t撃破スコア\t防御スコア\t本拠X座標\t本拠Y座標\n";
+            var csv_txt = '同盟内ランク\tuser_id\t名前\t同盟内point\t寄付\t拠点\t全体ランク\t全体point\t人口\t攻撃\t防御\t撃破スコア\t防御スコア\t本拠X座標\t本拠Y座標\n';
 
             window.setTimeout(timerFunc ,0 );
 
             function timerFunc()
             {
-                if( !$("beyond_csvWindow") ) return;
-                var tds = $a("descendant::td",trs[now_num]);
+                if( !$('beyond_csvWindow') ) return;
+                var tds = $x('descendant::td',trs[now_num]);
                 if( tds.length < 5 ) {
-                    alert("ページフォーマットが変わったみたい");
+                    alert('ページフォーマットが変わったみたい');
                     return ;
                 }
 
-                var ids = tds[1].innerHTML.match(/\/user\/\?user_id\=(\d+).*\">(.+)<\/a>/);
+                var ids = tds[1].innerHTML.match(/\/user\/\?user_id\=(\d+).*">(.+)<\/a>/);
                 if( !ids ) {
-                    alert("ページフォーマットが変わったみたい");
+                    alert('ページフォーマットが変わったみたい');
                     return ;
                 }
 
                 var uid = parseInt(ids[1], 10);
 
-                cajaxRequest("/user/?user_id=" + uid, "GET", "", function(req) {
+                cajaxRequest('/user/?user_id=' + uid, 'GET', '', function(req) {
                     var dt = getDatafromUserHTML(req.responseText);
                     if( dt ) {
-                        csv_txt += parseInt(tds[0].innerHTML, 10) + "\t";
-                        csv_txt += uid + "\t";
-                        csv_txt += ids[2]  + "\t";
-                        csv_txt += parseInt(tds[2].innerHTML, 10)  + "\t";
-                        csv_txt += parseInt(tds[3].innerHTML, 10)  + "\t";
-                        csv_txt += parseInt(tds[4].innerHTML, 10)  + "\t";
-                        csv_txt += dt.all_rank  + "\t";
-                        csv_txt += dt.all_point  + "\t";
-                        csv_txt += dt.jinko  + "\t";
-                        csv_txt += dt.attack  + "\t";
-                        csv_txt += dt.defence  + "\t";
-                        csv_txt += dt.attack_score  + "\t";
-                        csv_txt += dt.defence_score  + "\t";
-                        csv_txt += dt.x  + "\t";
-                        csv_txt += dt.y  + "\n";
+                        csv_txt += parseInt(tds[0].innerHTML, 10) + '\t';
+                        csv_txt += uid + '\t';
+                        csv_txt += ids[2]  + '\t';
+                        csv_txt += parseInt(tds[2].innerHTML, 10)  + '\t';
+                        csv_txt += parseInt(tds[3].innerHTML, 10)  + '\t';
+                        csv_txt += parseInt(tds[4].innerHTML, 10)  + '\t';
+                        csv_txt += dt.all_rank  + '\t';
+                        csv_txt += dt.all_point  + '\t';
+                        csv_txt += dt.jinko  + '\t';
+                        csv_txt += dt.attack  + '\t';
+                        csv_txt += dt.defence  + '\t';
+                        csv_txt += dt.attack_score  + '\t';
+                        csv_txt += dt.defence_score  + '\t';
+                        csv_txt += dt.x  + '\t';
+                        csv_txt += dt.y  + '\n';
 
-                        var xytd = $("beyond_xylink_" + uid );
+                        var xytd = $('beyond_xylink_' + uid );
                         if(xytd) {
                             csetUserXY(aid, uid, dt.x, dt.y);
                             xytd.innerHTML = cgetXYHtml(dt.x, dt.y );
                         }
 
                         now_num ++;
-                        elm_msg.innerHTML = "取得中... ( " + now_num + " / " + all_num + " )";
+                        elm_msg.innerHTML = '取得中... ( ' + now_num + ' / ' + all_num + ' )';
                         if( now_num < all_num ) {
                             window.setTimeout(timerFunc, 0);
                         }else{
-                            elm_msg.innerHTML += ".. 完了しました。CTRL + A → CTRL + Cでコピーし、Excelなどに貼りつけてください";
+                            elm_msg.innerHTML += '.. 完了しました。CTRL + A → CTRL + Cでコピーし、Excelなどに貼りつけてください';
                             elm_csv.value = csv_txt;
                             elm_csv.focus();
                         }
                     } else {
-                        alert("取得に失敗しました" );
+                        alert('取得に失敗しました' );
                     }
 
                 }, function(req){
-                    alert("サーバからエラーが返りましたよ" );
+                    alert('サーバからエラーが返りましたよ' );
                 });
             }
         });
 
 
-        var lnk2 = d.createElement("a");
-        lnk2.href = "javascript:void(0)";
-        lnk2.innerHTML ="同盟員全領地座標csv";
+        var lnk2 = d.createElement('a');
+        lnk2.href = 'javascript:void(0)';
+        lnk2.innerHTML ='同盟員全領地座標csv';
         tbl.parentNode.insertBefore(lnk2, lnk.nextSibling);
-        tbl.parentNode.insertBefore(d.createTextNode("　　"), lnk2);
-        $e(lnk2, "click", function() {
+        tbl.parentNode.insertBefore(d.createTextNode('　　'), lnk2);
+        $e(lnk2, 'click', function() {
 
-            if( $("beyond_csvWindow") ) return;
+            if( $('beyond_csvWindow') ) return;
 
-            if( confirm("同盟員の情報を一気に取得するためサーバに負荷をかけます。\n何度も実行するとDOS攻撃と同じなので、実行には注意して下さい") == false ) return;
+            if( confirm('同盟員の情報を一気に取得するためサーバに負荷をかけます。\n何度も実行するとDOS攻撃と同じなので、実行には注意して下さい') == false ) return;
 
             if( navigator.userAgent.toLowerCase().indexOf('chrome') == -1 ) {
-                if( confirm("終盤の巨大同盟だと、CTRL+AやCTRL+Cの操作で10分くらい掛かります。\nChromeだとそんなに時間掛からないみたいです。続けますか？") == false ) return;
+                if( confirm('終盤の巨大同盟だと、CTRL+AやCTRL+Cの操作で10分くらい掛かります。\nChromeだとそんなに時間掛からないみたいです。続けますか？') == false ) return;
             }
             //窓作成
             var elm_xy = cgetElementXY( this );
@@ -3126,11 +3072,11 @@ function disp_AllianceInfo()
             if( yy < 0 ) yy = 0;
             createCSVWindow(10, yy);
 
-            var trs = $a("//table[@summary=\"ランキング\"]//tr[position()>2]");
+            var trs = $x('//table[@summary="ランキング"]//tr[position()>2]');
 
-            var elm_msg = $("beyond_csvWindow_message");
+            var elm_msg = $('beyond_csvWindow_message');
             if( !elm_msg ) return;
-            var elm_csv = $("beyond_csvWindow_csv");
+            var elm_csv = $('beyond_csvWindow_csv');
             if( !elm_csv ) return;
 
             var now_num = 0;
@@ -3138,91 +3084,91 @@ function disp_AllianceInfo()
 
             if( all_num == 0 ) return;
 
-            var csv_txt = "同盟\t君主\t領地名\tX\tY\t人口\t本拠\n";
+            var csv_txt = '同盟\t君主\t領地名\tX\tY\t人口\t本拠\n';
 
             window.setTimeout(timerFunc ,0 );
 
             function timerFunc()
             {
-                if( !$("beyond_csvWindow") ) return;
-                var tds = $a("descendant::td",trs[now_num]);
+                if( !$('beyond_csvWindow') ) return;
+                var tds = $x('descendant::td',trs[now_num]);
                 if( tds.length < 5 ) {
-                    alert("ページフォーマットが変わったみたい");
+                    alert('ページフォーマットが変わったみたい');
                     return ;
                 }
 
-                var ids = tds[1].innerHTML.match(/\/user\/\?user_id\=(\d+).*\">(.+)<\/a>/);
+                var ids = tds[1].innerHTML.match(/\/user\/\?user_id\=(\d+).*">(.+)<\/a>/);
                 if( !ids ) {
-                    alert("ページフォーマットが変わったみたい");
+                    alert('ページフォーマットが変わったみたい');
                     return ;
                 }
 
                 var uid = parseInt(ids[1], 10);
 
-                cajaxRequest("/user/?user_id=" + uid, "GET", "", function(req) {
+                cajaxRequest('/user/?user_id=' + uid, 'GET', '', function(req) {
                     var dt = getXYListfromUserHTML(req.responseText);
                     if( dt ) {
                         for(var i=0 ; i<dt.length ; i++) {
-                            csv_txt += dt[i].ally_name  + "\t";
-                            csv_txt += dt[i].user_name  + "\t";
-                            csv_txt += dt[i].area_name  + "\t";
-                            csv_txt += dt[i].x  + "\t";
-                            csv_txt += dt[i].y  + "\t";
-                            csv_txt += dt[i].jinko  + "\t";
-                            csv_txt += dt[i].honkyo  + "\n";
+                            csv_txt += dt[i].ally_name  + '\t';
+                            csv_txt += dt[i].user_name  + '\t';
+                            csv_txt += dt[i].area_name  + '\t';
+                            csv_txt += dt[i].x  + '\t';
+                            csv_txt += dt[i].y  + '\t';
+                            csv_txt += dt[i].jinko  + '\t';
+                            csv_txt += dt[i].honkyo  + '\n';
                         }
 
                         now_num ++;
-                        elm_msg.innerHTML = "取得中... ( " + now_num + " / " + all_num + " )";
+                        elm_msg.innerHTML = '取得中... ( ' + now_num + ' / ' + all_num + ' )';
                         if( now_num < all_num ) {
                             window.setTimeout(timerFunc, 0);
                         }else{
-                            elm_msg.innerHTML += ".. 完了しました。CTRL + A → CTRL + Cでコピーし、Excelなどに貼りつけてください";
+                            elm_msg.innerHTML += '.. 完了しました。CTRL + A → CTRL + Cでコピーし、Excelなどに貼りつけてください';
                             elm_csv.value = csv_txt;
                             elm_csv.focus();
                         }
                     } else {
-                        alert("取得に失敗しました" );
+                        alert('取得に失敗しました' );
                     }
                 }, function(req){
-                    alert("サーバからエラーが返りましたよ" );
+                    alert('サーバからエラーが返りましたよ' );
                 });
             }
         });
 
         function createCSVWindow(x, y)
         {
-            var cc = $("beyond_csvWindow");
+            var cc = $('beyond_csvWindow');
             if( cc ) cc.parentNode.removeChild(cc);
-            cc = d.createElement("div");
-            cc.id = "beyond_csvWindow";
-            cc.style.left = x + "px";
-            cc.style.top = y + "px";
-            cc.style.position = "absolute";
-            cc.style.backgroundColor = "lightgray";
-            cc.style.border = "outset 2px lightgray";
-            cc.style.fontSize = "12px";
-            cc.style.padding = "15px";
+            cc = d.createElement('div');
+            cc.id = 'beyond_csvWindow';
+            cc.style.left = x + 'px';
+            cc.style.top = y + 'px';
+            cc.style.position = 'absolute';
+            cc.style.backgroundColor = 'lightgray';
+            cc.style.border = 'outset 2px lightgray';
+            cc.style.fontSize = '12px';
+            cc.style.padding = '15px';
             cc.style.zIndex = 1000;
 
-            cc.style.padding = "10px";
-            var dv = d.createElement("div");
-            dv.id = "beyond_csvWindow_message";
+            cc.style.padding = '10px';
+            var dv = d.createElement('div');
+            dv.id = 'beyond_csvWindow_message';
             cc.appendChild(dv);
-            var tx = d.createElement("textarea");
-            tx.id = "beyond_csvWindow_csv";
+            var tx = d.createElement('textarea');
+            tx.id = 'beyond_csvWindow_csv';
             tx.rows = 25;
             tx.cols = 140;
-            tx.style.overflow = "scroll";
+            tx.style.overflow = 'scroll';
             cc.appendChild(tx);
 
-            cc.appendChild(d.createElement("br") );
-            ccreateButton(cc, "閉じる", "", function(){
-                var cc = $("beyond_csvWindow");
+            cc.appendChild(d.createElement('br') );
+            ccreateButton(cc, '閉じる', '', function(){
+                var cc = $('beyond_csvWindow');
                 if( cc ) cc.parentNode.removeChild(cc);
             });
 
-            $("beyond_floatpanel").appendChild(cc);
+            $('beyond_floatpanel').appendChild(cc);
         }
 
     }
@@ -3237,21 +3183,21 @@ function disp_ResourcesTotal()
     var blue_all = RES_GROW_B.wood + RES_GROW_B.stone + RES_GROW_B.iron + RES_GROW_B.rice;
     var all_all = RES_GROW.wood + RES_GROW.stone + RES_GROW.iron + RES_GROW.rice;
 
-    var box = $x('id("sidebar")//span[@class="increase" or @class="resource"]/../.. | id("status_left")//p[@class="status_bottom"]');
+    var box = $s('id("sidebar")//span[contains(concat(" ",normalize-space(@class)," "), " increase ") or contains(concat(" ",normalize-space(@class)," "), " resource ")]/../.. | id("status_left")//p[contains(concat(" ",normalize-space(@class)," "), " status_bottom ")]');
     if( !box ) return;
 
-    var txt = d.createTextNode("合計 " + white_all);
+    var txt = d.createTextNode('合計 ' + white_all);
 
-    var sp = d.createElement("span");
-        sp.className = "increase";
-        sp.appendChild(d.createTextNode(" +" + blue_all) );
+    var sp = d.createElement('span');
+        sp.className = 'increase';
+        sp.appendChild(d.createTextNode(' +' + blue_all) );
 
     var item = txt;
     var addSpDoc = box;
     if (!isNarrow) {
-        item = d.createElement("li");
+        item = d.createElement('li');
         item.appendChild(txt);
-        item.title = "総合計 " + all_all;
+        item.title = '総合計 ' + all_all;
         addSpDoc = item;
     }
 
@@ -3284,15 +3230,15 @@ function disp_RemoveList()
                 'MJfRafaZRK7EOVtw867kiups/DTq5mFlF+SHFyjoRXiVpDcCOFYo2YW4ZqAkyaRYuZZZ+Of3l5IH'+
                 'QYpiyoA6qnbJ+pUEO7cS6+pje4ubq7vLi1AAADs=';
 
-    if( location.pathname == "/land.php" && URL_PARAM.x && URL_PARAM.y ) {
+    if( location.pathname == '/land.php' && URL_PARAM.x && URL_PARAM.y ) {
 
         var rmtime = d.body.innerHTML.match(/(現在領地を破棄中です|現在村を建設中です|現在砦を建設中です).*\n(\d+-\d+-\d+ \d+:\d+:\d+)/ );
         if( rmtime ) {
-            if( rmtime[1] == "現在領地を破棄中です" ) {
+            if( rmtime[1] == '現在領地を破棄中です' ) {
                 addList(rmtime[2], 0, URL_PARAM.x, URL_PARAM.y );
-            }else if( rmtime[1] == "現在村を建設中です" ) {
+            }else if( rmtime[1] == '現在村を建設中です' ) {
                 addList(rmtime[2], 3, URL_PARAM.x, URL_PARAM.y );
-            }else if( rmtime[1] == "現在砦を建設中です" ) {
+            }else if( rmtime[1] == '現在砦を建設中です' ) {
                 addList(rmtime[2], 4, URL_PARAM.x, URL_PARAM.y );
             }
         }else{
@@ -3305,13 +3251,13 @@ function disp_RemoveList()
         }
     }
 
-    if( location.pathname == "/facility/castle.php" ) {
+    if( location.pathname == '/facility/castle.php' ) {
         var xy = cgetCurrentBaseXY();
         var rmtime = d.body.innerHTML.match(/(村を削除中です。|砦を削除中です。)[^\d]*(\d+-\d+-\d+ \d+:\d+:\d+)に完了します。/);
         if( rmtime ) {
-            if( rmtime[1] == "村を削除中です。" ) {
+            if( rmtime[1] == '村を削除中です。' ) {
                 addList(rmtime[2], 1, xy.x, xy.y );
-            }else if( rmtime[1] == "砦を削除中です。" ) {
+            }else if( rmtime[1] == '砦を削除中です。' ) {
                 addList(rmtime[2], 2, xy.x, xy.y );
             }
         }else{
@@ -3320,11 +3266,11 @@ function disp_RemoveList()
     }
 
 
-    if( location.pathname == "/map.php" ) {
+    if( location.pathname == '/map.php' ) {
         //地図に表示
         var type = cgetMapSize();
 
-        var lists = cloadData("RemoveList", "[]", true, true);
+        var lists = cloadData('RemoveList', '[]', true, true);
         lists = checkList(lists);       //時間を過ぎたものを削除
 
         if( lists.length ) {
@@ -3335,7 +3281,7 @@ function disp_RemoveList()
             if( cy > MAP_Y_MAX ) cy = MAP_Y_MAX;
             if( cy < MAP_Y_MIN ) cy = MAP_Y_MIN;
 
-            var map = $x("//div[@id=\"mapsAll\"]");
+            var map = $s('id("mapsAll")');
             for(var i=0 ; i<lists.length ; i++) {
                 var no = cgetMapNofromXY(lists[i].x, lists[i].y, cx, cy, type );
                 if( !no ) continue;
@@ -3345,8 +3291,8 @@ function disp_RemoveList()
                 else if(lists[i].kind == 5 ) img_src = img_lup;
                 else img_src = img_x;
 
-                var img = document.createElement("img");
-                img.className = "mapAll" + no;
+                var img = document.createElement('img');
+                img.className = 'mapAll' + no;
                 img.src = img_src;
 
                 map.appendChild(img);
@@ -3361,39 +3307,39 @@ function disp_RemoveList()
                 'R0lGODlhEQAPALMAAAD/ANO3SQbOKKyTQxqvSjKgYAivNwCZAHdrPBVwFVNTUS1NLTMzMwAAAAAA'+
                 'AAAAACH5BAQUAP8ALAAAAAARAA8AAARKkMlJq50npzuXAKDALYsBnoBhHWgrVmyLIkOgSIl8Bnww'+
                 'TDpCr3djfHbD4Y9hOhWSQ8kC9YTyEFKBwICw9i5WLKfWW3IYNISYEgEAOw==';
-    var elms = ccreateSideBox("beyond_sidebox_removelist", icon_rl, "建設/破棄ﾘｽﾄ");
+    var elms = ccreateSideBox('beyond_sidebox_removelist', icon_rl, '建設/破棄ﾘｽﾄ');
 
-    var lists = cloadData("RemoveList", "[]", true, true);
+    var lists = cloadData('RemoveList', '[]', true, true);
     lists = checkList(lists);       //時間を過ぎたものを削除
 
     if( lists.length == 0 ) return;
 
-    var ul = d.createElement("ul");
+    var ul = d.createElement('ul');
 
     for(var i=0 ; i<lists.length ; i++) {
-        var li = d.createElement("li");
+        var li = d.createElement('li');
         //アイコン
-        var title = "";
+        var title = '';
         switch(lists[i].kind){
-        case 0: title = "領地破棄"; break;
-        case 1: title = "村破棄"; break;
-        case 2: title = "砦破棄"; break;
-        case 3: title = "村作成"; break;
-        case 4: title = "砦作成"; break;
-        case 5: title = "レベルアップ"; break;
+        case 0: title = '領地破棄'; break;
+        case 1: title = '村破棄'; break;
+        case 2: title = '砦破棄'; break;
+        case 3: title = '村作成'; break;
+        case 4: title = '砦作成'; break;
+        case 5: title = 'レベルアップ'; break;
         }
-        var icon = "";
+        var icon = '';
         if( lists[i].kind == 1 || lists[i].kind == 3 ) {        //村破棄or村作成
-            icon = IMG_DIR + "panel/village_b_l.png";
+            icon = IMG_DIR + 'panel/village_b_l.png';
         }else if( lists[i].kind == 2 || lists[i].kind == 4 ) {  //砦破棄or砦作成
-            icon = IMG_DIR + "panel/fort_b_l.png";
+            icon = IMG_DIR + 'panel/fort_b_l.png';
         }else{
-            icon = IMG_DIR + "panel/territory_b_s.png";
+            icon = IMG_DIR + 'panel/territory_b_s.png';
         }
 
         var addHtml = '<img src="' + icon + '" style="width:20px; height:20px;" title="' + title + '">';
 
-        var sizestyle = "";
+        var sizestyle = '';
         if( lists[i].kind == 0 || lists[i].kind == 1 || lists[i].kind == 2 ) {      //領地破棄or村破棄or砦破棄
             addHtml += '<img src ="' + img_x + '" style="position:relative; left:-20px; width:20px; height:20px;" title="' + title + '">';
             sizestyle = ' style="position:relative; left:-20px;"';
@@ -3416,25 +3362,25 @@ function disp_RemoveList()
 
     function addList(tim, kind, x, y) //kind=0:領地破棄 1:村破棄 2:砦破棄 3:村作成 4:砦作成 5:領地LvUp
     {
-        var lists = cloadData("RemoveList", "[]", true, true);
+        var lists = cloadData('RemoveList', '[]', true, true);
 
         for(var i=0 ; i<lists.length ; i++) {
             if(lists[i].x == x && lists[i].y == y ) {
                 return;
             }
         }
-        lists.push({"x":x, "y":y, "time":tim, "kind":kind } );
+        lists.push({'x':x, 'y':y, 'time':tim, 'kind':kind } );
         lists.sort( function(a,b){
 
                 if(a.time > b.time) return 1;
                 if(a.time < b.time) return -1;
                 return 0;});
 
-        csaveData( "RemoveList", lists, true, true );
+        csaveData( 'RemoveList', lists, true, true );
     }
     function delList(kind, x, y) //kind=0:land 1:castle
     {
-        var lists = cloadData("RemoveList", "[]", true, true);
+        var lists = cloadData('RemoveList', '[]', true, true);
 
         for(var i=0 ; i<lists.length ; i++) {
             if(lists[i].x == x && lists[i].y == y ) {
@@ -3442,7 +3388,7 @@ function disp_RemoveList()
                     ( ( lists[i].kind == 0 || lists[i].kind == 3 || lists[i].kind == 4 || lists[i].kind == 5 ) && kind == 0 ) ) {
 
                     lists.splice(i,1);
-                    csaveData( "RemoveList", lists, true, true );
+                    csaveData( 'RemoveList', lists, true, true );
                     break;
                 }
             }
@@ -3452,41 +3398,41 @@ function disp_RemoveList()
     function checkList(lists)
     {
         var dt = new Date();
-        var ntime = dt.getFullYear() + "-" +
-                    (dt.getMonth()+101).toString().substr(-2) + "-" +
-                    (dt.getDate()+100).toString().substr(-2) + " " +
-                    (dt.getHours()+100).toString().substr(-2)  + ":" +
-                    (dt.getMinutes()+100).toString().substr(-2)  + ":" +
+        var ntime = dt.getFullYear() + '-' +
+                    (dt.getMonth()+101).toString().substr(-2) + '-' +
+                    (dt.getDate()+100).toString().substr(-2) + ' ' +
+                    (dt.getHours()+100).toString().substr(-2)  + ':' +
+                    (dt.getMinutes()+100).toString().substr(-2)  + ':' +
                     (dt.getSeconds()+100).toString().substr(-2);
-        var str1 = "";
-        var str2 = "";
-        var str3 = "";
-        var str4 = "";
+        var str1 = '';
+        var str2 = '';
+        var str3 = '';
+        var str4 = '';
         for(var i=0 ; i<lists.length ; i++) {
             if( lists[i].time < ntime ) {
                 if ( lists[i].kind == 1 || lists[i].kind == 2 ) {
-                    str2 += "(" + lists[i].x + "," + lists[i].y + ")\n";
+                    str2 += '(' + lists[i].x + ',' + lists[i].y + ')\n';
                 }else if ( lists[i].kind == 3 || lists[i].kind == 4 ) {
-                    str3 += "(" + lists[i].x + "," + lists[i].y + ")\n";
+                    str3 += '(' + lists[i].x + ',' + lists[i].y + ')\n';
                 }else if ( lists[i].kind == 5 ) {
                     //LevelUp完了
-                    str4 += "(" + lists[i].x + "," + lists[i].y + ")\n";
+                    str4 += '(' + lists[i].x + ',' + lists[i].y + ')\n';
                     csetMyLevel(lists[i].x, lists[i].y, -1);
                 }else {
-                    str1 += "(" + lists[i].x + "," + lists[i].y + ")\n";
+                    str1 += '(' + lists[i].x + ',' + lists[i].y + ')\n';
                 }
                 lists.splice(i,1);
                 i--;
             }
         }
         if( str1 || str2 || str3 || str4 ) {
-            var msg = "";
-            if( str1) msg += "以下の領地が破棄されました\n" + str1;
-            if( str2) msg += "以下の拠点が破棄されました\n" + str2;
-            if( str3) msg += "以下の拠点が作成されました\n" + str3;
-            if( str4) msg += "以下の拠点がレベルアップしました\n" + str4;
+            var msg = '';
+            if( str1) msg += '以下の領地が破棄されました\n' + str1;
+            if( str2) msg += '以下の拠点が破棄されました\n' + str2;
+            if( str3) msg += '以下の拠点が作成されました\n' + str3;
+            if( str4) msg += '以下の拠点がレベルアップしました\n' + str4;
 
-            csaveData( "RemoveList", lists, true, true );
+            csaveData( 'RemoveList', lists, true, true );
             alert(msg);
         }
         return lists;
@@ -3502,14 +3448,14 @@ function disp_ResourcesTime()
 {
 
     var flag_cost = false;
-    if( location.pathname == "/facility/facility.php" ||
-        location.pathname == "/facility/select_facility.php" ||
-        location.pathname == "/facility/castle.php" ||
-        location.pathname == "/facility/unit_confirm.php") {
+    if( location.pathname == '/facility/facility.php' ||
+        location.pathname == '/facility/select_facility.php' ||
+        location.pathname == '/facility/castle.php' ||
+        location.pathname == '/facility/unit_confirm.php') {
         flag_cost = true;
     }
 
-    var names = ["wood", "stone", "iron", "rice"];
+    var names = ['wood', 'stone', 'iron', 'rice'];
     var resources = {
         wood : {
             base : null,
@@ -3534,21 +3480,21 @@ function disp_ResourcesTime()
     };
 
     //status_leftとstatus_rightの幅を変更
-    var stat_left = $("status_left");
-    var stat_right = $("status_right");
+    var stat_left = $('status_left');
+    var stat_right = $('status_right');
     if( stat_left && stat_right ) {
-        stat_left.style.width = "725px";    //670 + 55
-        stat_right.style.width = "200px";   //255 - 55
+        stat_left.style.width = '725px';    //670 + 55
+        stat_right.style.width = '200px';   //255 - 55
     }
 
     for(var i = 0; i < names.length;i++) {
         var name = names[i];
         var base = $(name);
-        var dv = d.createElement("div");
-        dv.id = "beyond_restime_" + name;
-        dv.style.top = (base.offsetTop + 12) + "px";
-        dv.style.left = base.offsetLeft + "px";
-        dv.style.position = "absolute";
+        var dv = d.createElement('div');
+        dv.id = 'beyond_restime_' + name;
+        dv.style.top = (base.offsetTop + 12) + 'px';
+        dv.style.left = base.offsetLeft + 'px';
+        dv.style.position = 'absolute';
         base.parentNode.appendChild( dv );
 
         resources[name].base = base;
@@ -3570,21 +3516,21 @@ function disp_ResourcesTime()
 
     for( var i=0 ; i< bldtbl.length ; i++ ){
         if( RES_MAX.fame < bldtbl[i] ) {
-            var base = $x('id("status_left")/img[@title="名声"]');
+            var base = $s('id("status_left")/img[@title="名声"]');
             if( base ) {
-                var dv = d.createElement("div");
+                var dv = d.createElement('div');
 
-                dv.id = "beyond_restime_meisei";
-                dv.style.top = (base.offsetTop + addTop) + "px";
-                dv.style.left = (base.offsetLeft + 10) + "px";
-                dv.style.position = "absolute";
-                dv.style.color="lightgreen";
+                dv.id = 'beyond_restime_meisei';
+                dv.style.top = (base.offsetTop + addTop) + 'px';
+                dv.style.left = (base.offsetLeft + 10) + 'px';
+                dv.style.position = 'absolute';
+                dv.style.color='lightgreen';
                 if( bldtbl[i] != 999 ) {
-                    dv.innerHTML = "次拠点:" +  bldtbl[i];
+                    dv.innerHTML = '次拠点:' +  bldtbl[i];
                 }
 
                 if( villageCount < i + 1 ) {
-                    dv.innerHTML += "(+" + (i + 1 - villageCount ) + ")";
+                    dv.innerHTML += '(+' + (i + 1 - villageCount ) + ')';
                 }
 
                 base.parentNode.appendChild( dv );
@@ -3597,10 +3543,10 @@ function disp_ResourcesTime()
 
     if( flag_cost ) {
         var facilityResources = new Array();
-        var tds = $a('//td[@class="cost"]');
+        var tds = $x('//td[contains(concat(" ",normalize-space(@class)," "), " cost ")]');
         for(var i=0 ; i<tds.length ; i++) {
             var td = tds[i];
-            var spn = $a('./span[@class="normal" or @class="max90"]', td);
+            var spn = $x('./span[contains(concat(" ",normalize-space(@class)," "), " normal ") or contains(concat(" ",normalize-space(@class)," "), " max90 ")]', td);
             if( spn.length != 4 ) continue;
 
             var addObj = new Object();
@@ -3608,13 +3554,13 @@ function disp_ResourcesTime()
             for(var j=0 ; j < names.length ; j++ ) {
                 var name = names[j];
                 var base = spn[j];
-                var dv = d.createElement("div");
-                dv.id = "beyond_restime_" + i + "_" + name;
+                var dv = d.createElement('div');
+                dv.id = 'beyond_restime_' + i + '_' + name;
                 var elem_xy = cgetElementXY(base);
-                dv.style.top = (elem_xy.y + 9) + "px";
-                dv.style.left = (elem_xy.x - 18 )+ "px";
-                dv.style.fontSize = "9px";
-                dv.style.position = "absolute";
+                dv.style.top = (elem_xy.y + 9) + 'px';
+                dv.style.left = (elem_xy.x - 18 )+ 'px';
+                dv.style.fontSize = '9px';
+                dv.style.position = 'absolute';
                 td.appendChild( dv );
 
                 addObj[name] = {base : base , timer : dv};
@@ -3635,19 +3581,19 @@ function disp_ResourcesTime()
             if( dv && base ){
                 var tim;
                 if( RES_GROW[ name ] == 0 ) {
-                    tim = "XX:XX:XX";
+                    tim = 'XX:XX:XX';
                 }else if( RES_GROW[ name ] > 0 ){
                     tim = getTime(RES_MAX[ name ] - RES_NOW[ name ], RES_GROW[ name ]);
                 }else{
-                    tim = "-" + getTime(RES_NOW[ name ], 0 - RES_GROW[ name ]);
+                    tim = '-' + getTime(RES_NOW[ name ], 0 - RES_GROW[ name ]);
                 }
-                if( tim == "00:00:00" || tim.substr(0,1) == "-" ) dv.style.color="red";
-                else if( parseInt(tim.substr(0,2), 10) < 1 ) dv.style.color="orange";
-                else dv.style.color="lightgreen";
+                if( tim == '00:00:00' || tim.substr(0,1) == '-' ) dv.style.color='red';
+                else if( parseInt(tim.substr(0,2), 10) < 1 ) dv.style.color='orange';
+                else dv.style.color='lightgreen';
 
-                dv.innerHTML = "(" + tim + ")";
-                dv.style.top = (base.offsetTop + 12) + "px";
-                dv.style.left = base.offsetLeft + "px";
+                dv.innerHTML = '(' + tim + ')';
+                dv.style.top = (base.offsetTop + 12) + 'px';
+                dv.style.left = base.offsetLeft + 'px';
             }
         }
 
@@ -3655,8 +3601,8 @@ function disp_ResourcesTime()
         var base = resources.fame.base;
         var dv = resources.fame.timer;
         if( base && dv) {
-            dv.style.top = (base.offsetTop + addTop) + "px";
-            dv.style.left = (base.offsetLeft + 10) + "px";
+            dv.style.top = (base.offsetTop + addTop) + 'px';
+            dv.style.left = (base.offsetLeft + 10) + 'px';
         }
 
         if( flag_cost ) {
@@ -3668,19 +3614,19 @@ function disp_ResourcesTime()
                     var dv = facilityObj[name].timer;
                     var needed = parseInt(base.innerHTML,10);
                     if( needed > RES_MAX[ name ] ) {
-                        dv.style.color="red";
-                        dv.innerHTML = "倉庫不足";
+                        dv.style.color='red';
+                        dv.innerHTML = '倉庫不足';
                     }else if( needed > RES_NOW[ name ] ) {
                         var tim = getTime(needed - RES_NOW[ name ], RES_GROW[ name ]);
-                        dv.style.color="orange";
-                        dv.innerHTML = "(" + tim + ")";
+                        dv.style.color='orange';
+                        dv.innerHTML = '(' + tim + ')';
                     }else{
-                        dv.style.color="lightgreen";
-                        dv.innerHTML = "残" + (RES_NOW[ name ] - needed);
+                        dv.style.color='lightgreen';
+                        dv.innerHTML = '残' + (RES_NOW[ name ] - needed);
                     }
                     var elem_xy = cgetElementXY(base);
-                    dv.style.top = (elem_xy.y + 9) + "px";
-                    dv.style.left = (elem_xy.x - 18 )+ "px";
+                    dv.style.top = (elem_xy.y + 9) + 'px';
+                    dv.style.left = (elem_xy.x - 18 )+ 'px';
                 }
             }
         }
@@ -3697,8 +3643,8 @@ function disp_ResourcesTime()
         var h = Math.floor(tmp / 3600);
         var m = Math.floor((tmp - h*3600 ) / 60 );
         var s = Math.floor(tmp - h*3600 - m*60 );
-        var tim = h + ":" +
-                  (m+100).toString().substr(-2)  + ":" +
+        var tim = h + ':' +
+                  (m+100).toString().substr(-2)  + ':' +
                   (s+100).toString().substr(-2);
         return tim;
     }
@@ -3710,7 +3656,7 @@ function disp_ResourcesTime()
 //////////////////////
 function disp_MapList()
 {
-    if( location.pathname != "/map.php" ) return;
+    if( location.pathname != '/map.php' ) return;
 
 
     var map_type = cgetMapSize();
@@ -3718,27 +3664,27 @@ function disp_MapList()
         return;
     }
 
-    var base = $("mapbox");
+    var base = $('mapbox');
 
-    var div =d.createElement("div");
-    div.id = "beyond_maplist";
-    div.align = "center";
-    div.appendChild(d.createElement("br"));
+    var div =d.createElement('div');
+    div.id = 'beyond_maplist';
+    div.align = 'center';
+    div.appendChild(d.createElement('br'));
 
-    var tmp_t = d.createElement("table");
-    var tmp_r = d.createElement("tr");
-    var tmp_d1 = d.createElement("td");
-    ccreateCheckBox(tmp_d1, "beyond_maplist_kyoten", "1", "拠点","拠点を含めます",0);
-    var tmp_d2 = d.createElement("td");
-    ccreateCheckBox(tmp_d2, "beyond_maplist_ryouchi", "1", "領地","領地を含めます",0);
-    var tmp_d3 = d.createElement("td");
-    ccreateCheckBox(tmp_d3, "beyond_maplist_akichi", "1", "空き地","空き地を含めます",0);
-    var tmp_d4 = d.createElement("td");
+    var tmp_t = d.createElement('table');
+    var tmp_r = d.createElement('tr');
+    var tmp_d1 = d.createElement('td');
+    ccreateCheckBox(tmp_d1, 'beyond_maplist_kyoten', '1', '拠点','拠点を含めます',0);
+    var tmp_d2 = d.createElement('td');
+    ccreateCheckBox(tmp_d2, 'beyond_maplist_ryouchi', '1', '領地','領地を含めます',0);
+    var tmp_d3 = d.createElement('td');
+    ccreateCheckBox(tmp_d3, 'beyond_maplist_akichi', '1', '空き地','空き地を含めます',0);
+    var tmp_d4 = d.createElement('td');
 
-    var a = d.createElement("a");
-    a.href = "javascript:void(0)";
-    a.style.color = "black";
-    a.appendChild(d.createTextNode("<地形一覧表示>"));
+    var a = d.createElement('a');
+    a.href = 'javascript:void(0)';
+    a.style.color = 'black';
+    a.appendChild(d.createTextNode('<地形一覧表示>'));
     tmp_d4.appendChild(a);
 
     tmp_r.appendChild(tmp_d1);
@@ -3751,32 +3697,31 @@ function disp_MapList()
     base.appendChild(div);
 
     var sheet = d.styleSheets[d.styleSheets.length-1];
-    sheet.insertRule("table#beyond_maplist_table {border:2px solid black; border-collapse:collapse;}", sheet.cssRules.length);
-    sheet.insertRule("table#beyond_maplist_table th {background:lightgray; padding: 5px; text-align:center; border:1px solid black;}", sheet.cssRules.length);
-    sheet.insertRule("table#beyond_maplist_table td {padding: 2px; border:1px solid black;}", sheet.cssRules.length);
+    sheet.insertRule('table#beyond_maplist_table {border:2px solid black; border-collapse:collapse;}', sheet.cssRules.length);
+    sheet.insertRule('table#beyond_maplist_table th {background:lightgray; padding: 5px; text-align:center; border:1px solid black;}', sheet.cssRules.length);
+    sheet.insertRule('table#beyond_maplist_table td {padding: 2px; border:1px solid black;}', sheet.cssRules.length);
 
-    $e(a, "click", function() {
+    $e(a, 'click', function() {
 
-        var flag_akichi = cgetCheckBoxValue("beyond_maplist_akichi");
-        var flag_ryouchi = cgetCheckBoxValue("beyond_maplist_ryouchi");
-        var flag_kyoten = cgetCheckBoxValue("beyond_maplist_kyoten");
+        var flag_akichi = cgetCheckBoxValue('beyond_maplist_akichi');
+        var flag_ryouchi = cgetCheckBoxValue('beyond_maplist_ryouchi');
+        var flag_kyoten = cgetCheckBoxValue('beyond_maplist_kyoten');
 
-        var area = $a("//map[@id=\"mapOverlayMap\"]//area");
+        var area = $x('id("mapOverlayMap")//area');
         var lists = new Array();
         for(var i=0; i<area.length ; i++) {
-            var dat = area[i].getAttribute("onmouseover");
-            dat = dat.replace(/^.*rewrite/, "getTRData");
-            dat = dat.replace(/\); .*$/, ");");
-            var trdata;
-            eval("trdata = " + dat);
+            var dat = area[i].getAttribute('onmouseover');
+            dat = dat.replace(/^.*rewrite/, 'getTRData');
+            dat = dat.replace(/\); .*$/, ');');
+            var trdata = eval(dat);
             if( trdata ) {
                 lists.push(trdata);
             }
         }
 
         lists.sort( function(a,b){
-                if(a.ally == "" && b.ally != "") return 1;
-                else if(a.ally != "" && b.ally == "") return -1;
+                if(a.ally == '' && b.ally != '') return 1;
+                else if(a.ally != '' && b.ally == '') return -1;
 
                 if(a.ally > b.ally) return 1;
                 else if(a.ally < b.ally) return -1;
@@ -3807,38 +3752,38 @@ function disp_MapList()
         var tbl = initTable();
 
         for(var i=0 ; i<lists.length ; i++) {
-            var tr = d.createElement("tr");
+            var tr = d.createElement('tr');
             var td;
-            td = d.createElement("td");
+            td = d.createElement('td');
             td.innerHTML = lists[i].ally;
             tr.appendChild(td);
-            td = d.createElement("td");
+            td = d.createElement('td');
             td.innerHTML = lists[i].user_name;
             tr.appendChild(td);
-            td = d.createElement("td");
-            if( lists[i].kyoten_img ) td.innerHTML = "<img src=\"" + lists[i].kyoten_img +  "\" style=\"width:30px; height:30px;\" />";
+            td = d.createElement('td');
+            if( lists[i].kyoten_img ) td.innerHTML = '<img src="' + lists[i].kyoten_img +  '" style="width:30px; height:30px;" />';
             tr.appendChild(td);
-            td = d.createElement("td");
-            td.style.display = "none";
+            td = d.createElement('td');
+            td.style.display = 'none';
             td.innerHTML = lists[i].kyoten_kind;
             tr.appendChild(td);
-            td = d.createElement("td");
+            td = d.createElement('td');
             td.innerHTML = lists[i].jinko;
             tr.appendChild(td);
-            td = d.createElement("td");
+            td = d.createElement('td');
             td.innerHTML = lists[i].name;
             tr.appendChild(td);
 
-            td = d.createElement("td");
+            td = d.createElement('td');
             var xy = lists[i].xy.match(/\(([\-0-9]+),([\-0-9]+)\)/);
             if( xy ) td.innerHTML = cgetXYHtml(xy[1], xy[2]);
             else td.innerHTML = lists[i].xy;
             tr.appendChild(td);
-            td = d.createElement("td");
+            td = d.createElement('td');
             td.innerHTML = lists[i].kyori;
             tr.appendChild(td);
-            td = d.createElement("td");
-            if( lists[i].npc ) td.style.color = "red";
+            td = d.createElement('td');
+            if( lists[i].npc ) td.style.color = 'red';
             td.innerHTML = lists[i].star;
             tr.appendChild(td);
 
@@ -3849,10 +3794,10 @@ function disp_MapList()
 
         function getTRData(name, user_name, jinko, xy, ally, star, kyori, wood, stone, iron, rice, npc)
         {
-            if( !flag_akichi && ally == "" ) return null;
+            if( !flag_akichi && ally == '' ) return null;
 
-            if( jinko == "-") jinko = "";
-            var kyoten_img = "";
+            if( jinko == '-') jinko = '';
+            var kyoten_img = '';
             var kyoten_kind = 0;
             if( jinko || npc) {
                 var tmp = xy.match(/\(([\-0-9]+),([\-0-9]+)\)/);
@@ -3865,9 +3810,9 @@ function disp_MapList()
                     if( cy < MAP_Y_MIN ) cy = MAP_Y_MIN;
                     var no = cgetMapNofromXY(parseInt(tmp[1], 10), parseInt(tmp[2], 10), cx, cy, map_type);
                     if( no ) {
-                        var img = $x("//div[@id=\"mapsAll\"]//img[@class=\"mapAll" + no + "\"]");
+                        var img = $s('id("mapsAll")//img[contains(concat(" ",normalize-space(@class)," "), " mapAll' + no + ' ")]');
                         if( img ) {
-                            kyoten_img = img.getAttribute("src");
+                            kyoten_img = img.getAttribute('src');
                             if( npc ) kyoten_kind = 4;
                             else if( kyoten_img.match(/village/) ) kyoten_kind = 1;
                             else if( kyoten_img.match(/fort/) ) kyoten_kind = 2;
@@ -3878,73 +3823,73 @@ function disp_MapList()
                 }
             }
 
-            if( !flag_ryouchi && ally != "" && kyoten_kind == 0 ) return null;
-            if( !flag_kyoten && ally != "" && kyoten_kind != 0 ) return null;
+            if( !flag_ryouchi && ally != '' && kyoten_kind == 0 ) return null;
+            if( !flag_kyoten && ally != '' && kyoten_kind != 0 ) return null;
 
-            return {"kyoten_kind":kyoten_kind, "kyoten_img":kyoten_img,
-                    "jinko":jinko , "ally":ally, "user_name":user_name,
-                    "name":name, "xy":xy, "kyori":kyori, "star":star, "npc":npc};
+            return {'kyoten_kind':kyoten_kind, 'kyoten_img':kyoten_img,
+                    'jinko':jinko , 'ally':ally, 'user_name':user_name,
+                    'name':name, 'xy':xy, 'kyori':kyori, 'star':star, 'npc':npc};
         }
 
         var sort_kind, sort_order;
 
         function row_sort(col, kind, order) {
-            var tbl = $("beyond_maplist_table");
-            var trs = $a("descendant::tr[position()>1]",tbl);
+            var tbl = $('beyond_maplist_table');
+            var trs = $x('descendant::tr[position()>1]',tbl);
             sort_kind = kind;
             sort_order = order;
 
             var strs = new Array();
-            if( kind == "xy" ) {
+            if( kind == 'xy' ) {
                 //座標はaの下
                 for(var i=0; i<trs.length ; i++) {
-                    var td = $x("descendant::td[" + col + "]", trs[i]);
-                    var a = $x("descendant::a", td);
-                    if( a ) strs.push({"node":trs[i], "value":a.innerHTML});
-                    else strs.push({"node":trs[i], "value":""});
+                    var td = $s('descendant::td[' + col + ']', trs[i]);
+                    var a = $s('descendant::a', td);
+                    if( a ) strs.push({'node':trs[i], 'value':a.innerHTML});
+                    else strs.push({'node':trs[i], 'value':''});
                 }
             } else {
                 for(var i=0; i<trs.length ; i++) {
-                    var td = $x("descendant::td[" + col + "]", trs[i]);
-                    if(td.style.color=="red") {
-                        strs.push({"node":trs[i], "value":"★★★★★★★★★★" + td.innerHTML});//NPC砦だけ特別に
+                    var td = $s('descendant::td[' + col + ']', trs[i]);
+                    if(td.style.color=='red') {
+                        strs.push({'node':trs[i], 'value':'★★★★★★★★★★' + td.innerHTML});//NPC砦だけ特別に
                     }else{
-                        strs.push({"node":trs[i], "value":td.innerHTML});
+                        strs.push({'node':trs[i], 'value':td.innerHTML});
                     }
                 }
             }
 
             strs.sort( function(a,b) {
                 var ret = 0;
-                if( sort_kind == "num" ){
-                    if( a.value == "" && b.value == "" ) return 0;
-                    else if( a.value == "" ) return 1;
-                    else if( b.value == "" ) return -1;
+                if( sort_kind == 'num' ){
+                    if( a.value == '' && b.value == '' ) return 0;
+                    else if( a.value == '' ) return 1;
+                    else if( b.value == '' ) return -1;
                     else ret = parseInt(a.value, 10) - parseInt(b.value, 10);
-                }else if( sort_kind == "kyo" ){
+                }else if( sort_kind == 'kyo' ){
                     if( parseInt(a.value, 10) == 0 && parseInt(b.value, 10) == 0) return 0;
                     else if( parseInt(a.value, 10) == 0 ) return 1;
                     else if( parseInt(b.value, 10) == 0 ) return -1;
                     else ret = parseInt(a.value, 10) - parseInt(b.value, 10);
-                }else if( sort_kind == "float" ){
+                }else if( sort_kind == 'float' ){
                     ret = parseFloat(a.value, 10) - parseFloat(b.value, 10);
-                }else if (sort_kind == "xy") {
+                }else if (sort_kind == 'xy') {
                     //座標
                     if( !a.value && !b.value ) ret =  0;
                     else if( !a.value ) ret = 1;
                     else if( !b.value ) ret = -1;
                     else {
-                        var a_xy = a.value.split(",");
-                        var b_xy = b.value.split(",");
+                        var a_xy = a.value.split(',');
+                        var b_xy = b.value.split(',');
                         ret = ( Math.pow(parseInt(a_xy[0], 10), 2) + Math.pow(parseInt(a_xy[1], 10), 2) ) -
                               ( Math.pow(parseInt(b_xy[0], 10), 2) + Math.pow(parseInt(b_xy[1], 10), 2) );
                     }
                 }else {
                     if( a.value == b.value ) {
                         ret = 0;
-                    }else if( a.value == "" ) {
+                    }else if( a.value == '' ) {
                         return 1;
-                    }else if( b.value == "" ) {
+                    }else if( b.value == '' ) {
                         return -1;
                     }else if( a.value > b.value ) {
                         ret = 1;
@@ -3952,7 +3897,7 @@ function disp_MapList()
                         ret = -1;
                     }
                 }
-                if( sort_order == "dsc") {
+                if( sort_order == 'dsc') {
                     ret = 0 - ret;
                 }
                 return ret;
@@ -3967,76 +3912,76 @@ function disp_MapList()
 
         function appendSortButton(col, sortcol, kind )
         {
-            var tbl = $("beyond_maplist_table");
-            var th = $x("descendant::tr[1]//th[" + col + "]", tbl);
+            var tbl = $('beyond_maplist_table');
+            var th = $s('descendant::tr[1]//th[' + col + ']', tbl);
             if( !th ) return;
-            th.appendChild(d.createElement("br"));
+            th.appendChild(d.createElement('br'));
 
-            var a = d.createElement("a");
-            a.href = "javascript:void(0);";
-            var img = d.createElement("img");
-            img.src= IMG_DIR + "trade/icon_up.gif";
-            img.alt = "昇順に並べ替え";
+            var a = d.createElement('a');
+            a.href = 'javascript:void(0);';
+            var img = d.createElement('img');
+            img.src= IMG_DIR + 'trade/icon_up.gif';
+            img.alt = '昇順に並べ替え';
             img.title = img.alt;
             a.appendChild(img);
             th.appendChild(a);
 
             (function(n, k){
-                $e(a, "click", function(){row_sort(n, k, "asc"); } );
+                $e(a, 'click', function(){row_sort(n, k, 'asc'); } );
             })(sortcol, kind);
 
 
-            th.appendChild(d.createTextNode(" "));
+            th.appendChild(d.createTextNode(' '));
 
-            a = d.createElement("a");
-            a.href = "javascript:void(0)";
-            img = d.createElement("img");
-            img.src= IMG_DIR + "trade/icon_down.gif";
-            img.alt = "降順に並べ替え";
+            a = d.createElement('a');
+            a.href = 'javascript:void(0)';
+            img = d.createElement('img');
+            img.src= IMG_DIR + 'trade/icon_down.gif';
+            img.alt = '降順に並べ替え';
             img.title = img.alt;
 
             a.appendChild(img);
             th.appendChild(a);
 
             (function(n, k){
-                $e(a, "click", function(){row_sort(n, k, "dsc"); } );
+                $e(a, 'click', function(){row_sort(n, k, 'dsc'); } );
             })(sortcol, kind);
 
         }
 
         function initTable()
         {
-            var dv = $("beyond_maplist");
+            var dv = $('beyond_maplist');
 
-            var tbl = $("beyond_maplist_table");
+            var tbl = $('beyond_maplist_table');
             if( tbl ) {
                 tbl.parentNode.removeChild(tbl);
             }else{
-                var a = d.createElement("a");
-                a.href = "#ptop";
-                a.style.color="black";
-                a.appendChild(d.createTextNode("▲トップに戻る"));
-                a.id = "beyond_maplist_table_gotop";
+                var a = d.createElement('a');
+                a.href = '#ptop';
+                a.style.color='black';
+                a.appendChild(d.createTextNode('▲トップに戻る'));
+                a.id = 'beyond_maplist_table_gotop';
                 dv.appendChild(a);
             }
 
-            tbl = d.createElement("table");
-            tbl.id = "beyond_maplist_table";
+            tbl = d.createElement('table');
+            tbl.id = 'beyond_maplist_table';
 
-            tbl.innerHTML = "<tr>" +
-                    "<th>同盟</th><th>君主</th><th>拠点</th><th style=\"display:none;\">拠点Kind</th>" +
-                    "<th>人口</th><th>領地名</th><th>座標</th><th>距離</th><th>戦力</th>" +
-                    "</tr>";
+            tbl.innerHTML = '<tr>' +
+                    '<th>同盟</th><th>君主</th><th>拠点</th><th style="display:none;">拠点Kind</th>' +
+                    '<th>人口</th><th>領地名</th><th>座標</th><th>距離</th><th>戦力</th>' +
+                    '</tr>';
 
-            dv.insertBefore(tbl, $("beyond_maplist_table_gotop"));
+            dv.insertBefore(tbl, $('beyond_maplist_table_gotop'));
 
-            appendSortButton(1, 1, "str" );
-            appendSortButton(2, 2, "str" );
-            appendSortButton(3, 4, "kyo" );
-            appendSortButton(5, 5, "num" );
-            appendSortButton(7, 7, "xy" );
-            appendSortButton(8, 8, "float" );
-            appendSortButton(9, 9, "str" );
+            appendSortButton(1, 1, 'str' );
+            appendSortButton(2, 2, 'str' );
+            appendSortButton(3, 4, 'kyo' );
+            appendSortButton(5, 5, 'num' );
+            appendSortButton(7, 7, 'xy' );
+            appendSortButton(8, 8, 'float' );
+            appendSortButton(9, 9, 'str' );
 
             return tbl;
         }
@@ -4048,11 +3993,11 @@ function disp_MapList()
 //////////////////////
 function disp_ToolTipsDistance()
 {
-    if( location.pathname == "/village.php" ) {
+    if( location.pathname == '/village.php' ) {
         saveTrainingLevel();
     }
 
-    var links = $a('//a[contains(@href,"castle_send_troop.php") and not(contains(@href,"TB_inline"))]');
+    var links = $x('//a[contains(@href,"castle_send_troop.php") and not(contains(@href,"TB_inline"))]');
     if (!links.length) {
         return;
     }
@@ -4061,7 +4006,7 @@ function disp_ToolTipsDistance()
     var TL = 0;
     var ETL = 0;
     var vid = cgetCurrentVillageId();
-    var lists = cloadData("TrainingLevels", "[]", true, true);
+    var lists = cloadData('TrainingLevels', '[]', true, true);
 
     for (var i = 0;i < lists.length;i++) {
         if (lists[i].id == vid) {
@@ -4071,10 +4016,10 @@ function disp_ToolTipsDistance()
         }
     }
 
-    if (isNaN(""+TL)) {
+    if (isNaN(''+TL)) {
         TL = 0;
     }
-    if (isNaN(""+ETL)) {
+    if (isNaN(''+ETL)) {
         ETL = 0;
     }
 
@@ -4083,15 +4028,15 @@ function disp_ToolTipsDistance()
     for(var i=0 ; i<links.length ; i++) {
         if(!reg.test(links[i].href)) continue;
 
-        links[i].alt = "";
-        links[i].title = "";
-        $e(links[i], "mouseover", function (event) {
+        links[i].alt = '';
+        links[i].title = '';
+        $e(links[i], 'mouseover', function (event) {
             var xy = this.href.match(reg);
             var distance = cgetDistanceFromBase(xy[1], xy[2] );
             showToolTips(event, distance, TL, ETL);
         });
 
-        $e(links[i], "mouseout", function () { hideToolTips(); } );
+        $e(links[i], 'mouseout', function () { hideToolTips(); } );
 
     }
 
@@ -4100,27 +4045,27 @@ function disp_ToolTipsDistance()
         hideToolTips();
         var sp = 0.05 * trainingLevel + 1+ (eTrainingLevel*0.001*distance);
 
-        var tw = d.createElement("div");
-        tw.id = "beyond_ToolTipsWindow";
-        tw.style.position = "absolute";
-        tw.style.backgroundColor = "lightyellow";
-        tw.style.border = "outset 2px lightyellow";
-        tw.style.fontSize = "10px";
-        tw.style.padding = "10px";
+        var tw = d.createElement('div');
+        tw.id = 'beyond_ToolTipsWindow';
+        tw.style.position = 'absolute';
+        tw.style.backgroundColor = 'lightyellow';
+        tw.style.border = 'outset 2px lightyellow';
+        tw.style.fontSize = '10px';
+        tw.style.padding = '10px';
         tw.style.zIndex = 1000;
         var xxx = evt.pageX + 5;
         if( xxx > 700 ) xxx -=175;
-        tw.style.left = xxx + "px";
-        tw.style.top = (evt.pageY +5) + "px";
+        tw.style.left = xxx + 'px';
+        tw.style.top = (evt.pageY +5) + 'px';
 
-        var dv = d.createElement("div");
-        dv.innerHTML = "時間の目安　　遠征訓練所Lv."+eTrainingLevel+" (+"+(eTrainingLevel*0.1*distance).toFixed(3)+"%)<br>距離 [" + distance.toFixed(2) + "]　訓練所Lv." + trainingLevel + " (+" + (TL*5) + "%)" ;
+        var dv = d.createElement('div');
+        dv.innerHTML = '時間の目安　　遠征訓練所Lv.'+eTrainingLevel+' (+'+(eTrainingLevel*0.1*distance).toFixed(3)+'%)<br>距離 [' + distance.toFixed(2) + ']　訓練所Lv.' + trainingLevel + ' (+' + (TL*5) + '%)' ;
         tw.appendChild(dv);
 
-        var tbl = d.createElement("table");
-        tbl.style.border = "2px solid black";
-        tbl.style.borderCollapse = "collapse";
-        tbl.style.width = "100%";
+        var tbl = d.createElement('table');
+        tbl.style.border = '2px solid black';
+        tbl.style.borderCollapse = 'collapse';
+        tbl.style.width = '100%';
 
         var now = cgetNow();
 
@@ -4131,28 +4076,28 @@ function disp_ToolTipsDistance()
             var speed = parseFloat(tmp[1]);
             if( speed < 0 ) continue;
 
-            var tr = d.createElement("tr");
-            var td = d.createElement("td");
-            td.style.border = "1px solid black";
-            td.style.textAlign = "left";
+            var tr = d.createElement('tr');
+            var td = d.createElement('td');
+            td.style.border = '1px solid black';
+            td.style.textAlign = 'left';
             td.appendChild(d.createTextNode( OPT_TTDISTANCE_ITEMS[i] ));
             tr.appendChild(td);
 
             var timeText = getTime(speed * sp, distance);
 
-            td = d.createElement("td");
-            td.style.border = "1px solid black";
-            td.style.textAlign = "right";
+            td = d.createElement('td');
+            td.style.border = '1px solid black';
+            td.style.textAlign = 'right';
             td.appendChild(d.createTextNode(timeText));
             tr.appendChild(td);
 
             var dayText = caddDate(now, timeText);
-            dayText = dayText.substring(5, dayText.length - 3).replace("-", "/");
+            dayText = dayText.substring(5, dayText.length - 3).replace('-', '/');
 
 
-            td = d.createElement("td");
-            td.style.border = "1px solid black";
-            td.style.textAlign = "right";
+            td = d.createElement('td');
+            td.style.border = '1px solid black';
+            td.style.textAlign = 'right';
             td.appendChild(d.createTextNode(dayText));
             tr.appendChild(td);
 
@@ -4160,7 +4105,7 @@ function disp_ToolTipsDistance()
         }
 
         tw.appendChild(tbl);
-        $("beyond_floatpanel").appendChild(tw);
+        $('beyond_floatpanel').appendChild(tw);
 
 
 
@@ -4170,8 +4115,8 @@ function disp_ToolTipsDistance()
             var h = Math.floor(tmp / 3600);
             var m = Math.floor((tmp - h*3600 ) / 60 );
             var s = Math.floor(tmp - h*3600 - m*60 );
-            var tim = h + ":" +
-                      (m+100).toString().substr(-2)  + ":" +
+            var tim = h + ':' +
+                      (m+100).toString().substr(-2)  + ':' +
                       (s+100).toString().substr(-2);
             return tim;
         }
@@ -4179,7 +4124,7 @@ function disp_ToolTipsDistance()
     }
     function hideToolTips()
     {
-        var tw = $("beyond_ToolTipsWindow");
+        var tw = $('beyond_ToolTipsWindow');
         if( tw ){
             tw.parentNode.removeChild(tw);
         }
@@ -4195,21 +4140,21 @@ function disp_ToolTipsDistance()
 
         var level = 0;
         var elevel = 0;
-        var map = $a('//area[contains(@alt, "訓練所")]');;
+        var map = $x('//area[contains(@alt, "訓練所")]');;
         if(0 < map.length) {
             for (var i = 0;i < map.length;i++) {
                 var lv = map[i].alt.match(/((?:遠征)?訓練所) LV.([0-9]+)/);
-                if(lv[1] == "訓練所") {
+                if(lv[1] == '訓練所') {
                     level = parseInt(lv[2],10);
                 }
-                else if (lv[1] == "遠征訓練所") {
+                else if (lv[1] == '遠征訓練所') {
                     elevel = parseInt(lv[2],10);
                 }
             }
         }
 
 
-        var lists = cloadData("TrainingLevels", "[]", true, true);
+        var lists = cloadData('TrainingLevels', '[]', true, true);
         var newLists = new Array();
         var isNewItem = true;
         for (var i = 0;i < lists.length;i++) {
@@ -4232,7 +4177,7 @@ function disp_ToolTipsDistance()
             newLists.push({id:vil_id,basename:basename,level:level,elevel:elevel});
         }
 
-        csaveData( "TrainingLevels", newLists, true, true );
+        csaveData( 'TrainingLevels', newLists, true, true );
     }
 
 
@@ -4243,7 +4188,7 @@ function disp_ToolTipsDistance()
 //////////////////////
 function disp_ToolTipsAllyPerson()
 {
-    var links = $a('//a[(contains(@href,"village_change.php") or contains(@href,"land.php")) and not(contains(@href,"TB_inline") or contains(@href,"from") or contains(@onmouseover,"bigmap-caption"))]');
+    var links = $x('//a[(contains(@href,"village_change.php") or contains(@href,"land.php")) and not(contains(@href,"TB_inline") or contains(@href,"from") or contains(@onmouseover,"bigmap-caption"))]');
     if (links.length == 0) return;
 
     var selfVillages =cgetVillageIds();
@@ -4256,73 +4201,67 @@ function disp_ToolTipsAllyPerson()
             }
         }
 
-        links[i].alt = "";
-        links[i].title = "";
+        links[i].alt = '';
+        links[i].title = '';
 
-        $e(links[i], "mouseover", function(event){ showToolTips(event, this.href); } );
-        $e(links[i], "mouseout", function(){ hideToolTips(); } );
+        $e(links[i], 'mouseover', function(event){ showToolTips(event, this.href); } );
+        $e(links[i], 'mouseout', function(){ hideToolTips(); } );
     }
 
     function showToolTips( evt, url )
     {
         hideToolTips();
-        var tw = d.createElement("div");
-        tw.id = "beyond_ToolTipsWindow";
-        tw.style.position = "absolute";
-        tw.style.backgroundColor = "lightyellow";
-        tw.style.border = "outset 2px lightyellow";
-        tw.style.fontSize = "10px";
-        tw.style.padding = "10px";
+        var tw = d.createElement('div');
+        tw.id = 'beyond_ToolTipsWindow';
+        tw.style.position = 'absolute';
+        tw.style.backgroundColor = 'lightyellow';
+        tw.style.border = 'outset 2px lightyellow';
+        tw.style.fontSize = '10px';
+        tw.style.padding = '10px';
         tw.style.zIndex = 1000;
         var xxx = evt.pageX + 5;
         if( xxx > 700 ) xxx -=50;
-        tw.style.left = xxx + "px";
-        tw.style.top = (evt.pageY +5) + "px";
-        var dv = d.createElement("div");
-        dv.id = "beyond_ToolTipsWindow_base";
-        dv.appendChild(d.createTextNode("領地 : ..."));
+        tw.style.left = xxx + 'px';
+        tw.style.top = (evt.pageY +5) + 'px';
+        var dv = d.createElement('div');
+        dv.id = 'beyond_ToolTipsWindow_base';
+        dv.appendChild(d.createTextNode('領地 : ...'));
         tw.appendChild( dv );
 
-        dv = d.createElement("div");
-        dv.id = "beyond_ToolTipsWindow_ally";
-        dv.appendChild(d.createTextNode("同盟 : ..."));
+        dv = d.createElement('div');
+        dv.id = 'beyond_ToolTipsWindow_ally';
+        dv.appendChild(d.createTextNode('同盟 : ...'));
         tw.appendChild( dv );
 
-        dv = d.createElement("div");
-        dv.id = "beyond_ToolTipsWindow_user";
-        dv.appendChild(d.createTextNode("君主 : ..."));
+        dv = d.createElement('div');
+        dv.id = 'beyond_ToolTipsWindow_user';
+        dv.appendChild(d.createTextNode('君主 : ...'));
         tw.appendChild( dv );
-        $("beyond_floatpanel").appendChild(tw);
+        $('beyond_floatpanel').appendChild(tw);
 
 
-        cajaxRequest(url, "GET", "", function(req){
-            var tw = $("beyond_ToolTipsWindow");
+        cajaxRequest(url, 'GET', '', function(req){
+            var tw = $('beyond_ToolTipsWindow');
             if( !tw ) return ;
 
-            var dom = d.createElement("html");
+            var dom = d.createElement('html');
             dom.innerHTML = req.responseText;
-            if (navigator.userAgent.toLowerCase().indexOf('chrome') != -1) {
-                $("beyond_tmp").appendChild(dom);
-            }
+
             var dt = getDatafromLandElm(dom);
-            if (navigator.userAgent.toLowerCase().indexOf('chrome') != -1) {
-                $("beyond_tmp").removeChild(dom);
-            }
             if( !dt ) return ;
 
-            if( $("beyond_ToolTipsWindow_base") ) {
-                $("beyond_ToolTipsWindow_base").innerHTML = "領地 : " + dt.base + "(" + dt.x + "," + dt.y + ")";
-                $("beyond_ToolTipsWindow_ally").innerHTML = "同盟 : " + dt.ally;
-                $("beyond_ToolTipsWindow_user").innerHTML = "君主 : " + dt.user;
+            if( $('beyond_ToolTipsWindow_base') ) {
+                $('beyond_ToolTipsWindow_base').innerHTML = '領地 : ' + dt.base + '(' + dt.x + ',' + dt.y + ')';
+                $('beyond_ToolTipsWindow_ally').innerHTML = '同盟 : ' + dt.ally;
+                $('beyond_ToolTipsWindow_user').innerHTML = '君主 : ' + dt.user;
             }
         }, function(req){
-//          alert("サーバからエラーが返りましたよ" );
         });
 
     }
     function hideToolTips()
     {
-        var tw = $("beyond_ToolTipsWindow");
+        var tw = $('beyond_ToolTipsWindow');
         if( tw ){
             tw.parentNode.removeChild(tw);
         }
@@ -4331,25 +4270,25 @@ function disp_ToolTipsAllyPerson()
     {
         var ret = new Array();
 
-        var nam = $x('.//span[@class="basename"]', dom);
+        var nam = $s('//span[contains(concat(" ",normalize-space(@class)," "), " basename ")]', dom);
 
         if( !nam ) return null;
-        ret["base"] = nam.innerHTML;
+        ret['base'] = nam.innerHTML;
 
-        var xy = $x('.//span[@class="xy"]', dom);
+        var xy = $s('//span[contains(concat(" ",normalize-space(@class)," "), " xy ")]', dom);
         if( !xy ) return null;
         xy = xy.innerHTML.match(/([\-0-9]+),([\-0-9]+)/);
         if( !xy ) return null;
-        ret["x"] = parseInt(xy[1], 10);
-        ret["y"] = parseInt(xy[2], 10);
+        ret['x'] = parseInt(xy[1], 10);
+        ret['y'] = parseInt(xy[2], 10);
 
-        var a = $a('.//div[@class="status"]//a', dom);
+        var a = $x('//div[contains(concat(" ",normalize-space(@class)," "), " status ")]//a', dom);
         if( a.length < 2 ) {
-            ret["user"] = "";
-            ret["ally"] = "";
+            ret['user'] = '';
+            ret['ally'] = '';
         }else{
-            ret["user"] = a[0].innerHTML;
-            ret["ally"] = a[1].innerHTML;
+            ret['user'] = a[0].innerHTML;
+            ret['ally'] = a[1].innerHTML;
         }
         return ret;
     }
@@ -4362,7 +4301,7 @@ function disp_ToolTipsAllyPerson()
 //////////////////////
 function disp_UserStar()
 {
-    if( location.pathname == "/user/" || location.pathname == "/user/index.php" ) {
+    if( location.pathname == '/user/' || location.pathname == '/user/index.php' ) {
         showProfile();
     }
 
@@ -4370,107 +4309,98 @@ function disp_UserStar()
     function showProfile()
     {
         //君主名取得
-        var uname_td = $x("//table[@class=\"commonTables\"]//tr[2]/td[2]");
+        var uname_td = $s('//table[contains(concat(" ",normalize-space(@class)," "), " commonTables ")]//tr[2]/td[2]');
         if( !uname_td ) return;
         var uname = uname_td.textContent;
         var uid = USER_ID;
         if( URL_PARAM.user_id ) uid = URL_PARAM.user_id;
 
         //table★欄追加
-        cappendColumnForProfile("★", "beyond_star" );
+        cappendColumnForProfile('★', 'beyond_star' );
 
         //内容初期設定
-        lists = cloadData( "UserStarList" + uid, "[]", true, true );
+        lists = cloadData( 'UserStarList' + uid, '[]', true, true );
 
         for( var i=0 ; i<lists.length ; i++){
-            var td = $("beyond_star_" + lists[i].x + "_" + lists[i].y);
-            if( td && td.innerHTML == "" ) {
+            var td = $('beyond_star_' + lists[i].x + '_' + lists[i].y);
+            if( td && td.innerHTML == '' ) {
                 if( lists[i].npc ) {
-                    td.innerHTML = "★" + lists[i].star;
-                    td.style.color = "red";
+                    td.innerHTML = '★' + lists[i].star;
+                    td.style.color = 'red';
                 }else{
-                    td.innerHTML = "★" + lists[i].star + " (" + lists[i].wood + "," + lists[i].stone + "," + lists[i].iron + "," + lists[i].rice + ")";
+                    td.innerHTML = '★' + lists[i].star + ' (' + lists[i].wood + ',' + lists[i].stone + ',' + lists[i].iron + ',' + lists[i].rice + ')';
                 }
                 td.style.opacity = lists[i].star * 0.05 + 0.5;
             }
         }
         //タイトルにGETを追加
-        var th = $("beyond_star_title");
+        var th = $('beyond_star_title');
         if( th ) {
-            var lnk = d.createElement("a");
-            lnk.href = "javascript:void(0)";
-            lnk.innerHTML ="(GET)";
-            lnk.style.fontSize = "9px";
+            var lnk = d.createElement('a');
+            lnk.href = 'javascript:void(0)';
+            lnk.innerHTML ='(GET)';
+            lnk.style.fontSize = '9px';
 
             var running = false;
-            $e(lnk, "click", function() {
+            $e(lnk, 'click', function() {
 
                 if( running ) return ;
 
-                if( confirm("☆情報を一気に取得するためサーバに負荷をかけます。\n何度も実行するとDOS攻撃と同じなので、実行には注意して下さい") == false ) return;
+                if( confirm('☆情報を一気に取得するためサーバに負荷をかけます。\n何度も実行するとDOS攻撃と同じなので、実行には注意して下さい') == false ) return;
                 running = true;
 
                 window.setTimeout(timerFunc, 0);
 
                 function timerFunc()
                 {
-                    var tds = $a("//td[contains(@id, \"beyond_star_\")]");
-                    var targettd = "";
-                    var targetid = "";
+                    var tds = $x('//td[contains(@id, "beyond_star_")]');
+                    var targettd = '';
+                    var targetid = '';
                     for( var i=0 ; i< tds.length ; i++) {
-                        if( tds[i].innerHTML == "" ) {
+                        if( tds[i].innerHTML == '' ) {
                             targettd = tds[i];
                             targetid = tds[i].id;
                             break;
                         }
                     }
                     if( !targetid ) {
-                        alert("全ての☆情報を取得しました");
+                        alert('全ての☆情報を取得しました');
                         running = false;
                         return;
                     }
 
                     var xy = targetid.match(/beyond_star_([\-0-9]+)_([\-0-9]+)/);
                     if( !xy ) {
-                        GM_log("err");;
+                        GM_log('err');;
                         return ;
                     }
 
-                    cajaxRequest("/map.php?x=" + xy[1] + "&y=" + xy[2], "GET", "", function(req) {
-                        var dom = d.createElement("html");
+                    cajaxRequest('/map.php?x=' + xy[1] + '&y=' + xy[2], 'GET', '', function(req) {
+                        var dom = d.createElement('html');
                         dom.innerHTML = req.responseText;
-                        if (navigator.userAgent.toLowerCase().indexOf('chrome') != -1) {
-                            $("beyond_tmp").appendChild(dom);
-                        }
-
-                        var area = $a("//map[@id=\"mapOverlayMap\"]//area", dom);
+                        var area = $x('id("mapOverlayMap")//area', dom);
                         for(var i=0 ; i<area.length ; i++){
-                            var dat = area[i].getAttribute("onmouseover");
-                            dat = dat.replace(/^.*rewrite/, "setStar");
-                            dat = dat.replace(/\); .*$/, ");");
+                            var dat = area[i].getAttribute('onmouseover');
+                            dat = dat.replace(/^.*rewrite/, 'setStar');
+                            dat = dat.replace(/\); .*$/, ');');
                             //evalの中ではGM_set/getValueが出来ないので、変数を一旦外に出す形に
-                            eval("dat = " + dat);
-                            if( !dat ) continue;
+                            var result = eval(dat);
+                            if( !result) continue;
 
-                            var td = $("beyond_star_" + dat.x + "_" + dat.y);
-                            if( !td ) { GM_log("td null err?:" + dat.x + "," + dat.y); return;};
+                            var td = $('beyond_star_' + result.x + '_' + result.y);
+                            if( !td ) { GM_log('td null err?:' + result.x + ',' + result.y); return;};
                             if( td.innerHTML) continue;
 
-                            csetUserStar( uid, dat.x, dat.y, dat.star.length, dat.wood, dat.stone, dat.iron, dat.rice, dat.npc );
-                            if( dat.npc ) {
-                                td.innerHTML = "★" + dat.star.length;
-                                td.style.color = "red";
+                            csetUserStar( uid, result.x, result.y, result.star.length, result.wood, result.stone, result.iron, result.rice, result.npc );
+                            if( result.npc ) {
+                                td.innerHTML = '★' + result.star.length;
+                                td.style.color = 'red';
                             }else{
-                                td.innerHTML = "★" + dat.star.length + " (" + dat.wood + "," + dat.stone + "," + dat.iron + "," + dat.rice + ")";
+                                td.innerHTML = '★' + result.star.length + ' (' + result.wood + ',' + result.stone + ',' + result.iron + ',' + result.rice + ')';
                             }
-                            td.style.opacity = dat.star.length * 0.05 + 0.5;
+                            td.style.opacity = result.star.length * 0.05 + 0.5;
                         }
-
-                        if (navigator.userAgent.toLowerCase().indexOf('chrome') != -1) {
-                            $("beyond_tmp").removeChild(dom);
-                        }
-
-                        window.setTimeout(timerFunc, 0);
+                        setTimeout(timerFunc, 0);
 
                     });
                 }
@@ -4485,7 +4415,7 @@ function disp_UserStar()
                 if( tmp ) {
                     var x = tmp[1];
                     var y = tmp[2];
-                    return {"user_name":user_name, "x":x, "y":y, "star":star, "wood":wood, "stone":stone, "iron":iron, "rice":rice, "npc":npc};
+                    return {'user_name':user_name, 'x':x, 'y':y, 'star':star, 'wood':wood, 'stone':stone, 'iron':iron, 'rice':rice, 'npc':npc};
                 }
             }
             return null;
@@ -4499,14 +4429,14 @@ function disp_UserStar()
 function disp_UserLevel()
 {
 
-    if( location.pathname == "/user/" || location.pathname == "/user/index.php" ) {
+    if( location.pathname == '/user/' || location.pathname == '/user/index.php' ) {
         if( !URL_PARAM.user_id || USER_ID == URL_PARAM.user_id ) {
             showProfile();
         }
     }
-    if( location.pathname == "/land.php" || location.pathname == "/village.php" ) {
+    if( location.pathname == '/land.php' || location.pathname == '/village.php' ) {
         //保存
-        var spnxy = $x("//span[@class=\"xy\"]");
+        var spnxy = $s('//span[contains(concat(" ",normalize-space(@class)," "), " xy ")]');
         if( !spnxy ){
             return;
         }
@@ -4516,10 +4446,8 @@ function disp_UserLevel()
         }
         var tmp = spnxy.innerHTML.match(/レベル(\d+)/);
         if( tmp ) {
-    //        GM_log("add:" + xy[1] + "," + xy[2]);
             csetMyLevel(xy[1], xy[2], tmp[1] );
         }else {
-     //       GM_log("del:" + xy[1] + "," + xy[2]);
             cdelMyLevel(xy[1], xy[2]);
         }
     }
@@ -4528,12 +4456,12 @@ function disp_UserLevel()
     function showProfile()
     {
         //tableLevel欄追加
-        cappendColumnForProfile("Level", "beyond_level" );
+        cappendColumnForProfile('Level', 'beyond_level' );
 
         //内容初期設定
-        lists = cloadData( "MyLevelList", "[]", true, true );
+        lists = cloadData( 'MyLevelList', '[]', true, true );
         for( var i=0 ; i<lists.length ; i++){
-            var td = $("beyond_level_" + lists[i].x + "_" + lists[i].y);
+            var td = $('beyond_level_' + lists[i].x + '_' + lists[i].y);
             if( td ) {
                 td.innerHTML = lists[i].level;
             }
@@ -4542,28 +4470,28 @@ function disp_UserLevel()
         updateLevelUpLink();
 
         //タイトルにGETを追加
-        var th = $("beyond_level_title");
+        var th = $('beyond_level_title');
         if( th ) {
-            var lnk = d.createElement("a");
-            lnk.href = "javascript:void(0)";
-            lnk.innerHTML ="(GET)";
-            lnk.style.fontSize = "9px";
+            var lnk = d.createElement('a');
+            lnk.href = 'javascript:void(0)';
+            lnk.innerHTML ='(GET)';
+            lnk.style.fontSize = '9px';
 
             var running = false;
-            $e(lnk, "click", function() {
+            $e(lnk, 'click', function() {
                 if( running ) return ;
 
-                if( confirm("Level情報を一気に取得するためサーバに負荷をかけます。\n何度も実行するとDOS攻撃と同じなので、実行には注意して下さい") == false ) return;
+                if( confirm('Level情報を一気に取得するためサーバに負荷をかけます。\n何度も実行するとDOS攻撃と同じなので、実行には注意して下さい') == false ) return;
                 running = true;
                 window.setTimeout(timerFunc, 0);
 
                 function timerFunc()
                 {
-                    var tds = $a("//td[contains(@id, \"beyond_level_\")]");
-                    var targettd = "";
-                    var targetid = "";
+                    var tds = $x('//td[contains(@id, "beyond_level_")]');
+                    var targettd = '';
+                    var targetid = '';
                     for( var i=0 ; i< tds.length ; i++) {
-                        if( tds[i].innerHTML == "" ) {
+                        if( tds[i].innerHTML == '' ) {
                             targettd = tds[i];
                             targetid = tds[i].id;
                             break;
@@ -4573,30 +4501,27 @@ function disp_UserLevel()
                         updateLevelUp();
                         updateLevelUpLink();
                         running = false;
-                        alert("全てのレベル情報を取得しました");
+                        alert('全てのレベル情報を取得しました');
                         return;
                     }
 
                     var xy = targetid.match(/beyond_level_([\-0-9]+)_([\-0-9]+)/);
                     if( !xy ) {
-                        GM_log("err");;
+                        GM_log('err');;
                         return ;
                     }
 
-                    cajaxRequest("/land.php?x=" + xy[1] + "&y=" + xy[2], "GET", "", function(req) {
-                        var dom = d.createElement("html");
+                    cajaxRequest('/land.php?x=' + xy[1] + '&y=' + xy[2], 'GET', '', function(req) {
+                        var dom = d.createElement('html');
                         dom.innerHTML = req.responseText;
-                        if (navigator.userAgent.toLowerCase().indexOf('chrome') != -1) {
-                            $("beyond_tmp").appendChild(dom);
-                        }
-                        var spnxy = $x("//span[@class=\"xy\"]", dom);
+                        var spnxy = $s('//span[contains(concat(" ",normalize-space(@class)," "), " xy ")]', dom);
                         if( !spnxy ){
-                            GM_log("span class=xy err");
+                            GM_log('span class=xy err');
                             return;
                         }
                         var xy = spnxy.innerHTML.match(/\(([\-0-9]+),([\-0-9]+)\)/);
                         if( !xy ) {
-                            GM_log("xy match err");
+                            GM_log('xy match err');
                             return;
                         }
                         var level = 0;
@@ -4604,17 +4529,14 @@ function disp_UserLevel()
                         if( tmp ) {
                             level = tmp[1];
                         }
-                        var td = $("beyond_level_" + xy[1] + "_" + xy[2]);
-                        if( !td ) { GM_log("td null err?:" + xy[1] + "," + xy[2]); return;};
+                        var td = $('beyond_level_' + xy[1] + '_' + xy[2]);
+                        if( !td ) { GM_log('td null err?:' + xy[1] + ',' + xy[2]); return;};
                         if( !td.innerHTML ) {
                             csetMyLevel(xy[1], xy[2], level);
                             td.innerHTML = level;
                         }
-                        if (navigator.userAgent.toLowerCase().indexOf('chrome') != -1) {
-                            $("beyond_tmp").removeChild(dom);
-                        }
 
-                        window.setTimeout(timerFunc, 0);
+                        setTimeout(timerFunc, 0);
 
                     });
                 }
@@ -4627,15 +4549,20 @@ function disp_UserLevel()
         function updateLevelUp()
         {
             //建設/破棄リストから
-            var lists = cloadData("RemoveList", "[]", true, true);
+            var lists = cloadData('RemoveList', '[]', true, true);
             for(var i=0 ; i<lists.length ; i++) {
-                if( lists[i].kind != 5 ) continue;
-                var td = $("beyond_level_" + lists[i].x + "_" + lists[i].y);
-                if( !td ) continue;
-    //           GM_log("td:" + td.innerHTML);
+                if( lists[i].kind != 5 ) {
+                    continue;
+                }
+                var td = $('beyond_level_' + lists[i].x + '_' + lists[i].y);
+                if( !td ) {
+                    continue;
+                }
                 var level = parseInt(td.innerHTML,10);
-                if( isNaN( ""+level ) ) continue;
-                td.innerHTML =  level + " (+)";
+                if( isNaN( ''+level ) ) {
+                    continue;
+                }
+                td.innerHTML =  level + ' (+)';
             }
         }
         function updateLevelUpLink()
@@ -4643,9 +4570,9 @@ function disp_UserLevel()
             var img_lvup = 'data:image/gif;base64,'+
                 'R0lGODlhFQAVAJEAAIaT6////////wAAACH5BAUUAAIALAAAAAAVABUAAAJDlICpi3YM14u0WhVY'+
                 'Rjn4zWlJx4HgiJrooqohm67A+c727GLpp8MhXZORRD4b8NYzQj4k5pDF2/CQl6pVclU4sgBDAQA7';
-            var tds = $a("//td[contains(@id, \"beyond_level_\")]");
+            var tds = $x('//td[contains(@id, "beyond_level_")]');
             for( var i=0 ; i<tds.length ; i++){
-                if( "" + parseInt(tds[i].innerHTML,10) == tds[i].innerHTML ) {
+                if( '' + parseInt(tds[i].innerHTML,10) == tds[i].innerHTML ) {
                     var lv = parseInt(tds[i].innerHTML,10);
                     if( lv < 1 || lv > 4 ) continue;
                     var mtbl = [2, 2, 2, 4];
@@ -4667,85 +4594,35 @@ function disp_UserLevel()
 
 
 //////////////////////
-//同盟ログ前後リンク追加
-//////////////////////
-/***
-function disp_ReportNextPrior()
-{
-    if( location.pathname == "/alliance/alliance_log.php" ) {
-        var elms = $a("//table[@class=\"commonTables\"]//tr/td[2]/a");
-        var lists = new Array();
-        for( var i=0; i<elms.length ; i++) {
-            var ids = elms[i].href.match(/id=(\d+)/);
-            if( ids ) {
-                lists.push(ids[1]);
-            }
-        }
-        csaveData("AllyReports", lists, true, true);
-    }
-    if( location.pathname == "/alliance/detail.php" ) {
-        var lists = cloadData("AllyReports", "[]", true, true);
-
-        var pos =lists.indexOf( URL_PARAM.id );
-        if( pos != -1 ) {
-            var tbl = d.createElement("table");
-            tbl.width = "100%";
-            var tmpHTML = "<tr>";
-            if( pos < lists.length -1  ) {
-                var params = "id=" + lists[pos + 1] +
-                            "&m=" + ( (URL_PARAM.m) ? URL_PARAM.m : ""  ) +
-                            "&p=" + ( (URL_PARAM.p) ? URL_PARAM.p : ""  );
-                tmpHTML += "<td align=\"left\"><a href=\"/alliance/detail.php?" + params + "\">前の報告書へ</a></td>"
-            }
-            if( pos > 0 ) {
-                var params = "id=" + lists[pos - 1] +
-                            "&m=" + ( (URL_PARAM.m) ? URL_PARAM.m : ""  ) +
-                            "&p=" + ( (URL_PARAM.p) ? URL_PARAM.p : ""  );
-                tmpHTML += "<td align=\"right\"><a href=\"/alliance/detail.php?" + params + "\">次の報告書へ</a></td>"
-            }
-            tmpHTML += "</tr>";
-            tbl.innerHTML = tmpHTML;
-            var ct = d.createElement("center");
-            ct.appendChild(tbl);
-            var inspos = $x("//table[@summary=\"件名\"]");
-            if( inspos ) {
-                inspos.parentNode.insertBefore(ct, inspos);
-            }
-        }
-    }
-
-}
-***/
-//////////////////////
 //マップ中央表示
 //////////////////////
 function disp_MapCenter()
 {
-    if( location.pathname != "/map.php" ) return;
+    if( location.pathname != '/map.php' ) return;
     var cx = parseInt(URL_PARAM.x, 10);
     var cy = parseInt(URL_PARAM.y, 10);
-    if( isNaN(""+cx) ) cx = 0;
-    if( isNaN(""+cy) ) cy = 0;
+    if( isNaN(''+cx) ) cx = 0;
+    if( isNaN(''+cy) ) cy = 0;
     if( cx > MAP_X_MAX ) cx = MAP_X_MAX;
     if( cx < MAP_X_MIN ) cx = MAP_X_MIN;
     if( cy > MAP_Y_MAX ) cy = MAP_Y_MAX;
     if( cy < MAP_Y_MIN ) cy = MAP_Y_MIN;
-    var area_center = $x('id("mapOverlayMap")//area[contains(@onmouseover,"('+cx+','+cy+')")]');
+    var area_center = $s('id("mapOverlayMap")//area[contains(@onmouseover,"('+cx+','+cy+')")]');
     if( !area_center ) return;
 
-    var dat = area_center.getAttribute("onmouseover");
-    dat = dat.replace(/^.*overOperation/, "setCenter");
-    dat = dat.replace(/\); .*$/, ");");
+    var dat = area_center.getAttribute('onmouseover');
+    dat = dat.replace(/^.*overOperation/, 'setCenter');
+    dat = dat.replace(/\); .*$/, ');');
     eval(dat);
 
-    var dv = d.createElement("div");
-    dv.style.fontSize= "10px";
-    dv.appendChild(d.createTextNode("中央:( " + cx + " , " + cy + " )"));
-    $("map-xy-search").appendChild(dv);
+    var dv = d.createElement('div');
+    dv.style.fontSize= '10px';
+    dv.appendChild(d.createTextNode('中央:( ' + cx + ' , ' + cy + ' )'));
+    $('map-xy-search').appendChild(dv);
 
     function setCenter(act, x, y )
     {
-        var rollover = $("rollover");
+        var rollover = $('rollover');
         var icon_c = 'data:image/png;base64,'+
                 'iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz'+
                 'AAAK8AAACvABQqw0mAAAABZ0RVh0Q3JlYXRpb24gVGltZQAwMy8yNi8wOQlCSeUAAAAldEVYdFNv'+
@@ -4771,10 +4648,10 @@ function disp_MapCenter()
                 'n11tsu+M2n2mtStpN4vNer8KeL84Akr3yJdkvj8iQP9Xh3ip9ibtRpFT54kipk+cVqY6gd/wvYi4'+
                 'X3bInjPq9Ln0/qT1CfhZImcT0fiIOEAY7rAdZ9RV/CePnKsAzrsK4LzrggP+F1IbDJgkELkdAAAA'+
                 'AElFTkSuQmCC';
-        var img = d.createElement("img");
+        var img = d.createElement('img');
         img.src = icon_c;
         img.style.zIndex = 200;
-        img.style.position = "absolute";
+        img.style.position = 'absolute';
 
         img.style.left = x;
         img.style.top = y;
@@ -4784,16 +4661,16 @@ function disp_MapCenter()
         }
 
         if(mapType == MAP_TYPE.TYPE15) {
-            img.style.width = "44px";
-            img.style.height = "44px";
+            img.style.width = '44px';
+            img.style.height = '44px';
         }
         else if(mapType == MAP_TYPE.TYPE20) {
-            img.style.width = "34px";
-            img.style.height = "36px";
+            img.style.width = '34px';
+            img.style.height = '36px';
         }
         else if(mapType == MAP_TYPE.TYPE11) {
-            img.style.width = "60px";
-            img.style.height = "60px";
+            img.style.width = '60px';
+            img.style.height = '60px';
             img.style.zIndex = 121;
         }
         rollover.parentNode.insertBefore(img, rollover.nextSibling);
@@ -4806,7 +4683,7 @@ function disp_MapCenter()
 //////////////////////
 function disp_ToubatsuRestTime()
 {
-    if(location.pathname != "/card/deck.php") return ;
+    if(location.pathname != '/card/deck.php') return ;
 
     ToubatsuRecoveryEstimates();
 
@@ -4814,58 +4691,58 @@ function disp_ToubatsuRestTime()
     {
         var now = cgetNow();
         //デッキ
-        var decks = $a("//div[@id=\"cardListDeck\"]//div[@class=\"control\"]");
+        var decks = $x('id("cardListDeck")//div[contains(concat(" ",normalize-space(@class)," "), " control ")]');
         for( var i=0; i<decks.length ; i++ ){
-            var stat = $x("descendant::dl/dd[3]", decks[i]);
+            var stat = $s('descendant::dl/dd[3]', decks[i]);
             if( !stat ) continue;
-            if( stat.textContent == "内政セット済" )  continue;
+            if( stat.textContent == '内政セット済' )  continue;
 
-            var tb = $x("descendant::dl/dd[1]/div[1]", decks[i]);
+            var tb = $s('descendant::dl/dd[1]/div[1]', decks[i]);
             if( !tb ) continue;
             tb = 500 - parseInt( tb.textContent, 10 );
 
             if( tb != 0 ) {
                 var timeText = getTime( tb );
                 var dayText = caddDate(now, timeText);
-                var txt = "500まで" + timeText + "後 (" + dayText + "完了)";
+                var txt = '500まで' + timeText + '後 (' + dayText + '完了)';
 
-                $x("descendant::dl/dt[1]", decks[i]).title = txt;
-                $x("descendant::dl/dd[1]", decks[i]).title = txt;
+                $s('descendant::dl/dt[1]', decks[i]).title = txt;
+                $s('descendant::dl/dd[1]', decks[i]).title = txt;
             }
 
         }
         //ファイル（カード表示）
-        var files = $a("//div[@id=\"cardFileList\"]//div[@class=\"control\"]");
+        var files = $x('id("cardFileList")//div[contains(concat(" ",normalize-space(@class)," "), " control ")]');
         for( var i=0; i<files.length ; i++ ){
-            var tb = $x("descendant::dl/dd[1]/div[1]", files[i]);
+            var tb = $s('descendant::dl/dd[1]/div[1]', files[i]);
             if( !tb ) continue;
             tb = 300 - parseInt( tb.textContent, 10 );
 
             if( tb != 0 ) {
                 var timeText = getTime( tb );
                 var dayText = caddDate(now, timeText);
-                var txt = "300まで" + timeText + "後 (" + dayText + "完了)";
+                var txt = '300まで' + timeText + '後 (' + dayText + '完了)';
 
-                $x("descendant::dl/dt[1]", files[i]).title = txt;
-                $x("descendant::dl/dd[1]", files[i]).title = txt;
+                $s('descendant::dl/dt[1]', files[i]).title = txt;
+                $s('descendant::dl/dd[1]', files[i]).title = txt;
             }
 
         }
         //ファイル（ｘ枚表示）
-        var files = $a("//table[@class=\"statusParameter1\"]//tr[7]");
+        var files = $x('//table[contains(concat(" ",normalize-space(@class)," "), " statusParameter1 ")]//tr[7]');
         for( var i=0; i<files.length ; i++ ){
 
-            var tb = $x("descendant::td[1]", files[i]);
+            var tb = $s('descendant::td[1]', files[i]);
             if( !tb ) continue;
             tb = 300 - parseInt( tb.textContent, 10 );
 
             if( tb != 0 ) {
                 var timeText = getTime( tb );
                 var dayText = caddDate(now, timeText);
-                var txt = "300まで" + timeText + "後 (" + dayText + "完了)";
+                var txt = '300まで' + timeText + '後 (' + dayText + '完了)';
 
-                $x("descendant::th[1]", files[i]).title = txt;
-                $x("descendant::td[1]", files[i]).title = txt;
+                $s('descendant::th[1]', files[i]).title = txt;
+                $s('descendant::td[1]', files[i]).title = txt;
             }
 
         }
@@ -4879,8 +4756,8 @@ function disp_ToubatsuRestTime()
         var h = Math.floor(tmp / 3600);
         var m = Math.floor((tmp - h*3600 ) / 60 );
         var s = Math.floor(tmp - h*3600 - m*60 );
-        var tim = h + ":" +
-                  (m+100).toString().substr(-2)  + ":" +
+        var tim = h + ':' +
+                  (m+100).toString().substr(-2)  + ':' +
                   (s+100).toString().substr(-2);
         return tim;
     }
@@ -4891,82 +4768,82 @@ function disp_ToubatsuRestTime()
 //////////////////////
 function disp_DeleteMessages()
 {
-    if( location.pathname == "/message/detail.php" ) {
+    if( location.pathname == '/message/detail.php' ) {
         //書簡削除ボタン
         addDeleteMessageButton();
     }
-    if( location.pathname == "/report/detail.php" ) {
+    if( location.pathname == '/report/detail.php' ) {
         //報告書削除ボタン
         addDeleteReportButton();
     }
 
     function addDeleteMessageButton()
     {
-        var frm = d.createElement("form");
-        frm.method = "post";
-        frm.action = "/message/delete.php";
-        var m = d.createElement("input");
-        m.type = "hidden";
-        m.name = "mode";
+        var frm = d.createElement('form');
+        frm.method = 'post';
+        frm.action = '/message/delete.php';
+        var m = d.createElement('input');
+        m.type = 'hidden';
+        m.name = 'mode';
         m.value = URL_PARAM.m;
-        var p = d.createElement("input");
-        p.type = "hidden";
-        p.name = "p";
+        var p = d.createElement('input');
+        p.type = 'hidden';
+        p.name = 'p';
         p.value = URL_PARAM.p;
-        var c = d.createElement("input");
-        c.type = "hidden";
-        c.name = "chk[]";
+        var c = d.createElement('input');
+        c.type = 'hidden';
+        c.name = 'chk[]';
         c.value = URL_PARAM.id;
 
-        var btn = d.createElement("input");
-        btn.type = "submit";
-        btn.value = "削除";
-        btn.setAttribute("onClick", "return window.confirm('この書簡を削除します。よろしいですか？');" );
+        var btn = d.createElement('input');
+        btn.type = 'submit';
+        btn.value = '削除';
+        btn.setAttribute('onClick', "return window.confirm('この書簡を削除します。よろしいですか？');" );
         frm.appendChild(m);
         frm.appendChild(p);
         frm.appendChild(c);
         frm.appendChild(btn);
 
-        var li = d.createElement("li");
-        li.className = "last";
+        var li = d.createElement('li');
+        li.className = 'last';
         li.appendChild(frm);
-        var menu = $x("//ul[@id=\"statMenu\"]");
+        var menu = $s('id("statMenu")');
         menu.appendChild(li);
     }
     function addDeleteReportButton()
     {
-        var frm = d.createElement("form");
-        frm.method = "post";
-        frm.action = "/report/list.php";
-        var m = d.createElement("input");
-        m.type = "hidden";
-        m.name = "m";
+        var frm = d.createElement('form');
+        frm.method = 'post';
+        frm.action = '/report/list.php';
+        var m = d.createElement('input');
+        m.type = 'hidden';
+        m.name = 'm';
         m.value = URL_PARAM.m;
-        var p = d.createElement("input");
-        p.type = "hidden";
-        p.name = "p";
+        var p = d.createElement('input');
+        p.type = 'hidden';
+        p.name = 'p';
         p.value = URL_PARAM.p;
-        var u = d.createElement("input");
-        u.type = "hidden";
-        u.name = "u";
+        var u = d.createElement('input');
+        u.type = 'hidden';
+        u.name = 'u';
         u.value = URL_PARAM.u;
-        var c = d.createElement("input");
-        c.type = "hidden";
-        c.name = "chk[]";
+        var c = d.createElement('input');
+        c.type = 'hidden';
+        c.name = 'chk[]';
         c.value = URL_PARAM.id;
 
-        var btn = d.createElement("input");
-        btn.type = "submit";
-        btn.name = "remove_checked";
-        btn.value = "削除";
-        btn.setAttribute("onClick", "return window.confirm('この報告書を削除します。よろしいですか？');" );
+        var btn = d.createElement('input');
+        btn.type = 'submit';
+        btn.name = 'remove_checked';
+        btn.value = '削除';
+        btn.setAttribute('onClick', "return window.confirm('この報告書を削除します。よろしいですか？');" );
         frm.appendChild(m);
         frm.appendChild(p);
         frm.appendChild(c);
         frm.appendChild(u);
         frm.appendChild(btn);
-  //      GM_log("a");
-        var h2 = $x("//h2");
+
+        var h2 = $s('//h2');
         h2.parentNode.insertBefore(frm, h2.nextSibling);
     }
 
@@ -4977,75 +4854,72 @@ function disp_DeleteMessages()
 //////////////////////
 function disp_TSendTime()
 {
-    if( location.pathname != "/facility/castle_send_troop.php" ) return;
+    if( location.pathname != '/facility/castle_send_troop.php' ) return;
 
-    var td = $x('//table[@class="fighting_about"]//tr[1]/td[1]');
+    var td = $s('//table[contains(concat(" ",normalize-space(@class)," "), " fighting_about ")]//tr[1]/td[1]');
     if( !td ) return ;
 
     var tim = td.textContent.match(/到着まで[:|：][\s|　]*(\d+):(\d+):(\d+)[\s|　]*到達時間/);
     if( !tim ) return;
 
-    var area_up_timer = $("area_up_timer0");
+    var area_up_timer = $('area_up_timer0');
     if( !area_up_timer ) return;
     var day = area_up_timer.textContent.match(/(\d+)-(\d+)-(\d+) (\d+):(\d+):(\d+)/);
     if( !day ) return;
 
     //ベース作成
-    var div = d.createElement("div");
-    div.style.margin = "5px";
-    div.appendChild(d.createTextNode("到着時刻："));
-    createText(div, "beyond_send_y", day[1]);
-    div.appendChild(d.createTextNode("-"));
-    createText(div, "beyond_send_m", day[2]);
-    div.appendChild(d.createTextNode("-"));
-    createText(div, "beyond_send_d", day[3]);
-    div.appendChild(d.createTextNode("　"));
-    createText(div, "beyond_send_h", "");
-    div.appendChild(d.createTextNode(":"));
-    createText(div, "beyond_send_mi", "");
-    div.appendChild(d.createTextNode(":"));
-    createText(div, "beyond_send_s", "");
-    div.appendChild(d.createTextNode("　"));
-    var btn = d.createElement("input");
-    btn.type = "button";
-    btn.id = "beyond_send_button";
-    btn.value = "出発時刻計算";
+    var div = d.createElement('div');
+    div.style.margin = '5px';
+    div.appendChild(d.createTextNode('到着時刻：'));
+    createText(div, 'beyond_send_y', day[1]);
+    div.appendChild(d.createTextNode('-'));
+    createText(div, 'beyond_send_m', day[2]);
+    div.appendChild(d.createTextNode('-'));
+    createText(div, 'beyond_send_d', day[3]);
+    div.appendChild(d.createTextNode('　'));
+    createText(div, 'beyond_send_h', '');
+    div.appendChild(d.createTextNode(':'));
+    createText(div, 'beyond_send_mi', '');
+    div.appendChild(d.createTextNode(':'));
+    createText(div, 'beyond_send_s', '');
+    div.appendChild(d.createTextNode('　'));
+    var btn = d.createElement('input');
+    btn.type = 'button';
+    btn.id = 'beyond_send_button';
+    btn.value = '出発時刻計算';
     div.appendChild(btn);
 
-    div.appendChild(d.createElement("br"));
-    div.appendChild(d.createTextNode("出発時刻："));
+    div.appendChild(d.createElement('br'));
+    div.appendChild(d.createTextNode('出発時刻：'));
 
-    var spn = d.createElement("span");
-    spn.id = "beyond_send_time";
+    var spn = d.createElement('span');
+    spn.id = 'beyond_send_time';
     div.appendChild(spn);
 
     td.appendChild(div);
 
-    $e(btn, "click", function() {
-        if( $("beyond_send_y").value == "" ) $("beyond_send_y").value = "0";
-        if( $("beyond_send_m").value == "" ) $("beyond_send_m").value = "0";
-        if( $("beyond_send_d").value == "" ) $("beyond_send_d").value = "0";
-        if( $("beyond_send_h").value == "" ) $("beyond_send_h").value = "0";
-        if( $("beyond_send_mi").value == "" ) $("beyond_send_mi").value = "0";
-        if( $("beyond_send_s").value == "" ) $("beyond_send_s").value = "0";
-        var y = $("beyond_send_y").value;
-        var m = $("beyond_send_m").value;
-        var d = $("beyond_send_d").value;
-        var h = $("beyond_send_h").value;
-        var mi =$("beyond_send_mi").value;
-        var s = $("beyond_send_s").value;
-//      if( !y || !m || !d || !h || !mi || !s ) {
-//          alert("全て入力して下さい");
-//          return;
-//      }
+    $e(btn, 'click', function() {
+        if( $('beyond_send_y').value == '' ) $('beyond_send_y').value = '0';
+        if( $('beyond_send_m').value == '' ) $('beyond_send_m').value = '0';
+        if( $('beyond_send_d').value == '' ) $('beyond_send_d').value = '0';
+        if( $('beyond_send_h').value == '' ) $('beyond_send_h').value = '0';
+        if( $('beyond_send_mi').value == '' ) $('beyond_send_mi').value = '0';
+        if( $('beyond_send_s').value == '' ) $('beyond_send_s').value = '0';
+        var y = $('beyond_send_y').value;
+        var m = $('beyond_send_m').value;
+        var d = $('beyond_send_d').value;
+        var h = $('beyond_send_h').value;
+        var mi =$('beyond_send_mi').value;
+        var s = $('beyond_send_s').value;
+
         y = parseInt(y, 10);
         m = parseInt(m, 10);
         d = parseInt(d, 10);
         h = parseInt(h, 10);
         mi =parseInt(mi, 10);
         s = parseInt(s, 10);
-        if( isNaN(""+y) || isNaN(""+m) || isNaN(""+d) || isNaN(""+h) || isNaN(""+mi) || isNaN(""+s) ) {
-            alert("数字で入力して下さい");
+        if( isNaN(''+y) || isNaN(''+m) || isNaN(''+d) || isNaN(''+h) || isNaN(''+mi) || isNaN(''+s) ) {
+            alert('数字で入力して下さい');
             return;
         }
 
@@ -5053,10 +4927,10 @@ function disp_TSendTime()
 
         var dt = new Date(y, m - 1, d, h - parseInt(tim[1],10) , mi - parseInt(tim[2],10), s - parseInt(tim[3],10) );
 
-        $("beyond_send_time").innerHTML =
-            dt.getFullYear() + "-" + (dt.getMonth()+1) + "-" + dt.getDate() + " " +
-            (dt.getHours()+100).toString().substr(-2)  + ":" +
-            (dt.getMinutes()+100).toString().substr(-2)  + ":" +
+        $('beyond_send_time').innerHTML =
+            dt.getFullYear() + '-' + (dt.getMonth()+1) + '-' + dt.getDate() + ' ' +
+            (dt.getHours()+100).toString().substr(-2)  + ':' +
+            (dt.getMinutes()+100).toString().substr(-2)  + ':' +
             (dt.getSeconds()+100).toString().substr(-2);
 
 
@@ -5066,8 +4940,8 @@ function disp_TSendTime()
 
     function createText(container, id, def)
     {
-        var tb = d.createElement("input");
-        tb.type = "text";
+        var tb = d.createElement('input');
+        tb.type = 'text';
         tb.value = def;
         tb.id = id;
         tb.size = 3;
@@ -5117,7 +4991,7 @@ function disp_SmallButton()
         btnConfs.btn_special.start = -26;
     }
 
-    var btnImages = $a('(id("sidebar")/ul/li | id("btn_area_box"))//img');
+    var btnImages = $x('(id("sidebar")/ul/li | id("btn_area_box"))//img');
 
     for (var i =0; i < btnImages.length;i++) {
         var btnImage = btnImages[i];
@@ -5129,44 +5003,44 @@ function disp_SmallButton()
             var btn = btnImage.parentNode;
             var btnHeight = 22;
             if (isNarrow) btnHeight = 25;
-            btnImage.style.display = "none";
+            btnImage.style.display = 'none';
 
-            btn.style.width = btnConf.width+"px";
-            btn.style.height = btnHeight+"px";
-            btn.style.marginLeft = "2px";
-            btn.style.marginBottom = "2px";
+            btn.style.width = btnConf.width+'px';
+            btn.style.height = btnHeight+'px';
+            btn.style.marginLeft = '2px';
+            btn.style.marginBottom = '2px';
             btn.style.background = 'url("'+btnImage.src+'") no-repeat '+btnConf.start+'px 0px';
-            btn.style.display = "block";
+            btn.style.display = 'block';
 
             var floatNode = btn;
             if (!isNarrow) floatNode = btn.parentNode;
 
-            floatNode.style.cssFloat = "left";
+            floatNode.style.cssFloat = 'left';
 
             if (i == 0) {
-                btn.style.marginLeft = "0px";
+                btn.style.marginLeft = '0px';
             }
         }
     }
 
-    if (!isNarrow) cgetElementSibling(floatNode.parentNode,0).style.clear = "both";
+    if (!isNarrow) cgetElementSibling(floatNode.parentNode,0).style.clear = 'both';
 
 
 
     //状況の縮小
-    var tr = $x('//table[@class="situationTable"]//tr[1]');
-    var tds = $a('//table[@class="situationTable"]//tr[2]//img[not(contains(@src,"sit_blank"))]/ancestor::td');
+    var tr = $s('//table[contains(concat(" ",normalize-space(@class)," "), " situationTable ")]//tr[1]');
+    var tds = $x('//table[contains(concat(" ",normalize-space(@class)," "), " situationTable ")]//tr[2]//img[not(contains(@src,"sit_blank"))]/ancestor::td');
     if( tr && tds ) {
         for( var i=0; i< tds.length ; i++) {
             tr.appendChild(tds[i]);
         }
 
-        cgetElementSibling(tr,0).style.display = "none";
+        cgetElementSibling(tr,0).style.display = 'none';
 
-        var imgs = $a(".//img", tr);
+        var imgs = $x('.//img', tr);
         for( var i=0; i< imgs.length ; i++) {
-            imgs[i].style.width = "20px";
-            imgs[i].style.height = "20px";
+            imgs[i].style.width = '20px';
+            imgs[i].style.height = '20px';
             if( !imgs[i].src.match(/(_no\.gif)$/) ) {
                 Pika_elementQueue.push(imgs[i]);
             }
@@ -5174,7 +5048,7 @@ function disp_SmallButton()
     }
 
     //拠点・生産・簡易出兵先の伸縮
-    var targetNames = ["base","production","easydeploy"];
+    var targetNames = ['base','production','easydeploy'];
     var targets = {
             base : {
                 img : '(id("lodgment") | id("sidebar"))//img[contains(@src,"icon_base")]',
@@ -5185,7 +5059,7 @@ function disp_SmallButton()
                 inner : 'ancestor::div[contains(@class,"Head")]/following-sibling::div[contains(@class,"Inner")]'
             },
             easydeploy : {
-                img : '(//div[@class="footer_box"] | id("sidebar"))//img[contains(@src,"icon_easydeploy")]',
+                img : '(//div[contains(concat(" ",normalize-space(@class)," "), " footer_box ")] | id("sidebar"))//img[contains(@src,"icon_easydeploy")]',
                 inner : 'ancestor::div[contains(@class,"Head")]/following-sibling::div[contains(@class,"Inner")] | id("map_bookmark")'
             }
     };
@@ -5196,29 +5070,29 @@ function disp_SmallButton()
 
         var target = targets[targetNames[i]];
 
-        var base_img = $x(target.img);
+        var base_img = $s(target.img);
         if( !base_img ) continue;
 
-        var base_inner = $x(target.inner, base_img);
+        var base_inner = $s(target.inner, base_img);
         if( !base_inner ) continue;
 
-        var oc = cloadData( "sidebox_oc" + i , "", true);
+        var oc = cloadData( 'sidebox_oc' + i , '', true);
         if( oc ) {
-            base_inner.style.display = "none";
+            base_inner.style.display = 'none';
             base_img.style.opacity = 0.3;
         }
         (function(inner, no) {
-            $e(base_img, "click", function(e) {
-                var ocs = "";
-                if( inner.style.display == "none" ){
-                    inner.style.display = "";
+            $e(base_img, 'click', function(e) {
+                var ocs = '';
+                if( inner.style.display == 'none' ){
+                    inner.style.display = '';
                     this.style.opacity = 1;
                 }else{
-                    inner.style.display = "none";
+                    inner.style.display = 'none';
                     this.style.opacity = 0.3;
-                    ocs = "1";
+                    ocs = '1';
                 }
-                csaveData( "sidebox_oc" + no , ocs, true);
+                csaveData( 'sidebox_oc' + no , ocs, true);
             });
         })(base_inner, i);
     }
@@ -5238,8 +5112,8 @@ function disp_AttackMap()
             'R0lGODlhPAA8AIAAADP//////yH5BAUUAAEALAAAAAA8ADwAAAJ7jI+py+0Po5y02ouz3rz7D4bi'+
             'SJbmiabqyrbuC8fyTNf2jef6zvc8AATsgsEckYg7Fm9KoPE4XCakMCeDqmpCoSxt0yBsWQNj6bgb'+
             'dmJl6jUN+RSe3+V59ayMYZdwevjQd/c3ZbfiRlaYlXiYcsglFugjOUlZaXmJWVEAADs=';
-    if( location.pathname == "/facility/unit_status.php" ) {
-        var tds = $a('//table[@summary="出撃中の兵士" or @summary="移動中の兵士"]/tbody/tr[position()>1]/td[1]');
+    if( location.pathname == '/facility/unit_status.php' ) {
+        var tds = $x('//table[@summary="出撃中の兵士" or @summary="移動中の兵士"]/tbody/tr[position()>1]/td[1]');
 
         for(var i=0; i<tds.length ; i+=3) {
             //0：場所　1：時間　２：兵種
@@ -5248,20 +5122,20 @@ function disp_AttackMap()
             var tim = tds[i+1].innerHTML.match(/(\d+\-\d+\-\d+ \d+:\d+:\d+)/);
             if( !tim ) continue;
             var kind = 0;
-            if( tds[i].parentNode.parentNode.parentNode.getAttribute("summary") == "移動中の兵士" )
+            if( tds[i].parentNode.parentNode.parentNode.getAttribute('summary') == '移動中の兵士' )
                 kind = 1;
             addList(tim[1], parseInt(xy[1],10), parseInt(xy[2],10), kind );
 
-            var a = $x("descendant::div/a[contains(text(), \"キャンセルする\")]", tds[i+1]);
+            var a = $s('descendant::div/a[contains(text(), "キャンセルする")]', tds[i+1]);
             if( a ) {
                 (function(tim, x, y) {
-                    $e(a, "click", function(){
-                        var lists = cloadData("AttackList", "[]", true, true);
+                    $e(a, 'click', function(){
+                        var lists = cloadData('AttackList', '[]', true, true);
                         for(var i=0 ; i<lists.length ; i++) {
                             if( lists[i].x == x && lists[i].y == y && lists[i].time == tim ) {
                                 lists.splice(i,1);
-                                csaveData( "AttackList", lists, true, true );
-              //                  GM_log("deleted");
+                                csaveData( 'AttackList', lists, true, true );
+
                                 break;
                             }
                         }
@@ -5272,10 +5146,10 @@ function disp_AttackMap()
         return;
     }
 
-    var lists = cloadData("AttackList", "[]", true, true);
+    var lists = cloadData('AttackList', '[]', true, true);
     lists = checkList(lists);       //時間を過ぎたものを削除
 
-    if( location.pathname == "/map.php" ) {
+    if( location.pathname == '/map.php' ) {
         //地図に表示
         var type = cgetMapSize();
         if (type == null) {
@@ -5290,12 +5164,12 @@ function disp_AttackMap()
             if( cy > MAP_Y_MAX ) cy = MAP_Y_MAX;
             if( cy < MAP_Y_MIN ) cy = MAP_Y_MIN;
 
-            var map = $x("//div[@id=\"mapsAll\"]");
+            var map = $s('id("mapsAll")');
             for(var i=0 ; i<lists.length ; i++) {
                 var no = cgetMapNofromXY(lists[i].x, lists[i].y, cx, cy, type );
                 if( !no ) continue;
-                var img = document.createElement("img");
-                img.className = "mapAll" + no;
+                var img = document.createElement('img');
+                img.className = 'mapAll' + no;
                 if( lists[i].kind == 1 ) {
                     img.src = img_mov;
                 }else{
@@ -5306,10 +5180,10 @@ function disp_AttackMap()
 
                 map.appendChild(img);
 
-                var area = $x("//map[@id=\"mapOverlayMap\"]/area[contains(@href, \"?x=" + lists[i].x + "&y=" + lists[i].y + "\")]");
+                var area = $s('id("mapOverlayMap")/area[contains(@href, "?x=" + lists[i].x + "&y=" + lists[i].y + "")]');
                 if( area ){
-                    area.title += "　到着予定:" + lists[i].time;
-                    area.alt += "　到着予定:" + lists[i].time;
+                    area.title += '　到着予定:' + lists[i].time;
+                    area.alt += '　到着予定:' + lists[i].time;
                 }
 
             }
@@ -5319,7 +5193,7 @@ function disp_AttackMap()
 
     function addList(tim, x, y, kind)
     {
-        var lists = cloadData("AttackList", "[]", true, true);
+        var lists = cloadData('AttackList', '[]', true, true);
 
         var i;
         for(i=0 ; i<lists.length ; i++) {
@@ -5334,19 +5208,19 @@ function disp_AttackMap()
             }
         }
         if( i == lists.length ) {
-            lists.push({"x":x, "y":y, "time":tim, "kind":kind } );
+            lists.push({'x':x, 'y':y, 'time':tim, 'kind':kind } );
         }
-        csaveData( "AttackList", lists, true, true );
+        csaveData( 'AttackList', lists, true, true );
     }
 
     function checkList(lists)
     {
         var dt = new Date();
-        var ntime = dt.getFullYear() + "-" +
-                    (dt.getMonth()+101).toString().substr(-2) + "-" +
-                    (dt.getDate()+100).toString().substr(-2) + " " +
-                    (dt.getHours()+100).toString().substr(-2)  + ":" +
-                    (dt.getMinutes()+100).toString().substr(-2)  + ":" +
+        var ntime = dt.getFullYear() + '-' +
+                    (dt.getMonth()+101).toString().substr(-2) + '-' +
+                    (dt.getDate()+100).toString().substr(-2) + ' ' +
+                    (dt.getHours()+100).toString().substr(-2)  + ':' +
+                    (dt.getMinutes()+100).toString().substr(-2)  + ':' +
                     (dt.getSeconds()+100).toString().substr(-2);
         var deleted = false;
         for(var i=0 ; i<lists.length ; i++) {
@@ -5358,9 +5232,9 @@ function disp_AttackMap()
         }
         if( deleted ) {
             if( lists.length ) {
-                csaveData( "AttackList", lists, true, true );
+                csaveData( 'AttackList', lists, true, true );
             } else {
-                cdelData("AttackList", true );
+                cdelData('AttackList', true );
             }
         }
         return lists;
@@ -5372,44 +5246,44 @@ function disp_AttackMap()
 //////////////////////
 function disp_CardCombine()
 {
-    if( location.pathname != "/union/result_lv.php" &&
-        location.pathname != "/union/result_learn.php" &&
-        location.pathname != "/union/result_remove.php") {
+    if( location.pathname != '/union/result_lv.php' &&
+        location.pathname != '/union/result_learn.php' &&
+        location.pathname != '/union/result_remove.php') {
         return;
     }
 
-    var ins = $a("//div[@class=\"back\"]")[1];
-    var skill2 = $x("//div[@class=\"skill2\"]");
-    var skill3 = $x("//div[@class=\"skill3\"]");
+    var ins = $x('//div[contains(concat(" ",normalize-space(@class)," "), " back ")]')[1];
+    var skill2 = $s('//div[contains(concat(" ",normalize-space(@class)," "), " skill2 ")]');
+    var skill3 = $s('//div[contains(concat(" ",normalize-space(@class)," "), " skill3 ")]');
 
-    var div1 = d.createElement("div");
-    div1.className = "cardColmn";
-    div1.align = "center";
-    var div2 = d.createElement("div");
-    div2.className = "control";
+    var div1 = d.createElement('div');
+    div1.className = 'cardColmn';
+    div1.align = 'center';
+    var div2 = d.createElement('div');
+    div2.className = 'control';
     div1.appendChild(div2);
 
-    var a = d.createElement("a");
-    a.href = caddSessionId("lvup.php?cid=" + URL_PARAM.cid);
-    a.title = "スキルLvを上げる";
-    a.className = "skillLvUp";
-    a.appendChild(d.createTextNode("スキルLvを上げる"));
+    var a = d.createElement('a');
+    a.href = caddSessionId('lvup.php?cid=' + URL_PARAM.cid);
+    a.title = 'スキルLvを上げる';
+    a.className = 'skillLvUp';
+    a.appendChild(d.createTextNode('スキルLvを上げる'));
     div2.appendChild(a);
 
     if( !skill3 ) {
-        a = d.createElement("a");
-        a.href = caddSessionId("learn.php?cid=" + URL_PARAM.cid);
-        a.title = "新しいスキルを習得する";
-        a.className = "skillLearn";
-        a.appendChild(d.createTextNode("新しいスキルを習得する"));
+        a = d.createElement('a');
+        a.href = caddSessionId('learn.php?cid=' + URL_PARAM.cid);
+        a.title = '新しいスキルを習得する';
+        a.className = 'skillLearn';
+        a.appendChild(d.createTextNode('新しいスキルを習得する'));
         div2.appendChild(a);
     }
     if( skill2 ) {
-        a = d.createElement("a");
-        a.href = caddSessionId("remove.php?cid=" + URL_PARAM.cid);
-        a.title = "スキルを削除する";
-        a.className = "skillDelete";
-        a.appendChild(d.createTextNode("スキルを削除する"));
+        a = d.createElement('a');
+        a.href = caddSessionId('remove.php?cid=' + URL_PARAM.cid);
+        a.title = 'スキルを削除する';
+        a.className = 'skillDelete';
+        a.appendChild(d.createTextNode('スキルを削除する'));
         div2.appendChild(a);
     }
 
@@ -5421,10 +5295,10 @@ function disp_CardCombine()
 //////////////////////
 function disp_PikaYorozu()
 {
-    if( location.pathname == "/busyodas/b3kuji.php" ) {
+    if( location.pathname == '/busyodas/b3kuji.php' ) {
         Pika_updateYorozudasState();
     }
-    if( location.pathname == "/busyodas/b3kuji_result.php") {
+    if( location.pathname == '/busyodas/b3kuji_result.php') {
         Pika_updateYorozudasState2();
     }
 
@@ -5436,7 +5310,7 @@ function disp_PikaYorozu()
 //////////////////////
 function disp_PikaHPRestTime()
 {
-    if(location.pathname != "/card/deck.php") return ;
+    if(location.pathname != '/card/deck.php') return ;
 
     Pika_displayRecoveryEstimates();
 
@@ -5447,11 +5321,11 @@ function disp_PikaHPRestTime()
 //////////////////////
 function disp_SuzanSeisan()
 {
-    if(location.pathname != "/village.php") {
+    if(location.pathname != '/village.php') {
         return;
     }
-    var icon = IMG_DIR  + "common/sidebar/icon_production.gif";
-    var elms = ccreateSideBox("beyond_sidebox_suzanseisan", icon, "拠点生産");
+    var icon = IMG_DIR  + 'common/sidebar/icon_production.gif';
+    var elms = ccreateSideBox('beyond_sidebox_suzanseisan', icon, '拠点生産');
     Suzan_Seisan(elms.sideBoxInner);
 }
 
@@ -5462,12 +5336,12 @@ function disp_SuzanSeisan()
 function cgetCurrentBaseName()
 {
     var xy = cgetCurrentBaseXY();
-    return VILLAGES_INFO[(xy.x+"_"+xy.y).replace(/-/g,"m")].basename;
+    return VILLAGES_INFO[(xy.x+'_'+xy.y).replace(/-/g,'m')].basename;
 }
 
 function cgetCurrentBaseXY()
 {
-    var nowLoc = $x('id("gnavi")//a[contains(@href,"map.php")]');
+    var nowLoc = $s('id("gnavi")//a[contains(@href,"map.php")]');
     if (!nowLoc) return null;
 
     var xy = nowLoc.href.match(/x=([\-0-9]+)&y=([\-0-9]+)/i);
@@ -5496,17 +5370,17 @@ function cgetDistanceFromBase(x, y)
 function cupdateCurrentResources()
 {
     var nowNodes = PRE_LOAD_NODES['nowResources'];
-    RES_NOW["wood"] = parseInt( nowNodes["wood"].innerHTML, 10 );
-    RES_NOW["stone"] = parseInt( nowNodes["stone"].innerHTML, 10 );
-    RES_NOW["iron"] = parseInt( nowNodes["iron"].innerHTML, 10 );
-    RES_NOW["rice"] = parseInt( nowNodes["rice"].innerHTML, 10 );
+    RES_NOW['wood'] = parseInt( nowNodes['wood'].innerHTML, 10 );
+    RES_NOW['stone'] = parseInt( nowNodes['stone'].innerHTML, 10 );
+    RES_NOW['iron'] = parseInt( nowNodes['iron'].innerHTML, 10 );
+    RES_NOW['rice'] = parseInt( nowNodes['rice'].innerHTML, 10 );
 }
 
 function cgetNow()
 {
     var stimeText = PRE_LOAD_NODES['serverTime'].innerHTML;
     var now = new Date();
-    var nowTimeAry = stimeText.replace(/^\s*|\s*$/,'').split(":");
+    var nowTimeAry = stimeText.replace(/^\s*|\s*$/,'').split(':');
     now.setHours(parseInt(nowTimeAry[0],10),parseInt(nowTimeAry[1],10),parseInt(nowTimeAry[2],10));
     return now;
 }
@@ -5514,7 +5388,7 @@ function cgetNow()
 function caddDate(baseDate, timetxt)
 {
     var tim = timetxt.match(/^(\d+):(\d+):(\d+)/);
-    if( !tim ) return "";
+    if( !tim ) return '';
 
     var dt = new Date(baseDate.getFullYear(),
                       baseDate.getMonth(),
@@ -5523,9 +5397,9 @@ function caddDate(baseDate, timetxt)
                       baseDate.getMinutes() + parseInt(tim[2],10),
                       baseDate.getSeconds() + parseInt(tim[3],10) );
 
-    return dt.getFullYear() + "-" + (dt.getMonth()+1) + "-" + dt.getDate() + " " +
-            (dt.getHours()+100).toString().substr(-2)  + ":" +
-            (dt.getMinutes()+100).toString().substr(-2)  + ":" +
+    return dt.getFullYear() + '-' + (dt.getMonth()+1) + '-' + dt.getDate() + ' ' +
+            (dt.getHours()+100).toString().substr(-2)  + ':' +
+            (dt.getMinutes()+100).toString().substr(-2)  + ':' +
             (dt.getSeconds()+100).toString().substr(-2);
 }
 
@@ -5534,76 +5408,76 @@ function csetCookie(key, data)
 {
     sday = new Date();
     sday.setTime(sday.getTime() + (120 * 1000 * 60 * 60 * 24));
-    d.cookie = key + "=" + escape(data) + ";expires=" + sday.toGMTString() + "; path=/";
+    d.cookie = key + '=' + escape(data) + ';expires=' + sday.toGMTString() + '; path=/';
 }
 
 function cgetCookie(key)
 {
-    var data = "";
-    var start = d.cookie.indexOf(key + "=");
+    var data = '';
+    var start = d.cookie.indexOf(key + '=');
     if (start != -1){
-        var end = d.cookie.indexOf(";", start);
+        var end = d.cookie.indexOf(';', start);
         data = unescape(d.cookie.substring(start + key.length + 1, end));
     }
     return data;
 }
 function cdelCookie(key)
 {
-    d.cookie = key + "=;expires=Thu,01-Jan-70 00:00:01 GMT; path=/";
+    d.cookie = key + '=;expires=Thu,01-Jan-70 00:00:01 GMT; path=/';
 }
 
 function csetUserXY(aid, uid, x, y)
 {
-    var allylists = cloadData( "allyXYAllyList", "[]", true, true );
+    var allylists = cloadData( 'allyXYAllyList', '[]', true, true );
 
     if( allylists.indexOf(aid) == -1 ) {
         allylists.push(aid);
-        csaveData( "allyXYAllyList", allylists, true, true );
+        csaveData( 'allyXYAllyList', allylists, true, true );
     }
 
-    var lists = cloadData( "allyXYList" + aid, "[]", true, true );
+    var lists = cloadData( 'allyXYList' + aid, '[]', true, true );
 
     for(var i=0 ; i<lists.length ; i++) {
         if( lists[i].id == uid ) {
             return;
         }
     }
-    lists.push({"id":uid, "x":x, "y":y});
-    csaveData( "allyXYList" + aid, lists, true, true );
+    lists.push({'id':uid, 'x':x, 'y':y});
+    csaveData( 'allyXYList' + aid, lists, true, true );
 }
 
 function cdeleteUserXY(aid)
 {
-    var allylists = cloadData( "allyXYAllyList", "[]", true, true );
+    var allylists = cloadData( 'allyXYAllyList', '[]', true, true );
 
     var idx = allylists.indexOf(aid);
     if( idx != -1 ) {
         allylists.splice(idx,1);
-        csaveData( "allyXYAllyList", allylists, true, true );
+        csaveData( 'allyXYAllyList', allylists, true, true );
     }
-    cdelData( "allyXYList" + aid, true );
+    cdelData( 'allyXYList' + aid, true );
 
 
 }
 
 function cresetUserXY()
 {
-    var allylists = cloadData( "allyXYAllyList", "[]", true, true );
+    var allylists = cloadData( 'allyXYAllyList', '[]', true, true );
 
     for(var i=0 ; i<allylists.length ; i++) {
-        cdelData( "allyXYList" + allylists[i], true );
+        cdelData( 'allyXYList' + allylists[i], true );
     }
-    cdelData( "allyXYAllyList", true );
+    cdelData( 'allyXYAllyList', true );
 }
 
 function cgetXYHtml(x,y)
 {
-    var img_send = IMG_DIR + "report/icon_go.gif";
-    var img_mp = IMG_DIR + "report/icon_scout.gif";
-    var m = "";
+    var img_send = IMG_DIR + 'report/icon_go.gif';
+    var img_mp = IMG_DIR + 'report/icon_scout.gif';
+    var m = '';
     var dist = cgetDistanceFromBase(x, y);
     if( dist != -1 ) {
-        m = "　距離[" + dist.toFixed(2) + "]";
+        m = '　距離[' + dist.toFixed(2) + ']';
     }
     var txt = '';
     txt += '<a href="'+caddSessionId('/land.php?x=' + x + '&y=' + y + '#ptop')+'" title="表示" style="color:#0099cc; text-decoration: none;" onmouseover="';
@@ -5650,11 +5524,11 @@ function cajaxRequest(url, method, param, func_success, func_fail){
 function str2csvstr(str) {
     var csvstr;
 
-    csvstr =  str.replace(/^[\s　]+|[\s　]+$/g, "");
-    csvstr = csvstr.replace(/\"/g, "\"\"");
+    csvstr =  str.replace(/^[\s　]+|[\s　]+$/g, '');
+    csvstr = csvstr.replace(/"/g, '""');
 
-    if (csvstr.indexOf(",") != -1) {
-        csvstr = "\"" + csvstr + "\"";
+    if (csvstr.indexOf(',') != -1) {
+        csvstr = '"' + csvstr + '"';
     }
 
     return csvstr;
@@ -5670,13 +5544,13 @@ function cgetElementXY(elm) {
         yy += elm.offsetTop;
         elm = elm.offsetParent;
     }
-    return {"x":xx, "y":yy};
+    return {'x':xx, 'y':yy};
 }
 
 function cgetMapNofromXY(x, y, base_x, base_y, type)
 {
-    if( isNaN(""+base_x) ) base_x = 0;
-    if( isNaN(""+base_y) ) base_y = 0;
+    if( isNaN(''+base_x) ) base_x = 0;
+    if( isNaN(''+base_y) ) base_y = 0;
 
     //map.php専用のXY座標→mapAll999
     var sc = 0;
@@ -5699,12 +5573,12 @@ function cgetMapNofromXY(x, y, base_x, base_y, type)
     }
 
     var hw = Math.floor( (sc - 1) / 2 );
-    var no = "";
+    var no = '';
     if( x >= base_x - hw && x <= base_x - hw + sc - 1 &&
         y >= base_y - hw - hosei && y <= base_y - hw + sc - 1 - hosei  ) {
         no = (x - base_x + hw) * sc + (base_y + hw - y ) + 1;
-        if( no < 10 ) no = "0" + no;
-        else no = "" + no;
+        if( no < 10 ) no = '0' + no;
+        else no = '' + no;
     }
     return no;
 }
@@ -5712,17 +5586,17 @@ function cgetMapNofromXY(x, y, base_x, base_y, type)
 function ccreateCheckBox(container, id, def, text, title, left )
 {
     left += 2;
-    var dv = d.createElement("div");
-    dv.style.padding = "2px";
-    dv.style.paddingLeft= left + "px";
+    var dv = d.createElement('div');
+    dv.style.padding = '2px';
+    dv.style.paddingLeft= left + 'px';
     dv.title = title;
-    var cb = d.createElement("input");
-    cb.type = "checkbox";
+    var cb = d.createElement('input');
+    cb.type = 'checkbox';
     cb.id = id;
     cb.value = 1;
     if( def ) cb.checked = true;
 
-    var lb = d.createElement("label");
+    var lb = d.createElement('label');
     lb.htmlFor = id;
 
     var tx = d.createTextNode(text);
@@ -5736,12 +5610,12 @@ function ccreateCheckBox(container, id, def, text, title, left )
 function ccreateTextBox(container, id, def, text, title, size, left )
 {
     left += 2;
-    var dv = d.createElement("div");
-    dv.style.padding = "2px";
-    dv.style.paddingLeft= left + "px";
+    var dv = d.createElement('div');
+    dv.style.padding = '2px';
+    dv.style.paddingLeft= left + 'px';
     dv.title = title;
-    var tb = d.createElement("input");
-    tb.type = "text";
+    var tb = d.createElement('input');
+    tb.type = 'text';
     tb.id = id;
     tb.value = def;
     tb.size = size;
@@ -5758,14 +5632,14 @@ function ccreateTextBox(container, id, def, text, title, size, left )
 function ccreateComboBox(container, id, sels, def, text, title, left )
 {
     left += 2;
-    var dv = d.createElement("div");
-    dv.style.padding = "2px";
-    dv.style.paddingLeft= left + "px";
+    var dv = d.createElement('div');
+    dv.style.padding = '2px';
+    dv.style.paddingLeft= left + 'px';
     dv.title = title;
-    var sel = d.createElement("select");
+    var sel = d.createElement('select');
     sel.id = id;
     for(var i=0; i<sels.length; i++){
-        var opt = d.createElement("option");
+        var opt = d.createElement('option');
         opt.value = sels[i];
         opt.appendChild(d.createTextNode(sels[i]));
         sel.appendChild(opt);
@@ -5783,15 +5657,15 @@ function ccreateComboBox(container, id, sels, def, text, title, left )
 
 function ccreateButton(container, text, title, func)
 {
-    var btn = d.createElement("input");
-    btn.style.padding = "1px";
-    btn.type = "button";
+    var btn = d.createElement('input');
+    btn.style.padding = '1px';
+    btn.type = 'button';
     btn.value = text;
     btn.title = title;
-    container.appendChild(d.createTextNode(" "));
+    container.appendChild(d.createTextNode(' '));
     container.appendChild(btn);
-    container.appendChild(d.createTextNode(" "));
-    $e(btn, "click", func);
+    container.appendChild(d.createTextNode(' '));
+    $e(btn, 'click', func);
     return btn;
 }
 
@@ -5806,7 +5680,7 @@ function cgetCheckBoxValue(id)
 function cgetTextBoxValue(id)
 {
     var c = $(id);
-    if( !c ) return "";
+    if( !c ) return '';
     return c.value;
 }
 
@@ -5816,43 +5690,43 @@ function ccreateSideBox(id, img, title)
         'R0lGODlhCwALAJEAAP///zMzM////wAAACH5BAUUAAIALAAAAAALAAsAAAIVjI8Gy6z5AoAyplkh'+
         'xteiTW1NQyUFADs=';
 
-    var conf = cloadData( id + "conf" , '{"float":false, "open":true, "x":"", "y":"", "pos":99 }', true, true );
+    var conf = cloadData( id + 'conf' , '{"float":false, "open":true, "x":"", "y":"", "pos":99 }', true, true );
 
-    var elm_box = d.createElement("div");
+    var elm_box = d.createElement('div');
     elm_box.id = id;
-    elm_box.className = "sideBox";
+    elm_box.className = 'sideBox';
 
-    var elm_boxHead = d.createElement("div");
-    elm_boxHead.className = "sideBoxHead";
+    var elm_boxHead = d.createElement('div');
+    elm_boxHead.className = 'sideBoxHead';
     elm_box.appendChild(elm_boxHead);
 
     if (isNarrow) {
-        elm_box.style.cssFloat = "left";
-        elm_box.style.marginLeft = "10px";
+        elm_box.style.cssFloat = 'left';
+        elm_box.style.marginLeft = '10px';
     }
 
-    var elm_h3 = d.createElement("h3");
+    var elm_h3 = d.createElement('h3');
 
-    var elm_strong = d.createElement("strong");
+    var elm_strong = d.createElement('strong');
 
-    var elm_img = d.createElement("img");
+    var elm_img = d.createElement('img');
     elm_img.src = img;
     elm_strong.appendChild(elm_img);
     elm_strong.appendChild(d.createTextNode(title));
 
-    var elm_span=d.createElement("span");
-    elm_span.className = "beyond_panel_ctlbox";
-    var elm_img_up = d.createElement("img");
-    elm_img_up.src= IMG_DIR + "trade/icon_up.gif";
-    elm_img_up.title = "パネルを上に";
-    elm_img_up.id = id + "up";
-    var elm_img_down = d.createElement("img");
-    elm_img_down.src= IMG_DIR + "trade/icon_down.gif";
-    elm_img_down.title = "パネルを下に";
-    elm_img_down.id = id + "down";
-    var elm_img_box = d.createElement("img");
+    var elm_span=d.createElement('span');
+    elm_span.className = 'beyond_panel_ctlbox';
+    var elm_img_up = d.createElement('img');
+    elm_img_up.src= IMG_DIR + 'trade/icon_up.gif';
+    elm_img_up.title = 'パネルを上に';
+    elm_img_up.id = id + 'up';
+    var elm_img_down = d.createElement('img');
+    elm_img_down.src= IMG_DIR + 'trade/icon_down.gif';
+    elm_img_down.title = 'パネルを下に';
+    elm_img_down.id = id + 'down';
+    var elm_img_box = d.createElement('img');
     elm_img_box.src= icon_box;
-    elm_img_box.title = "フローティング/ドッキングの切り替え";
+    elm_img_box.title = 'フローティング/ドッキングの切り替え';
     elm_span.appendChild(elm_img_up);
     elm_span.appendChild(elm_img_box);
     elm_span.appendChild(elm_img_down);
@@ -5861,37 +5735,37 @@ function ccreateSideBox(id, img, title)
     elm_h3.appendChild(elm_strong);
     elm_boxHead.appendChild(elm_h3);
 
-    var elm_boxInner = d.createElement("div");
-    elm_boxInner.className = "sideBoxInner";
+    var elm_boxInner = d.createElement('div');
+    elm_boxInner.className = 'sideBoxInner';
     if( !conf.open ) {
-        elm_boxInner.style.display = "none";
+        elm_boxInner.style.display = 'none';
         elm_img.style.opacity = 0.3;
     }
     elm_box.appendChild(elm_boxInner);
 
-    $e(elm_img, "click", function(){
+    $e(elm_img, 'click', function(){
         var sidebox = $(id);
         var op = false;
         if( !sidebox ) return;
-        var inner = $x('.//div[contains(@class,"sideBoxInner")]', sidebox);
+        var inner = $s('.//div[contains(@class,"sideBoxInner")]', sidebox);
         if( !inner ) return;
-        if( inner.style.display == "none" ){
-            inner.style.display = "";
+        if( inner.style.display == 'none' ){
+            inner.style.display = '';
             this.style.opacity = 1;
             op = true;
         }else{
-            inner.style.display = "none";
+            inner.style.display = 'none';
             this.style.opacity = 0.3;
         }
 
-        var conf = cloadData( id + "conf" , '{"float":false, "open":true, "x":"", "y":"", "pos":99 }', true, true );
+        var conf = cloadData( id + 'conf' , '{"float":false, "open":true, "x":"", "y":"", "pos":99 }', true, true );
         conf.open = op;
-        csaveData( id + "conf", conf, true, true );
+        csaveData( id + 'conf', conf, true, true );
     } );
 
-    $e(elm_img_up, "click", function(){
+    $e(elm_img_up, 'click', function(){
         var sidebox = $(id);
-        if( sidebox.parentNode.id != "beyond_fixpanel" ) return;
+        if( sidebox.parentNode.id != 'beyond_fixpanel' ) return;
         var target = sidebox.previousSibling;
         if( !target ) return;
         sidebox.parentNode.removeChild(sidebox);
@@ -5899,9 +5773,9 @@ function ccreateSideBox(id, img, title)
         crenumberSideBox();
     });
 
-    $e(elm_img_down, "click", function(){
+    $e(elm_img_down, 'click', function(){
         var sidebox = $(id);
-        if( sidebox.parentNode.id != "beyond_fixpanel" ) return;
+        if( sidebox.parentNode.id != 'beyond_fixpanel' ) return;
         var target = sidebox.nextSibling;
         if( !target ) return;
         sidebox.parentNode.removeChild(sidebox);
@@ -5909,14 +5783,14 @@ function ccreateSideBox(id, img, title)
         crenumberSideBox();
     });
 
-    $e(elm_img_box, "click", function(){
+    $e(elm_img_box, 'click', function(){
         var sidebox = $(id);
         if( !sidebox ) return;
 
-        var conf = cloadData( id + "conf" , '{"float":false, "open":true, "x":"", "y":"", "pos":99 }', true, true );
+        var conf = cloadData( id + 'conf' , '{"float":false, "open":true, "x":"", "y":"", "pos":99 }', true, true );
 
-        if( sidebox.parentNode.id == "beyond_fixpanel" ) {
-            if( isNaN(""+conf.x) || conf.x == "" || isNaN(""+conf.y) || conf.y == "" ) {
+        if( sidebox.parentNode.id == 'beyond_fixpanel' ) {
+            if( isNaN(''+conf.x) || conf.x == '' || isNaN(''+conf.y) || conf.y == '' ) {
                 var xy = cgetElementXY(sidebox);
                 conf.x = xy.x;
                 conf.y = xy.y;
@@ -5927,55 +5801,55 @@ function ccreateSideBox(id, img, title)
             var eW = elm_box.clientWidth;
             var eH = elm_box.clientHeight;
 
-            elm_box.style.left = conf.x + "px";
-            elm_box.style.top = conf.y + "px";
+            elm_box.style.left = conf.x + 'px';
+            elm_box.style.top = conf.y + 'px';
 
             if ((conf.x + eW) <= 0) {
-                elm_box.style.left = "0px";
+                elm_box.style.left = '0px';
             }
             else if (cx <= conf.x ) {
-                elm_box.style.left = (cx - eW) + "px";
+                elm_box.style.left = (cx - eW) + 'px';
             }
             if ((conf.y + eH) <= 0) {
-                elm_box.style.top = "0px";
+                elm_box.style.top = '0px';
             }
             else if (cy <= conf.y) {
-                elm_box.style.top = (cy - eH) + "px";
+                elm_box.style.top = (cy - eH) + 'px';
             }
 
             sidebox.parentNode.removeChild(sidebox);
-            $("beyond_floatpanel").appendChild(sidebox);
-            sidebox.style.position = "absolute";
-            sidebox.style.top = conf.y + "px";
-            sidebox.style.left = conf.x + "px";
+            $('beyond_floatpanel').appendChild(sidebox);
+            sidebox.style.position = 'absolute';
+            sidebox.style.top = conf.y + 'px';
+            sidebox.style.left = conf.x + 'px';
             sidebox.style.zIndex = 1000;
             conf.float = true;
-            $(id + "up").style.display = "none";
-            $(id + "down").style.display = "none";
+            $(id + 'up').style.display = 'none';
+            $(id + 'down').style.display = 'none';
         }else {
             sidebox.parentNode.removeChild(sidebox);
-            $("beyond_fixpanel").appendChild(sidebox);
-            sidebox.style.position = "";
-            sidebox.style.top = "";
-            sidebox.style.left = "";
-            sidebox.style.backgroundColor = "";
-            sidebox.style.border = "";
-            sidebox.style.zIndex = "";
+            $('beyond_fixpanel').appendChild(sidebox);
+            sidebox.style.position = '';
+            sidebox.style.top = '';
+            sidebox.style.left = '';
+            sidebox.style.backgroundColor = '';
+            sidebox.style.border = '';
+            sidebox.style.zIndex = '';
             conf.float = false;
-            $(id + "up").style.display = "";
-            $(id + "down").style.display = "";
+            $(id + 'up').style.display = '';
+            $(id + 'down').style.display = '';
             csortSideBox();
         }
-        csaveData( id + "conf", conf, true, true );
+        csaveData( id + 'conf', conf, true, true );
     } );
 
 
     var movedNode = null;
     var currentZIndex = 0;
 
-    $e(elm_boxHead, "mousedown", function(event){
+    $e(elm_boxHead, 'mousedown', function(event){
         movedNode = $(id);
-        if( movedNode.parentNode.id != "beyond_floatpanel" ) return true;
+        if( movedNode.parentNode.id != 'beyond_floatpanel' ) return true;
 
         g_MD = id;
         g_MX = event.pageX-parseInt(movedNode.style.left,10);
@@ -5986,78 +5860,78 @@ function ccreateSideBox(id, img, title)
             event.preventDefault();
         }
 
-        conf = cloadData( id + "conf" , '{"float":false, "open":true, "x":"", "y":"", "pos":99 }', true, true );
+        conf = cloadData( id + 'conf' , '{"float":false, "open":true, "x":"", "y":"", "pos":99 }', true, true );
     });
-    $e(d, "mousemove", function(event){
+    $e(d, 'mousemove', function(event){
         if(g_MD != id) return true;
-        if( movedNode.parentNode.id != "beyond_floatpanel" ) return true;
+        if( movedNode.parentNode.id != 'beyond_floatpanel' ) return true;
 
         var x = event.pageX - g_MX;
         var y = event.pageY - g_MY;
-        movedNode.style.left = x + "px";
-        movedNode.style.top = y + "px";
+        movedNode.style.left = x + 'px';
+        movedNode.style.top = y + 'px';
 
         conf.x = x;
         conf.y = y;
 
     });
-    $e(d, "mouseup", function(event){
+    $e(d, 'mouseup', function(event){
         if(g_MD != id) return true;
 
-        g_MD = "";
+        g_MD = '';
         movedNode.style.zIndex = currentZIndex;
         movedNode = null;
 
-        csaveData( id + "conf", conf, true, true );
+        csaveData( id + 'conf', conf, true, true );
     });
 
 
-    if( conf.float && !(isNaN(""+conf.x) || isNaN(""+conf.y))) {
-        elm_box.style.position = "absolute";
+    if( conf.float && !(isNaN(''+conf.x) || isNaN(''+conf.y))) {
+        elm_box.style.position = 'absolute';
         elm_box.style.zIndex = 1000;
-        elm_img_up.style.display = "none";
-        elm_img_down.style.display = "none";
-        $("beyond_floatpanel").appendChild(elm_box);
+        elm_img_up.style.display = 'none';
+        elm_img_down.style.display = 'none';
+        $('beyond_floatpanel').appendChild(elm_box);
 
         var cx = d.body.clientWidth;
         var cy = d.body.clientHeight;
         var eW = elm_box.clientWidth;
         var eH = elm_box.clientHeight;
 
-        elm_box.style.left = conf.x + "px";
-        elm_box.style.top = conf.y + "px";
+        elm_box.style.left = conf.x + 'px';
+        elm_box.style.top = conf.y + 'px';
 
         if ((conf.x + eW) <= 0) {
-            elm_box.style.left = "0px";
+            elm_box.style.left = '0px';
         }
         else if (cx <= conf.x ) {
-            elm_box.style.left = (cx - eW) + "px";
+            elm_box.style.left = (cx - eW) + 'px';
         }
         if ((conf.y + eH) <= 0) {
-            elm_box.style.top = "0px";
+            elm_box.style.top = '0px';
         }
         else if (cy <= conf.y) {
-            elm_box.style.top = (cy - eH) + "px";
+            elm_box.style.top = (cy - eH) + 'px';
         }
 
     } else {
-        $("beyond_fixpanel").appendChild(elm_box);
+        $('beyond_fixpanel').appendChild(elm_box);
     }
 
-    return {"sideBox":elm_box, "sideBoxHead":elm_boxHead, "sideBoxInner":elm_boxInner };
+    return {'sideBox':elm_box, 'sideBoxHead':elm_boxHead, 'sideBoxInner':elm_boxInner };
 
 }
 
 function csortSideBox()
 {
-    var sideboxes = $a("//div[@id=\"beyond_fixpanel\"]/div[@class=\"sideBox\"]");
+    var sideboxes = $x('id("beyond_fixpanel")/div[contains(concat(" ",normalize-space(@class)," "), " sideBox ")]');
     var srt = new Array();
     for(var i=0 ; i<sideboxes.length ; i++) {
         var pos = 0;
 
-        var conf = cloadData( sideboxes[i].id + "conf" , '{"float":false, "open":true, "x":"", "y":"", "pos":99 }', true, true );
+        var conf = cloadData( sideboxes[i].id + 'conf' , '{"float":false, "open":true, "x":"", "y":"", "pos":99 }', true, true );
         pos = conf.pos;
-        srt.push({"node":sideboxes[i], "pos":pos});
+        srt.push({'node':sideboxes[i], 'pos':pos});
     }
 
     srt.sort( function(a,b) {return a.pos - b.pos;});
@@ -6065,7 +5939,7 @@ function csortSideBox()
     for(var i=0 ; i<srt.length ; i++){
         srt[i].node.parentNode.removeChild(srt[i].node);
     }
-    var fixpanel = $("beyond_fixpanel");
+    var fixpanel = $('beyond_fixpanel');
     for(var i=0 ; i<srt.length ; i++){
         fixpanel.appendChild(srt[i].node);
     }
@@ -6073,81 +5947,81 @@ function csortSideBox()
 
 function crenumberSideBox()
 {
-    var sideboxes = $a("//div[@id=\"beyond_fixpanel\"]/div[@class=\"sideBox\"]");
+    var sideboxes = $x('id("beyond_fixpanel")/div[contains(concat(" ",normalize-space(@class)," "), " sideBox ")]');
 
     for(var i=0 ; i<sideboxes.length ; i++) {
-        var conf = cloadData( sideboxes[i].id + "conf" , '{"float":false, "open":true, "x":"", "y":"", "pos":99 }', true, true );
+        var conf = cloadData( sideboxes[i].id + 'conf' , '{"float":false, "open":true, "x":"", "y":"", "pos":99 }', true, true );
         conf.pos = i;
-        csaveData( sideboxes[i].id + "conf", conf, true, true );
+        csaveData( sideboxes[i].id + 'conf', conf, true, true );
 
     }
 }
 
 function cappendColumnForProfile(title, id)
 {
-    var tds = $a('//table[@class="commonTables"]//th[contains(text(),"座標")]/../preceding-sibling::tr/*[contains("tdTDthTH",name())][last()]');
+    var tds = $x('//table[contains(concat(" ",normalize-space(@class)," "), " commonTables ")]//th[contains(text(),"座標")]/../preceding-sibling::tr/*[contains("tdTDthTH",name())][last()]');
     for(var i=0 ; i<tds.length ; i++) {
         tds[i].colSpan++;
     }
 
-    var tr = $x('//table[@class="commonTables"]//th[contains(text(),"座標")]/..');
-    var th = d.createElement("th");
-    th.className = "ttl4";
-    th.id = id + "_title";
+    var tr = $s('//table[contains(concat(" ",normalize-space(@class)," "), " commonTables ")]//th[contains(text(),"座標")]/..');
+    var th = d.createElement('th');
+    th.className = 'ttl4';
+    th.id = id + '_title';
     th.appendChild( d.createTextNode( title ) );
     tr.appendChild( th );
 
-    var trs = $a('//table[@class="commonTables"]//th[contains(text(),"座標")]/../following-sibling::tr');
+    var trs = $x('//table[contains(concat(" ",normalize-space(@class)," "), " commonTables ")]//th[contains(text(),"座標")]/../following-sibling::tr');
     for(var i=0 ; i<trs.length ; i++) {
         var xytd = trs[i].childNodes[3];
         if( !xytd ) continue;
         var xy = xytd.innerHTML.match(/([\-0-9]+),([\-0-9]+)/);
         if( !xy ) continue;
 
-        var td = d.createElement("td");
-        td.id = id + "_" + xy[1] + "_" + xy[2];
+        var td = d.createElement('td');
+        td.id = id + '_' + xy[1] + '_' + xy[2];
         trs[i].appendChild(td);
 
         var pstd = trs[i].childNodes[5];
         if( !pstd ) continue;
-        if( pstd.innerHTML != "&nbsp;" ) {
-            td.textContent = "-";
+        if( pstd.innerHTML != '&nbsp;' ) {
+            td.textContent = '-';
         }
     }
 }
 
 function csetUserStar(uid, x, y, star, wood, stone, iron, rice, npc)
 {
-    var userlists = cloadData( "UserStarUserList", "[]", true, true );
+    var userlists = cloadData( 'UserStarUserList', '[]', true, true );
     if( userlists.indexOf(uid) == -1 ) {
         userlists.push(uid);
-        csaveData( "UserStarUserList", userlists, true, true );
+        csaveData( 'UserStarUserList', userlists, true, true );
     }
 
-    var lists = cloadData( "UserStarList" + uid, "[]", true, true );
+    var lists = cloadData( 'UserStarList' + uid, '[]', true, true );
 
     for(var i=0 ; i<lists.length ; i++) {
         if( lists[i].x == x && lists[i].y == y ) {
             return;
         }
     }
-    lists.push({"star":star, "x":x, "y":y, "wood":wood, "stone":stone, "iron":iron, "rice":rice, "npc":npc });
-    csaveData( "UserStarList" + uid, lists, true, true );
+    lists.push({'star':star, 'x':x, 'y':y, 'wood':wood, 'stone':stone, 'iron':iron, 'rice':rice, 'npc':npc });
+    csaveData( 'UserStarList' + uid, lists, true, true );
 }
 
 function cresetUserStar()
 {
-    var userlists = cloadData( "UserStarUserList", "[]", true, true );
+    var userlists = cloadData( 'UserStarUserList', '[]', true, true );
 
     for(var i=0 ; i<userlists.length ; i++) {
-        cdelData( "UserStarList" + userlists[i], true );
+        cdelData( 'UserStarList' + userlists[i], true );
     }
-    cdelData( "UserStarUserList", true );
+    cdelData( 'UserStarUserList', true );
 }
 
 function csetMyLevel(x, y, level)
 {
-    var lists = cloadData( "MyLevelList", "[]", true, true );
+    var lists = cloadData( 'MyLevelList', '[]', true, true );
 
     var ins = true;
     for(var i=0 ; i<lists.length ; i++) {
@@ -6162,18 +6036,18 @@ function csetMyLevel(x, y, level)
         }
     }
     if( ins && level != -1) {
-        lists.push({"x":x, "y":y, "level":level});
+        lists.push({'x':x, 'y':y, 'level':level});
     }
-    csaveData( "MyLevelList", lists, true, true );
+    csaveData( 'MyLevelList', lists, true, true );
 }
 function cdelMyLevel(x, y)
 {
-    var lists = cloadData( "MyLevelList", "[]", true, true );
+    var lists = cloadData( 'MyLevelList', '[]', true, true );
 
     for(var i=0 ; i<lists.length ; i++) {
         if( lists[i].x == x && lists[i].y == y ) {
             lists.splice(i,1);
-            csaveData( "MyLevelList", lists, true, true );
+            csaveData( 'MyLevelList', lists, true, true );
             break;
         }
     }
@@ -6183,7 +6057,7 @@ function csaveData(key, value, local, ev)
 {
     if( local ) key = location.hostname + key;
     if( ev ) {
-        value = myJSON.stringify(value);
+        value = crossBrowserUtility.JSON.stringify(value);
     }
     GM_setValue(key, value );
 }
@@ -6192,7 +6066,7 @@ function cloadData(key, value, local, ev)
 {
     if( local ) key = location.hostname + key;
     var ret = GM_getValue(key, value);
-    return ev ? myJSON.parse(ret) : ret;
+    return ev ? crossBrowserUtility.JSON.parse(ret) : ret;
 }
 
 function cdelData(key, local )
@@ -6217,7 +6091,7 @@ function Pika_blinkElements()
 }
 
 function Pika_updateYorozudasState() {
-    var x = $a('//div[@class="sysMes"]/strong');
+    var x = $x('//div[contains(concat(" ",normalize-space(@class)," "), " sysMes ")]/strong');
     if( x.length < 3 ) return;
 
     var nextUpdate = new Date(x[2].textContent.replace(/-/g, '/')).getTime();
@@ -6228,34 +6102,9 @@ function Pika_updateYorozudasState() {
     };
     csaveData('yorozudas_state', info, true, true);
     Pika_displayYorozudasState();
-
-/* 設定メニューでON/OFFできるのでここでON/OFFは必要ないかな
-    var button  = d.createElement('input');
-    with (button) {
-        id      = 'beyond_yorozudas_notification';
-        type    = 'checkbox';
-        checked = cloadData('yorozudas_notification', false, true);
-        addEventListener('click', function() {
-            var state = $('beyond_yorozudas_notification').checked;
-            csaveData('yorozudas_notification', state, true, true);
-            Pika_displayYorozudasState();
-        }, false);
-    }
-    var text    = d.createTextNode(' ヨロズダスの状態を通知する');
-    var p       = d.createElement('p');
-    var lb      = d.createElement("label");
-    lb.htmlFor = button.id;
-    lb.appendChild(text);
-    with (p) {
-        style.backgroundColor = '#aaaaaa';
-        appendChild(button);
-        appendChild(lb);
-    }
-    d.getElementsByClassName('sysMes')[0].appendChild(p);
-*/
 }
 function Pika_updateYorozudasState2() { //result用を追加
-    var x = $a('//div[@class="sysMes2"]/strong');
+    var x = $x('//div[contains(concat(" ",normalize-space(@class)," "), " sysMes2 ")]/strong');
     if( x.length < 3 ) return;
 
     var nextUpdate = new Date(x[1].textContent.replace(/-/g, '/')).getTime();
@@ -6273,52 +6122,42 @@ function Pika_displayYorozudasState() {
         xpath += '/..';
     }
 
-    var img_yorozu = $x(xpath);
-//設定メニューでON/OFFできるのでここでON/OFFは必要ないかな
-//  var enabled = cloadData('yorozudas_notification', false, true);
-//  if (enabled) {
-        var info = cloadData('yorozudas_state', '{}', true, true);
-        var now = new Date().getTime();
-        if (info.nextUpdate < now) {
-            Pika_elementQueue.push(img_yorozu);
+    var img_yorozu = $s(xpath);
+    var info = cloadData('yorozudas_state', '{}', true, true);
+    var now = new Date().getTime();
+    if (info.nextUpdate < now) {
+        Pika_elementQueue.push(img_yorozu);
+    } else {
+        if (info.current <= 0) {
+            img_yorozu.style.opacity = 0.5;
         } else {
-            if (info.current <= 0) {
-                img_yorozu.style.opacity = 0.5;
-            } else {
-                if (info.confirm > 0
-                 && info.confirm < now) {
-                    if (confirm('ヨロズダスが引けますが、まだ引いていません。\n後でまた通知しますか?')) {
-                        var delta = (info.nextUpdate - now) / 3600;
-                        if (delta < 4) {
-                            info.confirm += 1 * 60 * 60; // 1 hour later
-                        } else if (delta < 8) {
-                            info.confirm += 2 * 60 * 60; // 2 hours later
-                        } else {
-                            info.confirm += 4 * 60 * 60;
-                        }
+            if (info.confirm > 0
+             && info.confirm < now) {
+                if (confirm('ヨロズダスが引けますが、まだ引いていません。\n後でまた通知しますか?')) {
+                    var delta = (info.nextUpdate - now) / 3600;
+                    if (delta < 4) {
+                        info.confirm += 1 * 60 * 60; // 1 hour later
+                    } else if (delta < 8) {
+                        info.confirm += 2 * 60 * 60; // 2 hours later
                     } else {
-                        info.confirm = 0;
+                        info.confirm += 4 * 60 * 60;
                     }
-                    csaveData('yorozudas_state', info, true, true);
+                } else {
+                    info.confirm = 0;
                 }
+                csaveData('yorozudas_state', info, true, true);
             }
         }
-//  } else {
-//      img_yorozu.style.opacity = 1;
-//  }
+    }
 }
 
 function Pika_displayRecoveryEstimates() {
-    var
-    candidates = $a('//*[@id="deck_file"]//*[div[@class="setPlace false"]]');
+    var candidates = $x('id("deck_file")//*[div[contains(concat(" ",normalize-space(@class)," "), " setPlace ") and contains(concat(" ",normalize-space(@class)," "), " false ")]]');
     for (var i = 0; i < candidates.length; ++i) {
-        var level = + $x('*//*[starts-with(@class,"level_")]', candidates[i]).innerHTML;
-//      var level = + candidates[i].getElementsByClassName('level')
-//                      [0].textContent;
+        var level = + $s('..//span[contains(concat(" ",normalize-space(@class)), " level_")]', candidates[i]).innerHTML;
         var hp    = + candidates[i].getElementsByClassName('status_hp')
                         [0].textContent.toString().split(/[\/]/)[0];
         if (hp >= 100) continue;
-//          var hours = (level * (100 - hp)) / 60;
         var hours = (level <= 5) ? Math.pow(2, level - 2) * (100 - hp) / 100 :
                         (level <= 10) ? 4 * (level - 3) * (100 - hp) / 100 :
                             (level + 20) * (100 - hp) / 100;
@@ -6327,15 +6166,14 @@ function Pika_displayRecoveryEstimates() {
         candidates[i].getElementsByClassName('setPlace false')[0].innerHTML = msg;
     }
 
-    candidates = $a('//*[@id="deck_file"]//*[div[@class="control"]/dl/dd[contains(text(),"治療中")]]');
+    candidates = $x('id("deck_file")//div[contains(concat(" ",normalize-space(@class)," "), " control ")/dl/dd[contains(text(),"治療中")]]');
      for (var i = 0; i < candidates.length; ++i) {
-        var level = + $x('*//*[starts-with(@class,"level_")]', candidates[i]).innerHTML;
-//      var level = + candidates[i].getElementsByClassName('level')
-//                      [0].textContent;
+        var level = + $s('..//span[contains(concat(" ",normalize-space(@class)), " level_")]', candidates[i]).innerHTML;
         var hp    = + candidates[i].getElementsByClassName('status_hp')
                         [0].textContent.toString().split(/[\/]/)[0];
-        if (hp >= 100) continue;
-//          var hours = (level * (100 - hp)) / 60;
+        if (hp >= 100) {
+            continue;
+        }
         var hours = (level <= 5) ? Math.pow(2, level - 2) * (100 - hp) / 100 :
                         (level <= 10) ? 4 * (level - 3) * (100 - hp) / 100 :
                             (level + 20) * (100 - hp) / 100;
@@ -6397,12 +6235,12 @@ function Pika_installMapXYHelper()
 
     if( location.pathname != '/map.php' ) return;
 
-    var form = $x('id("map-xy-search")/form');
+    var form = $s('id("map-xy-search")/form');
     if( !form ) return;
     form.addEventListener('submit',
             function() {
                 var xpath = 'id("map-xy-search")//input[@type="text"]';
-                var xy = $a(xpath);
+                var xy = $x(xpath);
                 var x  = xy[0].value.toString();
 
                 if (x.match(/(-?\d+)[ .,&、]+(?:y=)?(-?\d+)/)) {
@@ -6419,7 +6257,7 @@ function Pika_installTradeHelper() {
     $('button')
         .addEventListener('click',
             function() {
-                var element = $x('//div[@class="formSearch"]/select');
+                var element = $s('//div[contains(concat(" ",normalize-space(@class)," "), " formSearch ")]/select');
                 var index = element.selectedIndex;
                 if (index == 0 || index == 3) {
                     if ($('k').value.toString().match(/[1-4]\d{3}/)) {
@@ -6434,13 +6272,13 @@ function Pika_prepareForDisplayBuildStatus()
 {
     var maps = $('maps');
     var xpath = 'img[contains(@src, "/img_lv0.gif")]/@class';
-    var nodes = $a(xpath, maps);
+    var nodes = $x(xpath, maps);
     for (var i = 0; i < nodes.length; ++i) {
         var index = nodes[i].value.toString().substr(-2);
-        var xpath = 'img[@class="map' + index +'" and contains(@src, "/facility_10")]';
-        var isResourceProducingLot = $a(xpath, maps).length;
+        var xpath = 'img[contains(concat(" ",normalize-space(@class)," "), " map' + index +' ") and contains(@src, "/facility_10")]';
+        var isResourceProducingLot = $x(xpath, maps).length;
         if (!isResourceProducingLot) {
-            $x('//img[@class="mapicon'+index+'"]').src =
+            $s('//img[contains(concat(" ",normalize-space(@class)," "), " mapicon'+index+' ")]').src =
                 'data:image/gif;base64,'+
                 'R0lGODlhFwAWAMQfADp1MxYsFzp7NEGdQTp7Nm2bac7dzebu5l6TWkWmRZ69nPL2'+
                 '8kWAQLXNszuNO7/UvzV7NWqVZU6PTNrm2Y20i0apRj+WP1LOc0y7TDmDOSAgID+G'+
@@ -6455,8 +6293,8 @@ function Pika_prepareForDisplayBuildStatus()
 
 function Pika_displayBuildStatus() {
 
-    var xpath = 'id("actionLog")//li/span[@class="buildStatus" and contains(.,"建設")]/a';
-    var nodes = $a(xpath);
+    var xpath = 'id("actionLog")//li/span[contains(concat(" ",normalize-space(@class)," "), " buildStatus ") and contains(.,"建設")]/a';
+    var nodes = $x(xpath);
     var facilities = {};
     for (var i = 0; i < nodes.length; ++i) {
         nodes[i].href.match(/x=(\d+)&y=(\d+)/);
@@ -6471,7 +6309,7 @@ function Pika_displayBuildStatus() {
         Pika_elementQueue.push(document.getElementsByClassName('mapicon'+index)[0]);
     }
 
-    var deleting = $x('//*[@id="actionLog"]/ul/li[contains(text(), "削除中")]/span[@class="buildStatus"]/a');
+    var deleting = $s('id("actionLog")/ul/li[contains(text(), "削除中")]/span[contains(concat(" ",normalize-space(@class)," "), " buildStatus ")]/a');
     if (deleting && deleting.href.match(/x=(\d+)&y=(\d+)/)) {
         var x = +RegExp.$1;
         var y = +RegExp.$2;
@@ -6532,7 +6370,7 @@ function Suzan_Seisan(inner)
 
     for (var i = 0; i < 2;i++) {
         var yieldExtend = yieldExtends[i];
-        var yieldExtendArea = $x('//area[starts-with(@alt,"'+yieldExtend.name+'")]');
+        var yieldExtendArea = $s('//area[starts-with(@alt,"'+yieldExtend.name+'")]');
         if (!yieldExtendArea) {
             continue;
         }
@@ -6558,7 +6396,7 @@ function Suzan_Seisan(inner)
     }
 
 
-    var areas = $a('//area[contains(@alt,"畑") or contains(@alt,"穀") or contains(@alt,"伐") or contains(@alt,"森") or contains(@alt,"石") or contains(@alt,"岩") or contains(@alt,"製") or contains(@alt,"鉱")]');
+    var areas = $x('//area[contains(@alt,"畑") or contains(@alt,"穀") or contains(@alt,"伐") or contains(@alt,"森") or contains(@alt,"石") or contains(@alt,"岩") or contains(@alt,"製") or contains(@alt,"鉱")]');
     for(var i=0; i<areas.length; i++){
         var areaInfo = cgetFacilityInfoFromArea(areas[i]);
         var dataKey = nameToDataKey(areaInfo.name);
@@ -6620,7 +6458,7 @@ function Suzan_Seisan(inner)
 
 function disp_castleAidLink()
 {
-    var bases = $a('(id("lodgment")/div[contains(concat(" ",normalize-space(@class)," "), " floatInner ")] | //div[contains(concat(" ",normalize-space(@class)," "), " sideBoxInner ") and contains(concat(" ",normalize-space(@class)," "), " basename ")])//li/*[@title and not(contains(concat(" ",normalize-space(@class)," "), " map-basing "))]');
+    var bases = $x('(id("lodgment")/div[contains(concat(" ",normalize-space(@class)," "), " floatInner ")] | //div[contains(concat(" ",normalize-space(@class)," "), " sideBoxInner ") and contains(concat(" ",normalize-space(@class)," "), " basename ")])//li/*[@title and not(contains(concat(" ",normalize-space(@class)," "), " map-basing "))]');
     if( !bases ) return;
 
     for( var i=0 ; i < bases.length ; i++) {
@@ -6630,16 +6468,16 @@ function disp_castleAidLink()
         var xy = thistitle.match(/\((-?\d+),(-?\d+)\)$/);
         if( !xy ) continue;
 
-        var a_k_img = d.createElement("img");
-        a_k_img.style.paddingLeft = "3px";
+        var a_k_img = d.createElement('img');
+        a_k_img.style.paddingLeft = '3px';
         a_k_img.src = img_ken;
 
-        var a_k = d.createElement("a");
-        a_k.title = "援軍";
+        var a_k = d.createElement('a');
+        a_k.title = '援軍';
         a_k.appendChild(a_k_img);
 
         if( elem.href ) {
-            a_k.href = caddSessionId("/facility/castle_send_troop.php?x="+xy[1]+"&y="+xy[2]+"&radio_move_type=301");
+            a_k.href = caddSessionId('/facility/castle_send_troop.php?x='+xy[1]+'&y='+xy[2]+'&radio_move_type=301');
             a_k.style.visibility = 'visible';
         } else {
             a_k.style.visibility = 'hidden';
@@ -6647,7 +6485,7 @@ function disp_castleAidLink()
 
         var spn = cgetElementSibling(elem,0);
         if (!spn) {
-            spn = d.createElement("span");
+            spn = d.createElement('span');
             elem.parentNode.appendChild(spn);
         }
 
@@ -6656,33 +6494,33 @@ function disp_castleAidLink()
 }
 
 function disp_nextFameTimer() {
-    var nextDate = new Date(cloadData("NextFameTime",null,true,true));
-    var preCheckTime = new Date(cloadData("NextFamePreCheckTime",null,true,true));
+    var nextDate = new Date(cloadData('NextFameTime',null,true,true));
+    var preCheckTime = new Date(cloadData('NextFamePreCheckTime',null,true,true));
     nextDate = loadNextDate();
-    var seps = $a('id("status_left")/span[@class="sep"]');
+    var seps = $x('id("status_left")/span[contains(concat(" ",normalize-space(@class)," "), " sep ")]');
     for (var i = 0; i < seps.length;i++) {
-        seps[i].innerHTML = seps[i].innerHTML.replace(/^([\s|\u3000]*)|([\s|\u3000]*)$/g,"");
+        seps[i].innerHTML = seps[i].innerHTML.replace(/^([\s|\u3000]*)|([\s|\u3000]*)$/g,'');
     }
 
-    var img = $x('id("status_left")/img[@title="名声"]');
+    var img = $s('id("status_left")/img[@title="名声"]');
     var fameTimer = document.createElement('DIV');
-    fameTimer.setAttribute("id","Beyond_nextFameTimer");
+    fameTimer.setAttribute('id','Beyond_nextFameTimer');
     fameTimer.appendChild(createTimerText(getTimeDiffNow(nextDate)));
     fameTimer.style.color = 'lightgreen';
     fameTimer.style.position = 'absolute';
-    fameTimer.style.top = (img.offsetTop + 12) + "px";
-    fameTimer.style.left = (img.offsetLeft + 10) + "px";
+    fameTimer.style.top = (img.offsetTop + 12) + 'px';
+    fameTimer.style.left = (img.offsetLeft + 10) + 'px';
 
     img.parentNode.appendChild(fameTimer);
 
     var timerId = setInterval(function(){
-        fameTimer.style.top = (img.offsetTop + 12) + "px";
-        fameTimer.style.left = (img.offsetLeft + 10) + "px";
+        fameTimer.style.top = (img.offsetTop + 12) + 'px';
+        fameTimer.style.left = (img.offsetLeft + 10) + 'px';
         fameTimer.replaceChild(createTimerText(getTimeDiffNow(loadNextDate())), fameTimer.firstChild);
     },1000);
 
     function createTimerText(date) {
-        return document.createTextNode("("+date.toLocaleTimeString().replace(/^0?/,"")+")");
+        return document.createTextNode('('+date.toLocaleTimeString().replace(/^0?/,'')+')');
     }
     function getTimeDiffNow(date) {
         var now = cgetNow();
@@ -6722,10 +6560,10 @@ function disp_nextFameTimer() {
         return nextDate;
 
         function nextFameTimeRefresher() {
-            cajaxRequest("/facility/castle.php" , "GET", "", function(req) {
-                var dom = d.createElement("html");
+            cajaxRequest('/facility/castle.php' , 'GET', '', function(req) {
+                var dom = d.createElement('html');
                 dom.innerHTML = req.responseText;
-                var nextFameNode = $x('.//div[@id="gray02Wrapper"]/table[contains(concat(" ",normalize-space(@class)," ")," commonTables ") and @summary="object"]//td[contains(concat(" ",normalize-space(@class)," ")," center ") and not(@colspan)]/div[not(@class)]',dom);
+                var nextFameNode = $s('id("gray02Wrapper")/table[contains(concat(" ",normalize-space(@class)," ")," commonTables ") and @summary="object"]//td[contains(concat(" ",normalize-space(@class)," ")," center ") and not(@colspan)]/div[not(@class)]',dom);
                 if (!nextFameNode) {
                     nextFameDateCheckErrorCount++;
                     return;
@@ -6737,7 +6575,7 @@ function disp_nextFameTimer() {
                     return;
                 }
 
-                var tmpDate = new Date(matches[0].replace(/-/g,"/")+":00");
+                var tmpDate = new Date(matches[0].replace(/-/g,'/')+':00');
                 if (isPreCheckDateOver == false && nextDate.getTime() == tmpDate.getTime()) {
                     if (12 <= nextFameRefreshCount) {
                         clearInterval(timerId);
@@ -6750,18 +6588,18 @@ function disp_nextFameTimer() {
                 }
                 else if (!(nextDate.getTime() == tmpDate.getTime())) {
                     nextDate = tmpDate;
-                    if (cloadData("NextFameTime",null,true,true)) {
-                        var fameText = $x('id("status_left")//img[@title="名声"]').nextSibling;
+                    if (cloadData('NextFameTime',null,true,true)) {
+                        var fameText = $s('id("status_left")//img[@title="名声"]').nextSibling;
                         matches = fameText.nodeValue.match(/(\d+)[^\d]*(\d+)/);
-                        fameText.nodeValue = fameText.nodeValue.replace(/\d+[^\d]*\d+/,(parseInt(matches[1],10)+1) + " / " + (parseInt(matches[2],10)+1));
+                        fameText.nodeValue = fameText.nodeValue.replace(/\d+[^\d]*\d+/,(parseInt(matches[1],10)+1) + ' / ' + (parseInt(matches[2],10)+1));
                     }
 
-                    csaveData("NextFameTime",nextDate.toString(),true,true);
+                    csaveData('NextFameTime',nextDate.toString(),true,true);
                 }
 
                 nextFameRefreshCount = 0;
                 preCheckTime = new Date();
-                csaveData("NextFamePreCheckTime",preCheckTime.toString(),true,true);
+                csaveData('NextFamePreCheckTime',preCheckTime.toString(),true,true);
             },
             function() {
                 nextFameDateCheckErrorCount++;
@@ -6784,31 +6622,31 @@ function disp_timerLinkDepot() {
     var timeId = null;
 
     timeId = setInterval(function(){
-        var doc = $x('id("timerOpenLink")/..');
+        var doc = $s('id("timerOpenLink")/..');
         if (!doc) return;
 
         clearInterval(timeId);
         doc.style.display = 'none';
 
-        var img = $x('.//img',doc);
+        var img = $s('.//img',doc);
         if (img) {
             timerIcon = img.src;
         }
 
-        var box = ccreateSideBox(sidboxId,timerIcon,"タイマーボタン");
-        var adoc = d.createElement("a");
-        adoc.href = "javascript:void(0);";
-        adoc.innerHTML = "タイマー表示";
-        adoc.addEventListener("click", function() {
-            var doc = $x('id("timerOpenLink")');
+        var box = ccreateSideBox(sidboxId,timerIcon,'タイマーボタン');
+        var adoc = d.createElement('a');
+        adoc.href = 'javascript:void(0);';
+        adoc.innerHTML = 'タイマー表示';
+        adoc.addEventListener('click', function() {
+            var doc = $s('id("timerOpenLink")');
             if (!doc) return;
-            var event = d.createEvent( "MouseEvents" );
-            event.initEvent( "click", false, true );
+            var event = d.createEvent( 'MouseEvents' );
+            event.initEvent( 'click', false, true );
             doc.dispatchEvent( event );
         }, true);
         box.sideBoxInner.appendChild(adoc);
 
-        var conf = cloadData( sidboxId + "conf" , '{"float":false, "open":true, "x":"", "y":"", "pos":99 }', true, true );
+        var conf = cloadData( sidboxId + 'conf' , '{"float":false, "open":true, "x":"", "y":"", "pos":99 }', true, true );
         cinsertSideBox(conf.pos,box);
     },100);
 
@@ -6822,7 +6660,7 @@ function disp_villageListBox() {
 
     var isOpen = cloadData('sidebox_oc0', false,true) ? false : true;
     var sidBoxId = 'beyond_sidebox_villageListBox';
-    var conf = cloadData( sidBoxId+'conf' , "null", true, true );
+    var conf = cloadData( sidBoxId+'conf' , 'null', true, true );
 
     if (!OPT_SMALLBTN) {
         isOpen = (conf == null) ? true : conf.open;
@@ -6833,14 +6671,14 @@ function disp_villageListBox() {
         csaveData(sidBoxId+'conf',conf,true,true);
     }
 
-    var box = ccreateSideBox(sidBoxId,IMG_DIR+'common/sidebar/icon_base.gif',"拠点");
-    box.sideBoxInner.className += " basename";
-    var ul = d.createElement("ul");
+    var box = ccreateSideBox(sidBoxId,IMG_DIR+'common/sidebar/icon_base.gif','拠点');
+    box.sideBoxInner.className += ' basename';
+    var ul = d.createElement('ul');
     box.sideBoxInner.appendChild(ul);
 
-    var boxImage = $x('.//img[contains(@src,"icon_base")]', box.sideBoxHead);
+    var boxImage = $s('.//img[contains(@src,"icon_base")]', box.sideBoxHead);
     $e(boxImage,'click',function(){
-        var saveData = isOpen ? "1" : "";
+        var saveData = isOpen ? '1' : '';
         isOpen = !isOpen;
         csaveData('sidebox_oc0', saveData,true);
     });
@@ -6848,23 +6686,23 @@ function disp_villageListBox() {
     var cvid = cgetCurrentVillageId();
     for (var key in VILLAGES_INFO) {
         var village = VILLAGES_INFO[key];
-        var li = d.createElement("li");
-        li.style.paddingBottom = "0px";
+        var li = d.createElement('li');
+        li.style.paddingBottom = '0px';
         ul.appendChild(li);
 
         var item;
         if (village.vid == cvid) {
-            li.className = "on";
-            item = d.createElement("span");
+            li.className = 'on';
+            item = d.createElement('span');
 
         }
         else {
-            item = d.createElement("a");
+            item = d.createElement('a');
             item.href = caddSessionId('/village_change.php?village_id='+village.vid+'&from=menu&page=' + encodeURIComponent(location.pathname + location.search));
         }
 
         li.appendChild(item);
-        item.title = village.basename + " ("+village.x+","+village.y+")";
+        item.title = village.basename + ' ('+village.x+','+village.y+')';
         item.appendChild(d.createTextNode(village.basename));
     }
 }
@@ -6879,15 +6717,15 @@ function initVillages() {
         _villageInit();
         return;
     }
-    else if (location.pathname == "/user/" && $("statMenu")) {
+    else if (location.pathname == '/user/' && $('statMenu')) {
         _profileInit();
         return;
     }
 
-    VILLAGES_INFO = cloadData("villagesInfo","{}",true,true);
+    VILLAGES_INFO = cloadData('villagesInfo','{}',true,true);
 
     function _villageInit() {
-        var villages = $a('(id("lodgment")/div[contains(concat(" ",normalize-space(@class)," "), " floatInner ")] | //div[contains(concat(" ",normalize-space(@class)," "), " sideBoxInner ") and contains(concat(" ",normalize-space(@class)," "), " basename ")])//li/*[@title and not(contains(concat(" ",normalize-space(@class)," "), " map-basing "))]');
+        var villages = $x('(id("lodgment")/div[contains(concat(" ",normalize-space(@class)," "), " floatInner ")] | //div[contains(concat(" ",normalize-space(@class)," "), " sideBoxInner ") and contains(concat(" ",normalize-space(@class)," "), " basename ")])//li/*[@title and not(contains(concat(" ",normalize-space(@class)," "), " map-basing "))]');
 
         var compList = new Object();
 
@@ -6908,7 +6746,7 @@ function initVillages() {
                 addObj.vid = parseInt(matches[1],10);
             }
             else {
-                var viDoc = $x('//input[@name="village_id"]');
+                var viDoc = $s('//input[@name="village_id"]');
                 if (viDoc) {
                     addObj.vid = parseInt(viDoc.value,10);
                 }
@@ -6916,26 +6754,26 @@ function initVillages() {
                     noVids.push(addObj);
                 }
             }
-            compList[(addObj.x+"_"+addObj.y).replace(/-/g,"m")] = addObj;
+            compList[(addObj.x+'_'+addObj.y).replace(/-/g,'m')] = addObj;
         }
 
         _compData(compList);
 
 
         if (0 < noVids.length) {
-            cajaxRequest("/user/" , "GET", "", function(req) {
-                var dom = d.createElement("html");
+            cajaxRequest('/user/' , 'GET', '', function(req) {
+                var dom = d.createElement('html');
                 dom.innerHTML = req.responseText;
                 for (var i = 0;i < noVids.length;i++) {
-                    var td = $x('.//td[text()="'+noVids[i].x+","+noVids[i].y+'"]',dom);
+                    var td = $s('.//td[text()="'+noVids[i].x+","+noVids[i].y+'"]',dom);
                     var linkTd = cgetElementSibling(td,1);
-                    var link = $x('.//a',linkTd);
+                    var link = $s('.//a',linkTd);
                     if ((matches = link.href.match(/village_id=(\d+)/))) {
-                        VILLAGES_INFO[(noVids[i].x+"_"+noVids[i].y).replace(/-/g,"m")].vid = parseInt(matches[1],10);
+                        VILLAGES_INFO[(noVids[i].x+'_'+noVids[i].y).replace(/-/g,'m')].vid = parseInt(matches[1],10);
                     }
                 }
 
-                csaveData("villagesInfo",VILLAGES_INFO,true,true);
+                csaveData('villagesInfo',VILLAGES_INFO,true,true);
             });
         }
     }
@@ -6943,7 +6781,7 @@ function initVillages() {
     function _profileInit() {
         var compList = new Object();
         var matches = null;
-        var villageLinks = $a('//table[@class="commonTables"]//th[contains(text(),"座標")]/../following-sibling::tr[position() <= 10]/td[not(@*) and 1 <= normalize-space(text())]/..//a');
+        var villageLinks = $x('//table[contains(concat(" ",normalize-space(@class)," "), " commonTables ")]//th[contains(text(),"座標")]/../following-sibling::tr[position() <= 10]/td[not(@*) and 1 <= normalize-space(text())]/..//a');
         for (var i = 0;i < villageLinks.length;i++) {
             var villageLink = villageLinks[i];
 
@@ -6957,15 +6795,15 @@ function initVillages() {
             if ((matches = villageLink.href.match(/village_id=(\d+)/))) {
                 addObj.vid = parseInt(matches[1],10);
             }
-            addObj.basename = villageLink.innerHTML.replace(/^\s*|\s*$/g,"");
-            compList[(addObj.x+"_"+addObj.y).replace(/-/g,"m")] = addObj;
+            addObj.basename = villageLink.innerHTML.replace(/^\s*|\s*$/g,'');
+            compList[(addObj.x+'_'+addObj.y).replace(/-/g,'m')] = addObj;
         }
 
         _compData(compList);
     }
 
     function _compData(compList) {
-        var nowVillageList = cloadData("villagesInfo","{}",true,true);
+        var nowVillageList = cloadData('villagesInfo','{}',true,true);
         for (var key in compList) {
             VILLAGES_INFO[key] = compList[key];
             if (typeof nowVillageList[key] == 'object') {
@@ -6977,31 +6815,31 @@ function initVillages() {
             }
         }
 
-        csaveData("villagesInfo",VILLAGES_INFO,true,true);
+        csaveData('villagesInfo',VILLAGES_INFO,true,true);
     }
 }
 
 function initCastleSend() {
-    if( location.pathname != '/facility/castle_send_troop.php' || location.search.indexOf("radio_move_type") < 0) return;
+    if( location.pathname != '/facility/castle_send_troop.php' || location.search.indexOf('radio_move_type') < 0) return;
     var radioMoveType = location.search.match(/radio_move_type=(\d+)/)[1];
-    var ary = $a('//input[@name="radio_move_type"]');
+    var ary = $x('//input[@name="radio_move_type"]');
     var elem;
     for (var i = 0; i < ary.length;i++) {
         elem = ary[i];
         if (elem.value == radioMoveType) {
-            elem.checked = "checked";
+            elem.checked = 'checked';
         }
         else {
-            elem.checked = "";
+            elem.checked = '';
         }
     }
 }
 
 function initNarrow() {
     if (0 <= location.pathname.search(/^\/(village|map|land)\.php/)) {
-        $x('id("lodgment")/div[@class="floatHead"]//a').href = 'javascript:void(0);';
+        $s('id("lodgment")/div[contains(concat(" ",normalize-space(@class)," "), " floatHead ")]//a').href = 'javascript:void(0);';
     }
-    GM_addStyle(".footer_box { height:auto !important;}");
+    GM_addStyle('.footer_box { height:auto !important;}');
 }
 
 function initPreLoadNode() {
@@ -7033,7 +6871,252 @@ function initUrlParams() {
     }
 }
 
-// GM関数初期化
+
+
+
+
+// common関数拡張
+/**
+ * @param {Number} insPos
+ * @param {Object}
+ */
+function cinsertSideBox(insPos,insNode) {
+    var sideboxes = $x('id("beyond_fixpanel")/div[contains(concat(" ",normalize-space(@class)," "), " sideBox ")]');
+    var srt = new Array();
+    var pos = 0;
+    var insNodeId = insNode.sideBox.id;
+    for(var i=0 ; i<sideboxes.length ; i++) {
+        var conf = cloadData( sideboxes[i].id + 'conf' , '{"float":false, "open":true, "x":"", "y":"", "pos":99 }', true, true );
+        pos = conf.pos;
+        if (insPos <= conf.pos && insNodeId != sideboxes[i].id) {
+            pos++;
+        }
+        else if (insNodeId == sideboxes[i].id) {
+            pos = insPos;
+        }
+        srt.push({'node':sideboxes[i], 'pos':pos});
+    }
+
+    srt.sort( function(a,b) {return a.pos - b.pos;});
+
+    for(var i=0 ; i<srt.length ; i++){
+        srt[i].node.parentNode.removeChild(srt[i].node);
+    }
+    var fixpanel = $('beyond_fixpanel');
+    for(var i=0 ; i<srt.length ; i++){
+        fixpanel.appendChild(srt[i].node);
+    }
+}
+
+/**
+ * @returns {Number}
+ */
+function cgetCurrentVillageId() {
+    var xy = cgetCurrentBaseXY();
+    return VILLAGES_INFO[(xy.x+'_'+xy.y).replace(/-/g,'m')].vid;
+}
+
+/**
+ * @param {Number} vid
+ * @returns {Boolean}
+ */
+function chasVillageId(vid) {
+    vid = parseInt(vid,10);
+    var vids = cgetVillageIds();
+    return vids[vid] ? true : false;
+}
+
+/**
+ * @returns {Number}
+ */
+function cgetVillageIds() {
+    var ret = new Object();
+    for (var key in VILLAGES_INFO) {
+        if (isNaN(''+VILLAGES_INFO[key].vid)) {
+            continue;
+        }
+        ret[VILLAGES_INFO[key].vid] = VILLAGES_INFO[key].vid;
+    }
+    return ret;
+}
+
+
+/**
+ * @param {HTMLElement} element
+ * @param {Number} direction pre=1,next=0
+ * @param {Number} optional skipCount
+ * @returns {HTMLElement}
+ */
+function cgetElementSibling(element,direction,skipCount) {
+    var hasElementSibling = (typeof element.nextElementSibling == 'object' || typeof element.previousElementSibling == 'object') ? true : false;
+    if (!skipCount) skipCount = 1;
+    for (var i = 0;i < skipCount;) {
+        if (hasElementSibling) {
+            i++;
+            if (direction == 1) {
+                element = element.previousElementSibling;
+            }
+            else {
+                element = element.nextElementSibling;
+            }
+        }
+        else {
+            if (direction == 1) {
+                element = element.previousSibling;
+            }
+            else {
+                element = element.nextSibling;
+            }
+            if (element.nodeType == 1) {
+                i++;
+            }
+        }
+
+        if (element == null) {
+            break;
+        }
+    }
+    return element;
+}
+
+/**
+ * areaから四方のareaを取得
+ * @param {HTMLAreaElement} area
+ * @returns {Object}
+ */
+function cgetSquareElementFromArea(area) {
+    var coords = area.getAttribute('coords');
+    var matches = null;
+    if (!coords || !(matches = coords.match(/^(\d+),(\d+)/))) return false;
+    var base = new Object();
+    base.x = parseInt(matches[1],10);
+    base.y = parseInt(matches[2],10);
+
+    var $s = function(xp,dc) { return d.evaluate(xp, dc||d, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue; };
+
+    var add = new Object();
+    add.x = 50;
+    add.y = 25;
+
+    var isMap = false;
+    var mapType = cgetMapSize();
+    if (mapType != null) {
+        isMap = true;
+        switch (mapType) {
+        case MAP_TYPE.TYPE20:
+            add.x = 16;
+            add.y = 8;
+            break;
+        case MAP_TYPE.TYPE15:
+            add.x = 22;
+            add.y = 11;
+            break;
+        case MAP_TYPE.TYPE11:
+            add.x = 30;
+            add.y = 15;
+            break;
+        }
+        base.y += add.y * 2;
+    }
+
+    var xpaths = {ne:calc(base,add,0),nw:calc(base,add,1),se:calc(base,add,2),sw:calc(base,add,3)};
+
+    var ret = new Object();
+    for (var key in xpaths) {
+        ret[key] = $s('//area[@coords="' + xpaths[key] + '"]');
+    }
+    return ret;
+
+    // direction ne:0 nw:1 se:2 sw:3
+    function calc(base,add,direction) {
+        var addX = (direction % 2) == 0 ? add.x : - add.x;
+        var addY = direction < 2 ? - add.y : add.y;
+
+        var retBaseX = base.x + addX;
+        var retBaseY = base.y + addY;
+
+        var top = [retBaseX, retBaseY - (add.y * 2)];
+        var left = [retBaseX - add.x, retBaseY - add.y];
+        var bottom = [retBaseX, retBaseY];
+        var right = [retBaseX + add.x, retBaseY - add.y];
+        var ret = isMap ? top.concat(left,bottom,right) : bottom.concat(left,top,right);
+        return ret.join(',');
+    }
+}
+
+/**
+ * areaからx,y,name,lvを返す
+ * @param {HTMLAreaElement} area
+ * @returns {Object}
+ */
+function cgetFacilityInfoFromArea(area) {
+    var retObj = {name:'',lv:0,x:-1,y:-1};
+    var matches = null;
+    if (area.alt) {
+        if ((matches = area.alt.match(/^([^ ]+)[^\d]+(\d+)/))) {
+            retObj.name = matches[1];
+            retObj.lv = parseInt(matches[2],10);
+        }
+        else {
+            retObj.name = area.alt;
+        }
+    }
+
+    if (area.href && (matches = area.href.match(/(?:x=(\d+)&y=(\d+))/))) {
+        retObj.x = parseInt(matches[1],10);
+        retObj.y = parseInt(matches[2],10);
+    }
+
+    return retObj;
+}
+
+/**
+ * @param {String} url
+ * @returns {String}
+ */
+function caddSessionId(url) {
+    if (0 < SID.length && url.search(/(\?|&)SSID=[^&]+&?/i) < 0) {
+        var anchor = '';
+        var matches;
+        if ((matches = url.match(/#[^#]+$/))) {
+            url = url.substring(0,url.lastIndexOf('#'));
+            anchor = matches[0];
+        }
+        url += 0 <= url.indexOf('?') ? '&' : '?';
+        url += SID;
+        url += anchor;
+    }
+    return url;
+}
+
+/**
+ * function cgetMapSize
+ * @returns {Number}
+ */
+function cgetMapSize() {
+    if (0 <= location.pathname.indexOf('map.php')) {
+        isMap = true;
+        var nowMapDoc = $s('id("change-map-scale")//li[contains(concat(" ",normalize-space(@class)," ")," now ")]');
+        if (!nowMapDoc) {
+            return null;
+        }
+        var size = parseInt(nowMapDoc.className.match(/sort(\d+) /)[1],10);
+        switch (size) {
+            case 51:
+                return MAP_TYPE.TYPE51;
+            case 20:
+                return MAP_TYPE.TYPE20;
+            case 15:
+                return MAP_TYPE.TYPE15;
+            case 11:
+                return MAP_TYPE.TYPE11;
+        }
+    }
+    return null;
+}
+
+//その他拡張
+//GM関数初期化
 function initGMFunctions() {
     // @copyright 2009, James Campos
     // @license cc-by-3.0; http://creativecommons.org/licenses/by/3.0/
@@ -7110,253 +7193,6 @@ function initGMFunctions() {
     };
 }
 
-
-
-
-
-
-
-// common関数拡張
-/**
- * @param {Number} insPos
- * @param {Object}
- */
-function cinsertSideBox(insPos,insNode) {
-    var sideboxes = $a(".//div[@id=\"beyond_fixpanel\"]/div[@class=\"sideBox\"]");
-    var srt = new Array();
-    var pos = 0;
-    var insNodeId = insNode.sideBox.id;
-    for(var i=0 ; i<sideboxes.length ; i++) {
-        var conf = cloadData( sideboxes[i].id + "conf" , '{"float":false, "open":true, "x":"", "y":"", "pos":99 }', true, true );
-        pos = conf.pos;
-        if (insPos <= conf.pos && insNodeId != sideboxes[i].id) {
-            pos++;
-        }
-        else if (insNodeId == sideboxes[i].id) {
-            pos = insPos;
-        }
-        srt.push({"node":sideboxes[i], "pos":pos});
-    }
-
-    srt.sort( function(a,b) {return a.pos - b.pos;});
-
-    for(var i=0 ; i<srt.length ; i++){
-        srt[i].node.parentNode.removeChild(srt[i].node);
-    }
-    var fixpanel = $("beyond_fixpanel");
-    for(var i=0 ; i<srt.length ; i++){
-        fixpanel.appendChild(srt[i].node);
-    }
-}
-
-/**
- * @returns {Number}
- */
-function cgetCurrentVillageId() {
-    var xy = cgetCurrentBaseXY();
-    return VILLAGES_INFO[(xy.x+"_"+xy.y).replace(/-/g,"m")].vid;
-}
-
-/**
- * @param {Number} vid
- * @returns {Boolean}
- */
-function chasVillageId(vid) {
-    vid = parseInt(vid,10);
-    var vids = cgetVillageIds();
-    return vids[vid] ? true : false;
-}
-
-/**
- * @returns {Number}
- */
-function cgetVillageIds() {
-    var ret = new Object();
-    for (var key in VILLAGES_INFO) {
-        if (isNaN(""+VILLAGES_INFO[key].vid)) {
-            continue;
-        }
-        ret[VILLAGES_INFO[key].vid] = VILLAGES_INFO[key].vid;
-    }
-    return ret;
-}
-
-
-/**
- * @param {HTMLElement} element
- * @param {Number} direction pre=1,next=0
- * @param {Number} optional skipCount
- * @returns {HTMLElement}
- */
-function cgetElementSibling(element,direction,skipCount) {
-    var hasElementSibling = (typeof element.nextElementSibling == 'object' || typeof element.previousElementSibling == 'object') ? true : false;
-    if (!skipCount) skipCount = 1;
-    for (var i = 0;i < skipCount;) {
-        if (hasElementSibling) {
-            i++;
-            if (direction == 1) {
-                element = element.previousElementSibling;
-            }
-            else {
-                element = element.nextElementSibling;
-            }
-        }
-        else {
-            if (direction == 1) {
-                element = element.previousSibling;
-            }
-            else {
-                element = element.nextSibling;
-            }
-            if (element.nodeType == 1) {
-                i++;
-            }
-        }
-
-        if (element == null) {
-            break;
-        }
-    }
-    return element;
-}
-
-/**
- * areaから四方のareaを取得
- * @param {HTMLAreaElement} area
- * @returns {Object}
- */
-function cgetSquareElementFromArea(area) {
-    var coords = area.getAttribute('coords');
-    var matches = null;
-    if (!coords || !(matches = coords.match(/^(\d+),(\d+)/))) return false;
-    var base = new Object();
-    base.x = parseInt(matches[1],10);
-    base.y = parseInt(matches[2],10);
-
-    var $x = function(xp,dc) { return d.evaluate(xp, dc||d, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue; };
-
-    var add = new Object();
-    add.x = 50;
-    add.y = 25;
-
-    var isMap = false;
-    var mapType = cgetMapSize();
-    if (mapType != null) {
-        isMap = true;
-        switch (mapType) {
-        case MAP_TYPE.TYPE20:
-            add.x = 16;
-            add.y = 8;
-            break;
-        case MAP_TYPE.TYPE15:
-            add.x = 22;
-            add.y = 11;
-            break;
-        case MAP_TYPE.TYPE11:
-            add.x = 30;
-            add.y = 15;
-            break;
-        }
-        base.y += add.y * 2;
-    }
-
-    var xpaths = {ne:calc(base,add,0),nw:calc(base,add,1),se:calc(base,add,2),sw:calc(base,add,3)};
-
-    var ret = new Object();
-    for (var key in xpaths) {
-        ret[key] = $x('//area[@coords="' + xpaths[key] + '"]');
-    }
-    return ret;
-
-    // direction ne:0 nw:1 se:2 sw:3
-    function calc(base,add,direction) {
-        var addX = (direction % 2) == 0 ? add.x : - add.x;
-        var addY = direction < 2 ? - add.y : add.y;
-
-        var retBaseX = base.x + addX;
-        var retBaseY = base.y + addY;
-
-        var top = [retBaseX, retBaseY - (add.y * 2)];
-        var left = [retBaseX - add.x, retBaseY - add.y];
-        var bottom = [retBaseX, retBaseY];
-        var right = [retBaseX + add.x, retBaseY - add.y];
-        var ret = isMap ? top.concat(left,bottom,right) : bottom.concat(left,top,right);
-        return ret.join(",");
-    }
-}
-
-/**
- * areaからx,y,name,lvを返す
- * @param {HTMLAreaElement} area
- * @returns {Object}
- */
-function cgetFacilityInfoFromArea(area) {
-    var retObj = {name:"",lv:0,x:-1,y:-1};
-    var matches = null;
-    if (area.alt) {
-        if ((matches = area.alt.match(/^([^ ]+)[^\d]+(\d+)/))) {
-            retObj.name = matches[1];
-            retObj.lv = parseInt(matches[2],10);
-        }
-        else {
-            retObj.name = area.alt;
-        }
-    }
-
-    if (area.href && (matches = area.href.match(/(?:x=(\d+)&y=(\d+))/))) {
-        retObj.x = parseInt(matches[1],10);
-        retObj.y = parseInt(matches[2],10);
-    }
-
-    return retObj;
-}
-
-/**
- * @param {String} url
- * @returns {String}
- */
-function caddSessionId(url) {
-    if (0 < SID.length && url.search(/(\?|&)SSID=[^&]+&?/i) < 0) {
-        var anchor = '';
-        var matches;
-        if ((matches = url.match(/#[^#]+$/))) {
-            url = url.substring(0,url.lastIndexOf('#'));
-            anchor = matches[0];
-        }
-        url += 0 <= url.indexOf('?') ? '&' : '?';
-        url += SID;
-        url += anchor;
-    }
-    return url;
-}
-
-/**
- * function cgetMapSize
- * @returns {Number}
- */
-function cgetMapSize() {
-    if (0 <= location.pathname.indexOf("map.php")) {
-        isMap = true;
-        var nowMapDoc = $x('id("change-map-scale")//li[contains(concat(" ",normalize-space(@class)," ")," now ")]');
-        if (!nowMapDoc) {
-            return null;
-        }
-        var size = parseInt(nowMapDoc.className.match(/sort(\d+) /)[1],10);
-        switch (size) {
-            case 51:
-                return MAP_TYPE.TYPE51;
-            case 20:
-                return MAP_TYPE.TYPE20;
-            case 15:
-                return MAP_TYPE.TYPE15;
-            case 11:
-                return MAP_TYPE.TYPE11;
-        }
-    }
-    return null;
-}
-
-// その他拡張
 //JSONがない場合とprototype.jsとJSONオブジェクトの衝突回避用(forOpera)
 function initJSON() {
     var myJSON = function() {
@@ -7449,5 +7285,53 @@ function initJSON() {
     }
 
     return new myJSON();
+}
+
+function initCrossBrowserSupport() {
+    var crossBrowserUtility = {'JSON':null}
+    // GM関数の初期化
+    initGMFunctions();
+
+    // 配列のindexOf対策 from MDC
+    if (!Array.prototype.indexOf) {
+        Array.prototype.indexOf = function(elt /*, from*/) {
+            var len = this.length;
+
+            var from = Number(arguments[1]) || 0;
+            from = (from < 0) ? Math.ceil(from) : Math.floor(from);
+            if (from < 0) {
+                from += len;
+            }
+
+            for (; from < len; from++) {
+                if (from in this && this[from] === elt) {
+                    return from;
+                }
+            }
+
+            return -1;
+        };
+    }
+
+    // ArrayのforEach対策 from MDC
+    if (!Array.prototype.forEach) {
+        Array.prototype.forEach = function(fun /*, thisp*/) {
+            var len = this.length;
+            if (typeof fun != 'function') {
+                throw new TypeError();
+            }
+
+            var thisp = arguments[1];
+            for (var i = 0; i < len; i++) {
+                if (i in this) {
+                    fun.call(thisp, this[i], i, this);
+                }
+            }
+        };
+    }
+
+    // JSONのサポート
+    crossBrowserUtility.JSON = initJSON();
+    return crossBrowserUtility;
 }
 }) ();
