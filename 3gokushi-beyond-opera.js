@@ -6,13 +6,14 @@
 // @include        https://*.3gokushi.jp/*
 // @author         hatt
 // @maintainer     romer,etc
-// @version        1.28.0.0
+// @version        1.28.0.1
 // ==/UserScript==
 // FireFox / Google Chrome / Opera / Safari対応です。
 document.addEventListener('DOMContentLoaded', function() {
+
     if(document.getElementById('beyond_basepanel') ) return ;
 
-    var VERSION_NAME = 'ブラウザ三国志Beyond Ver 1.28.0.0 by hatt+ろむ+etc';
+    var VERSION_NAME = 'ブラウザ三国志Beyond Ver 1.28.0.1 by hatt+ろむ+etc';
     var IMG_DIR = '/20110414-01/img/';
 
     var crossBrowserUtility = initCrossBrowserSupport();
@@ -3295,6 +3296,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     img.src = img_src;
 
                     map.appendChild(img);
+
+                    csetMapStarDisable(no);
                 }
             }
         }
@@ -3695,10 +3698,12 @@ document.addEventListener('DOMContentLoaded', function() {
         div.appendChild(tmp_t);
         base.appendChild(div);
 
-        var sheet = d.styleSheets[d.styleSheets.length-1];
-        sheet.insertRule('table#beyond_maplist_table {border:2px solid black; border-collapse:collapse;}', sheet.cssRules.length);
-        sheet.insertRule('table#beyond_maplist_table th {background:lightgray; padding: 5px; text-align:center; border:1px solid black;}', sheet.cssRules.length);
-        sheet.insertRule('table#beyond_maplist_table td {padding: 2px; border:1px solid black;}', sheet.cssRules.length);
+
+        GM_addStyle([
+                     'table#beyond_maplist_table {border:2px solid black; border-collapse:collapse;}',
+                     'table#beyond_maplist_table th {background:lightgray; padding: 5px; text-align:center; border:1px solid black;}',
+                     'table#beyond_maplist_table td {padding: 2px; border:1px solid black;}'].join('\n'));
+
 
         $e(a, 'click', function() {
 
@@ -5179,12 +5184,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     map.appendChild(img);
 
-                    var area = $s('id("mapOverlayMap")/area[contains(@href, "?x=" + lists[i].x + "&y=" + lists[i].y + "")]');
+                    var area = $s('id("mapOverlayMap")/area[contains(@href, "?x=' + lists[i].x + '&y=' + lists[i].y + '")]');
                     if( area ){
                         area.title += '　到着予定:' + lists[i].time;
                         area.alt += '　到着予定:' + lists[i].time;
                     }
 
+                    csetMapStarDisable(no);
                 }
             }
         }
@@ -6709,7 +6715,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-
     // 初期化拡張
     function initVillages() {
         if (0 <= location.pathname.search(/^\/(village|map|land)\.php/)) {
@@ -6991,8 +6996,6 @@ document.addEventListener('DOMContentLoaded', function() {
         base.x = parseInt(matches[1],10);
         base.y = parseInt(matches[2],10);
 
-        var $s = function(xp,dc) { return d.evaluate(xp, dc||d, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue; };
-
         var add = new Object();
         add.x = 50;
         add.y = 25;
@@ -7113,6 +7116,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         return null;
     }
+    /**
+     * function csetMapStarDisable
+     * @param {String} no no String from cgetMapNofromXY
+     */
+    function csetMapStarDisable(no) {
+        var id = 'mapStar_' + parseInt(no,10);
+        setTimeout(function() {
+            var mapStarItem = $(id);
+            if (mapStarItem) {
+                mapStarItem.style.visibility = 'hidden';
+            }
+        },100);
+    }
+
 
     //その他拡張
     //GM関数初期化
