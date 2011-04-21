@@ -6,14 +6,14 @@
 // @include        https://*.3gokushi.jp/*
 // @author         hatt
 // @maintainer     romer,etc
-// @version        1.28.0.3
+// @version        1.28.0.4
 // ==/UserScript==
 // FireFox / Google Chrome / Opera / Safari対応です。
 document.addEventListener('DOMContentLoaded', function() {
 
     if(document.getElementById('beyond_basepanel') ) return ;
 
-    var VERSION_NAME = 'ブラウザ三国志Beyond Ver 1.28.0.3 by hatt+ろむ+etc';
+    var VERSION_NAME = 'ブラウザ三国志Beyond Ver 1.28.0.4 by hatt+ろむ+etc';
     var IMG_DIR = '/20110414-01/img/';
 
     var crossBrowserUtility = initCrossBrowserSupport();
@@ -6157,9 +6157,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function Pika_displayRecoveryEstimates() {
-        var candidates = $x('id("deck_file")//*[div[contains(concat(" ",normalize-space(@class)," "), " setPlace ") and contains(concat(" ",normalize-space(@class)," "), " false ")]]');
+        var candidates = $x('id("deck_file")//div[contains(concat(" ",normalize-space(@class)," "), " setPlace ") and contains(concat(" ",normalize-space(@class)," "), " false ")]/ancestor::div[contains(concat(" ",normalize-space(@class)," "), " cardStatusDetail ")]');
         for (var i = 0; i < candidates.length; ++i) {
-            var level = + $s('..//span[contains(concat(" ",normalize-space(@class)), " level_")]', candidates[i]).innerHTML;
+            var level = + $s('.//span[contains(concat(" ",normalize-space(@class)), " level_")]', candidates[i]).innerHTML;
             var hp    = + candidates[i].getElementsByClassName('status_hp')
                             [0].textContent.toString().split(/[\/]/)[0];
             if (hp >= 100) continue;
@@ -6169,11 +6169,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             var msg  = Pika_formatEstimate(hours, false) + 'にHP全回復';
             candidates[i].getElementsByClassName('setPlace false')[0].innerHTML = msg;
+            candidates[i].getElementsByClassName('setPlace false')[0].setAttribute('title',getTimeString(hours));
         }
 
-        candidates = $x('id("deck_file")//div[contains(concat(" ",normalize-space(@class)," "), " control ")/dl/dd[contains(text(),"治療中")]]');
+        candidates = $x('id("deck_file")//div[contains(concat(" ",normalize-space(@class)," "), " control ")]/dl/dd[contains(text(),"治療中")]/ancestor::div[contains(concat(" ",normalize-space(@class)," "), " cardColmn ")]');
          for (var i = 0; i < candidates.length; ++i) {
-            var level = + $s('..//span[contains(concat(" ",normalize-space(@class)), " level_")]', candidates[i]).innerHTML;
+            var level = + $s('.//span[contains(concat(" ",normalize-space(@class)), " level_")]', candidates[i]).innerHTML;
             var hp    = + candidates[i].getElementsByClassName('status_hp')
                             [0].textContent.toString().split(/[\/]/)[0];
             if (hp >= 100) {
@@ -6182,13 +6183,20 @@ document.addEventListener('DOMContentLoaded', function() {
             var hours = (level <= 5) ? Math.pow(2, level - 2) * (100 - hp) / 100 :
                             (level <= 10) ? 4 * (level - 3) * (100 - hp) / 100 :
                                 (level + 20) * (100 - hp) / 100;
-            var msg  = Pika_formatEstimate(hours, false) + '<br>にHP全回復';
+            var msg  = Pika_formatEstimate(hours, false) + 'に<br>HP全回復';
             candidates[i].getElementsByTagName('dd')[2].innerHTML = msg;
             candidates[i].getElementsByTagName('dd')[2].style.fontSize = "10px";
             candidates[i].getElementsByTagName('dd')[2].style.margin = "0px";
+            candidates[i].getElementsByTagName('dd')[2].setAttribute('title',getTimeString(hours));
+
         }
 
         window.setTimeout(function() { Pika_displayRecoveryEstimates(); }, 60*1000);
+
+        function getTimeString(hours) {
+            var date = new Date(cgetNow().getTime() + hours * 60 * 60 * 1000);
+            return '' + date.getFullYear() + '/' + (date.getMonth()+1) + '/' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' +date.getSeconds();
+        }
     }
     function Pika_formatEstimate(hours, displaySecs) {
         var msg   = '';
