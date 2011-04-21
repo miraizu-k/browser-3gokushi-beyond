@@ -6,14 +6,14 @@
 // @include        https://*.3gokushi.jp/*
 // @author         hatt
 // @maintainer     romer,etc
-// @version        1.28.0.2
+// @version        1.28.0.3
 // ==/UserScript==
 // FireFox / Google Chrome / Opera / Safari対応です。
 ( function(){
 
 if(document.getElementById('beyond_basepanel') ) return ;
 
-var VERSION_NAME = 'ブラウザ三国志Beyond Ver 1.28.0.2 by hatt+ろむ+etc';
+var VERSION_NAME = 'ブラウザ三国志Beyond Ver 1.28.0.3 by hatt+ろむ+etc';
 var IMG_DIR = '/20110414-01/img/';
 
 var crossBrowserUtility = initCrossBrowserSupport();
@@ -28,7 +28,7 @@ var $ = function (id,pd) {return pd ? pd.getElementById(id) : document.getElemen
  * @returns {Array}
  * @throws
  */
-var $x = function(xp,dc){function c(f){var g='';if(typeof f=='string'){g=f;}var h=function(a){var b=document.implementation.createHTMLDocument('');var c=b.createRange();c.selectNodeContents(b.documentElement);c.deleteContents();b.documentElement.appendChild(c.createContextualFragment(a));return b;};if(0<=navigator.userAgent.toLowerCase().indexOf('firefox')){h=function(a){var b=document.implementation.createDocumentType('html','-//W3C//DTD HTML 4.01//EN','http://www.w3.org/TR/html4/strict.dtd');var c=document.implementation.createDocument(null,'html',b);var d=document.createRange();d.selectNodeContents(document.documentElement);var e=c.adoptNode(d.createContextualFragment(a));c.documentElement.appendChild(e);return c;}}return h(g);}var m=[],r=null,n=null;var o=dc||d.documentElement;var p=o.ownerDocument;if(typeof dc == 'object' && typeof dc.nodeType == 'number'){if(dc.nodeType == 1 && dc.nodeName.toUpperCase()=='HTML'){o=c(dc.innerHTML);p=o;}else if(dc.nodeType == 9){o=dc.documentElement;p=dc;}}try{r=p.evaluate(xp,o,null,XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,null);for(var i=0,l=r.snapshotLength;i<l;i++){m.push(r.snapshotItem(i));}}catch(e){try{var q=p.evaluate(xp,o,null,XPathResult.ANY_TYPE,null);while(n=q.iterateNext()){m.push(n);}}catch(e){throw new Error(e.message);}}return m;};
+var $x = function(xp,dc){function c(f){var g='';if(typeof f=='string'){g=f;}var h=function(a){var b=document.implementation.createHTMLDocument('');var c=b.createRange();c.selectNodeContents(b.documentElement);c.deleteContents();b.documentElement.appendChild(c.createContextualFragment(a));return b;};if(0<=navigator.userAgent.toLowerCase().indexOf('firefox')){h=function(a){var b=document.implementation.createDocumentType('html','-//W3C//DTD HTML 4.01//EN','http://www.w3.org/TR/html4/strict.dtd');var c=document.implementation.createDocument(null,'html',b);var d=document.createRange();d.selectNodeContents(document.documentElement);var e=c.adoptNode(d.createContextualFragment(a));c.documentElement.appendChild(e);return c;};}return h(g);}var m=[],r=null,n=null;var o=dc||document.documentElement;var p=o.ownerDocument;if(typeof dc == 'object' && typeof dc.nodeType == 'number'){if(dc.nodeType == 1 && dc.nodeName.toUpperCase()=='HTML'){o=c(dc.innerHTML);p=o;}else if(dc.nodeType == 9){o=dc.documentElement;p=dc;}}try{r=p.evaluate(xp,o,null,XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,null);for(var i=0,l=r.snapshotLength;i<l;i++){m.push(r.snapshotItem(i));}}catch(e){try{var q=p.evaluate(xp,o,null,XPathResult.ANY_TYPE,null);while(n=q.iterateNext()){m.push(n);}}catch(e){throw new Error(e.message);}}return m;};
 /**
  * function $s
  * 以前の$x
