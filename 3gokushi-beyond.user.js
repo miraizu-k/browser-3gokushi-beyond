@@ -6,15 +6,14 @@
 // @include        https://*.3gokushi.jp/*
 // @author         hatt
 // @maintainer     romer,etc
-// @version        1.28.0.4
+// @version        1.28.1.1
 // ==/UserScript==
 // FireFox / Google Chrome / Opera / Safari対応です。
 ( function(){
-
 if(document.getElementById('beyond_basepanel') ) return ;
 
-var VERSION_NAME = 'ブラウザ三国志Beyond Ver 1.28.0.4 by hatt+ろむ+etc';
-var IMG_DIR = '/20110414-01/img/';
+var VERSION_NAME = 'ブラウザ三国志Beyond Ver 1.28.1.1 by hatt+ろむ+etc';
+var IMG_DIR = '/20110427-01/img/';
 
 var crossBrowserUtility = initCrossBrowserSupport();
 
@@ -28,7 +27,8 @@ var $ = function (id,pd) {return pd ? pd.getElementById(id) : document.getElemen
  * @returns {Array}
  * @throws
  */
-var $x = function(xp,dc){function c(f){var g='';if(typeof f=='string'){g=f;}var h=function(a){var b=document.implementation.createHTMLDocument('');var c=b.createRange();c.selectNodeContents(b.documentElement);c.deleteContents();b.documentElement.appendChild(c.createContextualFragment(a));return b;};if(0<=navigator.userAgent.toLowerCase().indexOf('firefox')){h=function(a){var b=document.implementation.createDocumentType('html','-//W3C//DTD HTML 4.01//EN','http://www.w3.org/TR/html4/strict.dtd');var c=document.implementation.createDocument(null,'html',b);var d=document.createRange();d.selectNodeContents(document.documentElement);var e=c.adoptNode(d.createContextualFragment(a));c.documentElement.appendChild(e);return c;};}return h(g);}var m=[],r=null,n=null;var o=dc||document.documentElement;var p=o.ownerDocument;if(typeof dc == 'object' && typeof dc.nodeType == 'number'){if(dc.nodeType == 1 && dc.nodeName.toUpperCase()=='HTML'){o=c(dc.innerHTML);p=o;}else if(dc.nodeType == 9){o=dc.documentElement;p=dc;}}try{r=p.evaluate(xp,o,null,XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,null);for(var i=0,l=r.snapshotLength;i<l;i++){m.push(r.snapshotItem(i));}}catch(e){try{var q=p.evaluate(xp,o,null,XPathResult.ANY_TYPE,null);while(n=q.iterateNext()){m.push(n);}}catch(e){throw new Error(e.message);}}return m;};
+var $x = function(xp, dc) {function c(f) {var g = '';if (typeof f == 'string') {g = f;}var h = function(a) {var b = document.implementation.createHTMLDocument('');var c = b.createRange();c.selectNodeContents(b.documentElement);c.deleteContents();b.documentElement.appendChild(c.createContextualFragment(a));return b;};if (0 <= navigator.userAgent.toLowerCase().indexOf('firefox')) {h = function(a) {var b = document.implementation.createDocumentType('html','-//W3C//DTD HTML 4.01//EN','http://www.w3.org/TR/html4/strict.dtd');var c = document.implementation.createDocument(null, 'html', b);var d = document.createRange();d.selectNodeContents(document.documentElement);var e = c.adoptNode(d.createContextualFragment(a));c.documentElement.appendChild(e);return c;};}return h(g);}var m = [], r = null, n = null;var o = dc || document.documentElement;var p = o.ownerDocument;if (typeof dc == 'object' && typeof dc.nodeType == 'number') {if (dc.nodeType == 1 && dc.nodeName.toUpperCase() == 'HTML') {o = c(dc.innerHTML);p = o;}else if (dc.nodeType == 9) {o = dc.documentElement;p = dc;}}else if (typeof dc == 'string') {o = c(dc);p = o;}try {r = p.evaluate(xp, o, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,null);for ( var i = 0, l = r.snapshotLength; i < l; i++) m.push(r.snapshotItem(i));}catch (e) {try {var q = p.evaluate(xp, o, null, XPathResult.ANY_TYPE, null);while (n = q.iterateNext()) m.push(n);}catch (e) {throw new Error(e.message);}}return m;};
+
 /**
  * function $s
  * 以前の$x
@@ -37,7 +37,7 @@ var $x = function(xp,dc){function c(f){var g='';if(typeof f=='string'){g=f;}var 
  * @returns {Node}
  * @throws
  */
-var $s = function(xp, dc) {return $x(xp,dc).shift();};
+var $s = function(xp, dc) { return $x(xp,dc).shift();};
 
 /**
  * function $e
@@ -114,11 +114,19 @@ var OPT_PIKA_BLINKBLD = 0;
 var OPT_SUZAN_SEISAN = 0;
 
 var OPT_CASTLE_AID = 0;
-var OPT_NEXT_MEISEI = 0;
+var OPT_NEXT_MEISEI = 1;
 var OPT_TIMER_LINK_DEPOT = 0;
 
+var OPT_LOGBOX = 0;
+var OPT_LOGBOX_FONT_SIZE = '9';
+var OPT_LOGBOX_WIDTH = '20';
+var OPT_LOGBOX_HEIGHT = '5';
+var OPT_LOG_EXP_TIME = '30';
+
+
+
 if (isNarrow) {
-    var OPT_VILLAGE_LIST_BOX = 0;
+    var OPT_VILLAGE_LIST_BOX = 1;
 }
 
 var g_MD;
@@ -147,10 +155,13 @@ var VILLAGES_INFO= {};
 var SID = '';
 
 var MAP_TYPE = {
-        TYPE11 : 1,
-        TYPE15 : 2,
-        TYPE20 : 3,
-        TYPE51 : 4
+        TYPE11 : 0x1,
+        TYPE15 : 0x2,
+        TYPE20 : 0x4,
+        TYPE51 : 0x10,
+        NORMAL : 0x07,
+        BIG : 0x10,
+        ALL : 0x17
 };
 
 if( !initPanel() ) return;
@@ -207,6 +218,7 @@ if( OPT_SUZAN_SEISAN ) disp_SuzanSeisan();
 if ( OPT_CASTLE_AID ) disp_castleAidLink();
 if ( OPT_NEXT_MEISEI ) disp_nextFameTimer();
 if ( OPT_TIMER_LINK_DEPOT ) disp_timerLinkDepot();
+if ( OPT_LOGBOX ) disp_logMessageBox();
 
 if( OPT_TTALLYPRSN) disp_ToolTipsAllyPerson();
 if( OPT_TTDISTANCE) disp_ToolTipsDistance();
@@ -339,10 +351,12 @@ function initImages()
 //////////////////////
 function initStyle()
 {
-    GM_addStyle('span.beyond_panel_ctlbox {width:35px; height:14px; display:block; position:absolute; right:-5px; top:-4px; }' +
-                'span.beyond_panel_ctlbox img {width:8px;height:9px; float:right; }' +
-                'div#beyond_basepanel img{vertical-align:middle; margin:1px 1px 1px 0px; padding-left:2px}' +
-                 '#beyond_basepanel fieldset{border:groove 1px black; margin:1px; padding:1px;}'
+    GM_addStyle(
+                    'span.beyond_panel_ctlbox {width:35px; height:14px; display:block; position:absolute; right:-5px; top:-4px; }'
+                  + 'span.beyond_panel_ctlbox img {width:8px;height:9px; float:right; }'
+                  + 'div#beyond_basepanel img{vertical-align:middle; margin:1px 1px 1px 0px; padding-left:2px}'
+                  + '#beyond_basepanel fieldset{border:groove 1px black; margin:1px; padding:1px;}'
+                  + '#beyond_basepanel fieldset{border:groove 1px black; margin:1px; padding:1px;}'
                 );
 }
 
@@ -456,16 +470,15 @@ function disp_Options()
     cl.innerHTML = '三国志Beyond';
     $e(cl, 'click', function() {openOptions();});
 
+    var hasLastDocs = $x('//li[contains(concat(" ",normalize-space(@class)," "), " last ")]');
+    hasLastDocs.forEach(function(hasLastDoc){
+        hasLastDoc.removeAttribute('class');
+    });
+
     var li = d.createElement('li');
-    li.appendChild(cl);
-    li.className = 'last';
-    ul.appendChild(li);
-
-    var lst = $s('//li[contains(concat(" ",normalize-space(@class)," "), " last ")]');
-    if( lst ) {
-        lst.className = '';
-    }
-
+        li.appendChild(cl);
+        li.className = 'last';
+        ul.appendChild(li);
 
 }
 
@@ -520,10 +533,11 @@ function loadOptions()
     OPT_SUZAN_SEISAN = cloadData( 'OPT_SUZAN_SEISAN', 0 );
 
     OPT_CASTLE_AID = cloadData( 'OPT_CASTLE_AID', 0 );
-    OPT_NEXT_MEISEI = cloadData( 'OPT_NEXT_MEISEI', 0 );
+    OPT_NEXT_MEISEI = cloadData( 'OPT_NEXT_MEISEI', 1 );
     OPT_TIMER_LINK_DEPOT = cloadData( 'OPT_TIMER_LINK_DEPOT', 0 );
+    OPT_LOGBOX = cloadData( 'OPT_LOGBOX', 0 );
     if (isNarrow) {
-        OPT_VILLAGE_LIST_BOX = cloadData( 'OPT_VILLAGE_LIST_BOX', 0 );
+        OPT_VILLAGE_LIST_BOX = cloadData( 'OPT_VILLAGE_LIST_BOX', 1 );
     }
 }
 function saveOptions()
@@ -577,6 +591,8 @@ function saveOptions()
     OPT_CASTLE_AID = cgetCheckBoxValue('OPT_CASTLE_AID');
     OPT_NEXT_MEISEI = cgetCheckBoxValue('OPT_NEXT_MEISEI');
     OPT_TIMER_LINK_DEPOT = cgetCheckBoxValue('OPT_TIMER_LINK_DEPOT');
+    OPT_LOGBOX = cgetCheckBoxValue('OPT_LOGBOX');
+
     if (isNarrow) {
         OPT_VILLAGE_LIST_BOX = cgetCheckBoxValue( 'OPT_VILLAGE_LIST_BOX');
     }
@@ -630,11 +646,13 @@ function saveOptions()
     csaveData( 'OPT_CASTLE_AID', OPT_CASTLE_AID );
     csaveData( 'OPT_NEXT_MEISEI', OPT_NEXT_MEISEI );
     csaveData( 'OPT_TIMER_LINK_DEPOT', OPT_TIMER_LINK_DEPOT );
+    csaveData( 'OPT_LOGBOX', OPT_LOGBOX );
+
     if (isNarrow) {
         csaveData( 'OPT_VILLAGE_LIST_BOX', OPT_VILLAGE_LIST_BOX );
     }
 
-    alert('設定を保存しました');
+    caddLogMessage('設定を保存しました');
     deleteOptionsHtml();
 }
 function getMyInfo()
@@ -845,6 +863,11 @@ function addOptionsHtml() {
     if (isNarrow) {
         ccreateCheckBox(fs, 'OPT_VILLAGE_LIST_BOX', OPT_VILLAGE_LIST_BOX, '都市リスト表示機能','都市のタブ以外でも都市のリストを表示できるようにします',0);
     }
+    ccreateCheckBox(fs, 'OPT_LOGBOX', OPT_LOGBOX, 'ログメッセージBOX機能','Alertで表示される内容をログBOXに格納します。',0);
+    ccreateTextBox(fs, 'OPT_LOGBOX_FONT_SIZE', OPT_LOGBOX_FONT_SIZE, 'フォントサイズ','ログBOXのフォントサイズを指定します。デフォルト=9',5,20);
+    ccreateTextBox(fs, 'OPT_LOGBOX_WIDTH', OPT_LOGBOX_WIDTH, '幅','ログBOXの幅を指定します。デフォルト=20',5,20);
+    ccreateTextBox(fs, 'OPT_LOGBOX_HEIGHT', OPT_LOGBOX_HEIGHT, '高','ログBOXの高さを指定します。デフォルト=5',5,20);
+    ccreateTextBox(fs, 'OPT_LOG_EXP_TIME', OPT_LOG_EXP_TIME, '時間(分)','ログの保存時間(分)を指定します。デフォルト=30',5,20);
 
 
     ccreateButton(oc, '保存', '設定内容を保存します', function() {saveOptions();});
@@ -1681,11 +1704,6 @@ function disp_memo()
         ta.rows = OPT_MEMO_HEIGHT;
         ta.cols = OPT_MEMO_WIDTH;
 
-        if (isNarrow) {
-            ta.rows = OPT_MEMO_HEIGHT - 1;
-            ta.cols = OPT_MEMO_WIDTH - 4;
-        }
-
         ta.style.fontSize= OPT_MEMO_FONT_SIZE + 'px';
         ta.value= cloadData( 'memo' + no, '', true );
 
@@ -1699,7 +1717,7 @@ function disp_memo()
             var memoBox = $('beyond_memobox' + no);
             if( memoBox ) {
                 csaveData( 'memo' + no, memoBox.value, true );
-                alert('保存しました');
+                caddLogMessage('保存しました');
             }
         });
         var dv = d.createElement('div');
@@ -1720,6 +1738,10 @@ function disp_baseLink()
     for( var idx=0 ; idx < bases.length ; idx++) {
         addBaseLink(bases[idx]);
     }
+
+    $x('//a[contains(concat(" ",normalize-space(@class)," "), " map-basing ")]').forEach(function(mapLink){
+        mapLink.style.display = 'none';
+    });
 
     function addBaseLink(elem) {
 
@@ -1744,7 +1766,7 @@ function disp_baseLink()
 
         a_m = d.createElement('a');
         a_m.href = caddSessionId('/map.php?x=' + xy[1] + '&y=' + xy[2]);
-        a_m.title = 'マップ(' + xy[1] + ',' + xy[2] + ')' ;
+        a_m.title = '拠点(' + xy[1] + ',' + xy[2] + ')を中心に地図を表示' ;
         a_m.appendChild(a_m_img);
 
         a_v = d.createElement('a');
@@ -1766,9 +1788,10 @@ function disp_baseLink()
         }
 
         var spn = d.createElement('span');
-        spn.appendChild(a_v);
-        spn.appendChild(a_m);
-        spn.appendChild(a_n);
+            spn.style.marginTop = '4px';
+            spn.appendChild(a_v);
+            spn.appendChild(a_m);
+            spn.appendChild(a_n);
         elem.parentNode.insertBefore(spn, elem.nextSibling);
 
     }
@@ -2143,24 +2166,24 @@ function mapLinkList(evt)
                 if( lines[i] == '' ) continue;
                 var dat = lines[i].split('\t');
                 if( dat.length != 3 && dat.length != 4 ) {
-                    alert('解析エラーです。処理を中断します。\n( ' + lines[i] + ' )' );
+                    caddLogMessage('error:解析に失敗しました。処理を中断します。1\n( ' + lines[i] + ' )' );
                     return;
                 }
                 //チェック
                 if( dat.length == 3 ) {
                     if( !dat[1].match(/[\-0-9]+/g)  || !dat[2].match(/[\-0-9]+/g) ) {
-                        alert('解析エラーです。処理を中断します。\n( ' + lines[i] + ' )' );
+                        caddLogMessage('error:解析に失敗しました。処理を中断します。2\n( ' + lines[i] + ' )' );
                         return;
                     }
                 }else if ( dat.length == 4 ) {
                     if( dat[3] == '' && dat[1].match(/[\-0-9]+/g) && dat[2].match(/[\-0-9]+/g) ) {
                         dat.pop();
                     }else  if( !dat[0].match(/[\-0-9]+/g) ) {
-                        alert('解析エラーです。処理を中断します。\n( ' + lines[i] + ' )' );
+                        caddLogMessage('error:解析に失敗しました。処理を中断します。3\n( ' + lines[i] + ' )' );
                         return;
                     }
                 }else{
-                    alert('解析エラーです。処理を中断します。\n( ' + lines[i] + ' )' );
+                    caddLogMessage('error:解析に失敗しました。処理を中断します。4\n( ' + lines[i] + ' )' );
                     return;
                 }
                 var linedata = '';
@@ -2186,7 +2209,7 @@ function mapLinkList(evt)
             csaveData( 'links'  , saveLines.length, true );
 
 
-            alert('上書き保存しました');
+            caddLogMessage('上書き保存しました');
             resetMapLinks();
         }
     });
@@ -2784,12 +2807,12 @@ function disp_AllianceInfo()
                         {
                             var idtd = $s('descendant::td[2]',trs[now_num]);
                             if( !idtd ) {
-                                alert('ページフォーマットが変わったみたい');
+                                caddLogMessage('error:ページフォーマットが変わった可能性があります。1');
                                 return ;
                             }
                             var ids = idtd.innerHTML.match(/\/user\/\?user_id\=(\d+)/);
                             if( !ids ) {
-                                alert('ページフォーマットが変わったみたい');
+                                caddLogMessage('error:ページフォーマットが変わった可能性があります。2');
                                 return ;
                             }
 
@@ -2800,7 +2823,7 @@ function disp_AllianceInfo()
                                     window.setTimeout(timerFunc, 0);
                                 }else{
                                     running = false;
-                                    alert('全ての座標を取得しました');
+                                    caddLogMessage('全ての座標を取得しました');
                                 }
                                 return ;
                             }
@@ -2819,7 +2842,7 @@ function disp_AllianceInfo()
                                     window.setTimeout(timerFunc, 0);
                                 }else{
                                     running = false;
-                                    alert('全ての座標を取得しました');
+                                    caddLogMessage('全ての座標を取得しました');
                                 }
                             });
                         }
@@ -2995,13 +3018,13 @@ function disp_AllianceInfo()
                 if( !$('beyond_csvWindow') ) return;
                 var tds = $x('descendant::td',trs[now_num]);
                 if( tds.length < 5 ) {
-                    alert('ページフォーマットが変わったみたい');
+                    caddLogMessage('error:ページフォーマットが変わった可能性があります。3');
                     return ;
                 }
 
                 var ids = tds[1].innerHTML.match(/\/user\/\?user_id\=(\d+).*">(.+)<\/a>/);
                 if( !ids ) {
-                    alert('ページフォーマットが変わったみたい');
+                    caddLogMessage('error:ページフォーマットが変わった可能性があります。4');
                     return ;
                 }
 
@@ -3042,11 +3065,11 @@ function disp_AllianceInfo()
                             elm_csv.focus();
                         }
                     } else {
-                        alert('取得に失敗しました' );
+                        caddLogMessage('error:取得に失敗しました。時間をおいて再度試してみてください。1' );
                     }
 
                 }, function(req){
-                    alert('サーバからエラーが返りましたよ' );
+                    caddLogMessage('error:サーバからエラーが返りました。時間をおいて再度試してみてください。1' );
                 });
             }
         });
@@ -3093,13 +3116,13 @@ function disp_AllianceInfo()
                 if( !$('beyond_csvWindow') ) return;
                 var tds = $x('descendant::td',trs[now_num]);
                 if( tds.length < 5 ) {
-                    alert('ページフォーマットが変わったみたい');
+                    caddLogMessage('error:ページフォーマットが変わった可能性があります。5');
                     return ;
                 }
 
                 var ids = tds[1].innerHTML.match(/\/user\/\?user_id\=(\d+).*">(.+)<\/a>/);
                 if( !ids ) {
-                    alert('ページフォーマットが変わったみたい');
+                    caddLogMessage('error:ページフォーマットが変わった可能性があります。6');
                     return ;
                 }
 
@@ -3128,10 +3151,10 @@ function disp_AllianceInfo()
                             elm_csv.focus();
                         }
                     } else {
-                        alert('取得に失敗しました' );
+                        caddLogMessage('error:取得に失敗しました。時間をおいて再度試してみてください。2' );
                     }
                 }, function(req){
-                    alert('サーバからエラーが返りましたよ' );
+                    caddLogMessage('error:サーバからエラーが返りました。時間をおいて再度試してみてください。2' );
                 });
             }
         });
@@ -3265,11 +3288,9 @@ function disp_RemoveList()
         }
     }
 
-
-    if( location.pathname == '/map.php' ) {
+    var mapType = cgetMapType();
+    if(mapType & MAP_TYPE.ALL) {
         //地図に表示
-        var type = cgetMapSize();
-
         var lists = cloadData('RemoveList', '[]', true, true);
         lists = checkList(lists);       //時間を過ぎたものを削除
 
@@ -3281,23 +3302,119 @@ function disp_RemoveList()
             if( cy > MAP_Y_MAX ) cy = MAP_Y_MAX;
             if( cy < MAP_Y_MIN ) cy = MAP_Y_MIN;
 
-            var map = $s('id("mapsAll")');
+            var map = null;
+            if (mapType & MAP_TYPE.NORMAL) {
+                map = $s('id("mapsAll")');
+            }
+
+            var messagesObjs = {
+                    remove : {
+                        'full' : '削除',
+                        'short' : '削'
+                    },
+                    lvup : {
+                        'full' : 'LvUp',
+                        'short' : 'U'
+                    },
+                    fBuild : {
+                        'full' : '砦建設',
+                        'short' : '建'
+                    },
+                    vBuild : {
+                        'full' : '村建設',
+                        'short' : '建'
+                    }
+            };
+
             for(var i=0 ; i<lists.length ; i++) {
-                var no = cgetMapNofromXY(lists[i].x, lists[i].y, cx, cy, type );
-                if( !no ) continue;
-                var img_src;
-                if( lists[i].kind == 3) img_src = img_m;
-                else if(lists[i].kind == 4 ) img_src = img_t;
-                else if(lists[i].kind == 5 ) img_src = img_lup;
-                else img_src = img_x;
+                if (mapType & MAP_TYPE.NORMAL) {
+                    var no = cgetMapNofromXY(lists[i].x, lists[i].y, cx, cy, mapType );
+                    if( !no ) continue;
+                    var img_src;
+                    if( lists[i].kind == 3) img_src = img_m;
+                    else if(lists[i].kind == 4 ) img_src = img_t;
+                    else if(lists[i].kind == 5 ) img_src = img_lup;
+                    else img_src = img_x;
 
-                var img = document.createElement('img');
-                img.className = 'mapAll' + no;
-                img.src = img_src;
+                    var img = document.createElement('img');
+                    img.className = 'mapAll' + no;
+                    img.src = img_src;
 
-                map.appendChild(img);
+                    map.appendChild(img);
 
-                csetMapStarDisable(no);
+                    csetMapStarDisable(no);
+                }
+                else if (mapType & MAP_TYPE.BIG) {
+                    var mapAreaContents = $x('id("map51-content")//li/div/a[contains(@href, "?x=' + lists[i].x + '&y=' + lists[i].y + '")]');
+                    var setMapAreaContents = null;
+                    if (mapAreaContents.length <= 0) {
+                        continue;
+                    }
+                    else if (mapAreaContents.length == 1) {
+                        setMapAreaContents = mapAreaContents[0].cloneNode(true);
+                    }
+                    else {
+                        setMapAreaContents = mapAreaContents[1];
+                    }
+
+                    var message = null;
+                    if(lists[i].kind == 3) {
+                        message = messagesObjs.vBuild;
+                    }
+                    else if (lists[i].kind == 4) {
+                        message = messagesObjs.fBuild;
+                    }
+                    else if(lists[i].kind == 5 ) {
+                        message = messagesObjs.lvup;
+                    }
+                    else {
+                        message = messagesObjs.remove;
+                    }
+
+                    setMapAreaContents.innerHTML = message.short;
+
+                    mapAreaContents[0].style.display = 'none';
+                    mapAreaContents[0].parentNode.appendChild(setMapAreaContents);
+
+                    var match = null;
+                    if ((match = mapAreaContents[0].parentNode.parentNode.className.match(/bg_[^\s]*/g)) && match.length == 1) {
+                        setMapAreaContents.style.color = 'red';
+                    }
+                    else {
+                        setMapAreaContents.style.color = 'moccasin';
+                    }
+
+                    (function (time,message) {
+                        $e(setMapAreaContents,'mouseover',function(e){
+                            var toolTipCaption = $s('id("overDiv")//dl[contains(concat(" ",normalize-space(@class)," "), " bigmap ")]//dt[contains(concat(" ",normalize-space(@class), " "), " bigmap-caption ")]');
+                            if (!toolTipCaption) {
+                                return;
+                            }
+
+                            toolTipCaption.appendChild(document.createTextNode('\u00A0'+message.full+'中'));
+
+                            var toolTips = $x('id("overDiv")//dl[contains(concat(" ",normalize-space(@class)," "), " bigmap ")]//*[contains(concat(" ",normalize-space(@class)," "), " bottom-popup-")]');
+                            if (toolTips.length == 0) {
+                                return;
+                            }
+                            for (var i = 0; i < toolTips.length; i++) {
+                                toolTips[i].className = '';
+                            }
+
+                            var dt = document.createElement('dt');
+                                dt.className = 'bottom-popup-l';
+                                dt.appendChild(document.createTextNode(message.full+'完了予定'));
+
+                            var dd = document.createElement('dd');
+                                dd.className = 'bottom-popup-r';
+                                dd.appendChild(document.createTextNode(time));
+
+                            toolTips[toolTips.length - 1].parentNode.appendChild(dt);
+                            toolTips[toolTips.length - 1].parentNode.appendChild(dd);
+
+                        });
+                    })(lists[i].time,message);
+                }
             }
         }
     }
@@ -3435,7 +3552,7 @@ function disp_RemoveList()
             if( str4) msg += '以下の拠点がレベルアップしました\n' + str4;
 
             csaveData( 'RemoveList', lists, true, true );
-            alert(msg);
+            caddLogMessage(msg);
         }
         return lists;
     }
@@ -3658,11 +3775,8 @@ function disp_ResourcesTime()
 //////////////////////
 function disp_MapList()
 {
-    if( location.pathname != '/map.php' ) return;
-
-
-    var map_type = cgetMapSize();
-    if (map_type == null) {
+    var mapType = cgetMapType();
+    if (!(mapType & MAP_TYPE.ALL)) {
         return;
     }
 
@@ -3704,22 +3818,45 @@ function disp_MapList()
                  'table#beyond_maplist_table th {background:lightgray; padding: 5px; text-align:center; border:1px solid black;}',
                  'table#beyond_maplist_table td {padding: 2px; border:1px solid black;}'].join('\n'));
 
-
     $e(a, 'click', function() {
+
+        if (mapType & MAP_TYPE.BIG && confirm('51x51MAPで取得する場合、時間がかかる場合や\nページが重くなる事がありますが実行しますか？') == false) {
+            return;
+        }
 
         var flag_akichi = cgetCheckBoxValue('beyond_maplist_akichi');
         var flag_ryouchi = cgetCheckBoxValue('beyond_maplist_ryouchi');
         var flag_kyoten = cgetCheckBoxValue('beyond_maplist_kyoten');
 
-        var area = $x('id("mapOverlayMap")//area');
+        var areaContents = areaContents = $x('id("mapOverlayMap")/area | id("map51-content")//li/div/a[1]');
+
         var lists = new Array();
-        for(var i=0; i<area.length ; i++) {
-            var dat = area[i].getAttribute('onmouseover');
-            dat = dat.replace(/^.*rewrite/, 'getTRData');
-            dat = dat.replace(/\); .*$/, ');');
-            var trdata = eval(dat);
-            if( trdata ) {
-                lists.push(trdata);
+        var allyList = {};
+        var npcList = [];
+        for(var i=0; i<areaContents.length ; i++) {
+            var mapData = cgetMapItemDataFromItemDocument(areaContents[i],mapType);
+            var result = getTRData(mapData.name, mapData.userName, mapData.population, mapData.xy, mapData.allyName, mapData.star, mapData.distance, mapData.wood, mapData.stone, mapData.iron, mapData.rice, mapData.isNPCBuild);
+            if( result ) {
+                lists.push(result);
+                if (mapType & MAP_TYPE.BIG) {
+                    var unicodeUserName = quoteString(result.user_name);
+                    unicodeUserName = unicodeUserName.replace(/\\/g,'_');
+                    if (!result.npc && typeof allyList[unicodeUserName] == 'undefined') {
+                        allyList[unicodeUserName] = result.ally;
+                    }
+                    else if (result.npc && result.ally != '-') {
+                        npcList.push({'id':(lists.length - 1),'name':unicodeUserName});
+                    }
+                }
+            }
+        }
+
+        if (mapType & MAP_TYPE.BIG) {
+            // ally未取得分を設定(51x51map自用)
+            for (var i=0 ; i < npcList.length ; i++) {
+                if (allyList[npcList[i].name]) {
+                    lists[npcList[i].id].ally = allyList[npcList[i].name];
+                }
             }
         }
 
@@ -3755,7 +3892,7 @@ function disp_MapList()
 
         var tbl = initTable();
 
-        for(var i=0 ; i<lists.length ; i++) {
+        for(i=0 ; i<lists.length ; i++) {
             var tr = d.createElement('tr');
             var td;
             td = d.createElement('td');
@@ -3796,8 +3933,7 @@ function disp_MapList()
 
         if( OPT_TTDISTANCE) disp_ToolTipsDistance();//試し
 
-        function getTRData(name, user_name, jinko, xy, ally, star, kyori, wood, stone, iron, rice, npc)
-        {
+        function getTRData(name, user_name, jinko, xy, ally, star, kyori, wood, stone, iron, rice, npc) {
             if( !flag_akichi && ally == '' ) return null;
 
             if( jinko == '-') jinko = '';
@@ -3812,16 +3948,58 @@ function disp_MapList()
                     if( cx < MAP_X_MIN ) cx = MAP_X_MIN;
                     if( cy > MAP_Y_MAX ) cy = MAP_Y_MAX;
                     if( cy < MAP_Y_MIN ) cy = MAP_Y_MIN;
-                    var no = cgetMapNofromXY(parseInt(tmp[1], 10), parseInt(tmp[2], 10), cx, cy, map_type);
+                    var no = cgetMapNofromXY(parseInt(tmp[1], 10), parseInt(tmp[2], 10), cx, cy, mapType);
                     if( no ) {
-                        var img = $s('id("mapsAll")//img[contains(concat(" ",normalize-space(@class)," "), " mapAll' + no + ' ")]');
-                        if( img ) {
-                            kyoten_img = img.getAttribute('src');
-                            if( npc ) kyoten_kind = 4;
-                            else if( kyoten_img.match(/village/) ) kyoten_kind = 1;
-                            else if( kyoten_img.match(/fort/) ) kyoten_kind = 2;
-                            else if( kyoten_img.match(/capital/) ) kyoten_kind = 3;
-
+                        if (mapType & MAP_TYPE.NORMAL) {
+                            var img = $s('id("mapsAll")//img[contains(concat(" ",normalize-space(@class)," "), " mapAll' + no + ' ")]');
+                            if( img ) {
+                                kyoten_img = img.getAttribute('src');
+                                if( npc ) kyoten_kind = 4;
+                                else if( kyoten_img.match(/village/) ) kyoten_kind = 1;
+                                else if( kyoten_img.match(/fort/) ) kyoten_kind = 2;
+                                else if( kyoten_img.match(/capital/) ) kyoten_kind = 3;
+                            }
+                        }
+                        else if (mapType & MAP_TYPE.BIG) {
+                            // map icon
+                            var mapData = $s('id("map51-content")//li/div/a[contains(@href, "x=' + tmp[1] + '") and contains(@href, "y=' + tmp[2] + '")][1]');
+                            var classNames = mapData.parentNode.parentNode.className.match(/bg_[^\s*]+/g);
+                            if (classNames) {
+                                var className = classNames[0];
+                                if (1 < classNames.length) {
+                                    for (var i = 0; i < classNames.length; i++) {
+                                        if (classNames[i] == 'bg_vacant_land') {
+                                            continue;
+                                        }
+                                        className = classNames[i];
+                                    }
+                                }
+                                var index = npc ? star : jinko;
+                                var textNode = $s('.//text()',mapData);
+                                var text = textNode.nodeValue.replace(/[\s|\r|\n]*/g,'');
+                                if (text) {
+                                    switch (text) {
+                                        case '村':
+                                            kyoten_kind = 1;
+                                            kyoten_img = 'village'+convertClassNameToImageColorAndSize(className,index);
+                                            break;
+                                        case '砦':
+                                            kyoten_kind = 2;
+                                            kyoten_img = 'fort'+convertClassNameToImageColorAndSize(className,index);
+                                            break;
+                                        case '城':
+                                            kyoten_kind = 3;
+                                            kyoten_img = 'capital'+convertClassNameToImageColorAndSize(className,index);
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                    kyoten_img = IMG_DIR + 'panel/' + kyoten_img + '.png';
+                                }
+                                if (npc) {
+                                    kyoten_kind = 4;
+                                }
+                            }
                         }
                     }
                 }
@@ -3833,6 +4011,55 @@ function disp_MapList()
             return {'kyoten_kind':kyoten_kind, 'kyoten_img':kyoten_img,
                     'jinko':jinko , 'ally':ally, 'user_name':user_name,
                     'name':name, 'xy':xy, 'kyori':kyori, 'star':star, 'npc':npc};
+
+
+            function convertClassNameToImageColorAndSize(className,index) {
+                switch (className) {
+                    case 'bg_my_territory':
+                        return '_b_'+_indexToSize(className, index);
+                    case 'bg_alliance_territory':
+                        return '_g_'+_indexToSize(className, index);
+                        break;
+                    case 'bg_junior_alliance':
+                        return '_bk_'+_indexToSize(className, index);
+                        break;
+                    case 'bg_enemy_junior_alliance':
+                        return '_o_'+_indexToSize(className, index);
+                        break;
+                    case 'bg_dealer_alliance':
+                        return '_bg_'+_indexToSize(className, index);
+                        break;
+                    case 'bg_friendlyalliance_territory':
+                        return '_y_'+_indexToSize(className, index);
+                        break;
+                    case 'bg_enemy_territory':
+                        return '_r_'+_indexToSize(className, index);
+                        break;
+                    case 'bg_npc_fort':
+                        return '_p_'+_indexToSize(className, index);
+                        break;
+                }
+
+                function _indexToSize(className,index) {
+                    var l='l',m='m',s='s';
+                    if (className.toLowerCase().indexOf('bg_npc_fort')) {
+                        if (7 < index.length) {
+                            return l;
+                        }
+                        else if (5 < index.length) {
+                            return m;
+                        }
+                        return s;
+                    }
+                    if (600 <= index) {
+                        return l;
+                    }
+                    else if (250 <= index) {
+                        return m;
+                    }
+                    return s;
+                }
+            }
         }
 
         var sort_kind, sort_order;
@@ -3989,14 +4216,20 @@ function disp_MapList()
 
             return tbl;
         }
+
+        function quoteString(str) {
+            var code, pref = {1: '\\x0', 2: '\\x', 3: '\\u0', 4: '\\u'};
+            return str.replace(/\W/g, function(c) {
+                return pref[(code = c.charCodeAt(0).toString(16)).length] + code;
+            });
+        }
     });
 }
 
 //////////////////////
 //距離/時間表示（ToolTips）
 //////////////////////
-function disp_ToolTipsDistance()
-{
+function disp_ToolTipsDistance() {
     if( location.pathname == '/village.php' ) {
         saveTrainingLevel();
     }
@@ -4368,7 +4601,7 @@ function disp_UserStar()
                         }
                     }
                     if( !targetid ) {
-                        alert('全ての☆情報を取得しました');
+                        caddLogMessage('全ての☆情報を取得しました');
                         running = false;
                         return;
                     }
@@ -4381,14 +4614,16 @@ function disp_UserStar()
 
                     cajaxRequest('/map.php?x=' + xy[1] + '&y=' + xy[2], 'GET', '', function(req) {
                         var dom = d.createElement('html');
-                        dom.innerHTML = req.responseText;
-                        var area = $x('id("mapOverlayMap")//area', dom);
-                        for(var i=0 ; i<area.length ; i++){
-                            var dat = area[i].getAttribute('onmouseover');
-                            dat = dat.replace(/^.*rewrite/, 'setStar');
-                            dat = dat.replace(/\); .*$/, ');');
-                            //evalの中ではGM_set/getValueが出来ないので、変数を一旦外に出す形に
-                            var result = eval(dat);
+                            dom.innerHTML = req.responseText;
+                        var mapType = cgetMapType(dom);
+                        if (!(mapType & MAP_TYPE.ALL)) {
+                            return null;
+                        }
+
+                        var areaContents = $x('id("mapOverlayMap")/area[contains(@onmouseover,"'+uname+'")] | id("map51-content")//li/div/a[contains(@onmouseover,"'+uname+'")][1]', dom);
+                        for(var i=0 ; i<areaContents.length ; i++){
+                            var mapData = cgetMapItemDataFromItemDocument(areaContents[i],mapType);
+                            var result = setStar(mapData.name, mapData.userName, mapData.population, mapData.xy, mapData.allyName, mapData.star, mapData.distance, mapData.wood, mapData.stone, mapData.iron, mapData.rice, mapData.isNPCBuild);
                             if( !result) continue;
 
                             var td = $('beyond_star_' + result.x + '_' + result.y);
@@ -4403,6 +4638,7 @@ function disp_UserStar()
                                 td.innerHTML = '★' + result.star.length + ' (' + result.wood + ',' + result.stone + ',' + result.iron + ',' + result.rice + ')';
                             }
                             td.style.opacity = result.star.length * 0.05 + 0.5;
+
                         }
                         setTimeout(timerFunc, 0);
 
@@ -4505,7 +4741,7 @@ function disp_UserLevel()
                         updateLevelUp();
                         updateLevelUpLink();
                         running = false;
-                        alert('全てのレベル情報を取得しました');
+                        caddLogMessage('全てのレベル情報を取得しました');
                         return;
                     }
 
@@ -4602,7 +4838,8 @@ function disp_UserLevel()
 //////////////////////
 function disp_MapCenter()
 {
-    if( location.pathname != '/map.php' ) return;
+    var mapType = cgetMapType();
+    if(!(mapType & MAP_TYPE.ALL)) return;
     var cx = parseInt(URL_PARAM.x, 10);
     var cy = parseInt(URL_PARAM.y, 10);
     if( isNaN(''+cx) ) cx = 0;
@@ -4611,22 +4848,49 @@ function disp_MapCenter()
     if( cx < MAP_X_MIN ) cx = MAP_X_MIN;
     if( cy > MAP_Y_MAX ) cy = MAP_Y_MAX;
     if( cy < MAP_Y_MIN ) cy = MAP_Y_MIN;
-    var area_center = $s('id("mapOverlayMap")//area[contains(@onmouseover,"('+cx+','+cy+')")]');
-    if( !area_center ) return;
+        if (mapType & MAP_TYPE.NORMAL) {
+        setCenter(cx,cy);
+    }
+    else if (mapType & MAP_TYPE.BIG) {
+        var centerContent = $x('id("map51-content")//li/div/a[contains(@href, "x=' + cx + '") and contains(@href, "y=' + cy + '")]');
+        var setCenterContent = null;
+        if (centerContent.length <= 0) {
+            return null;
+        }
+        else if (centerContent.length == 1) {
+            setCenterContent = centerContent[0].cloneNode(true);
+        }
+        else {
+            setCenterContent = centerContent[1];
+        }
 
-    var dat = area_center.getAttribute('onmouseover');
-    dat = dat.replace(/^.*overOperation/, 'setCenter');
-    dat = dat.replace(/\); .*$/, ');');
-    eval(dat);
+        setCenterContent.innerHTML = '中';
+
+        centerContent[0].parentNode.parentNode.className += ' strong-text';
+        centerContent[0].style.display = 'none';
+        centerContent[0].parentNode.appendChild(setCenterContent);
+        var match = null;
+        if ((match = centerContent[0].parentNode.parentNode.className.match(/bg_[^\s]*/g)) && match.length == 1) {
+            setCenterContent.style.color = 'red';
+        }
+        else {
+            setCenterContent.style.color = 'moccasin';
+        }
+
+        $e(setCenterContent,'mouseover',function(e){
+            var toolTipsCaption = $x('id("overDiv")//dl[contains(concat(" ",normalize-space(@class)," "), " bigmap ")]//*[contains(concat(" ",normalize-space(@class)," "), " bigmap-caption ")]');
+            toolTipsCaption.forEach(function(self) {
+                self.appendChild(document.createTextNode('\u00A0(中央)'));
+            });
+        });
+    }
 
     var dv = d.createElement('div');
     dv.style.fontSize= '10px';
     dv.appendChild(d.createTextNode('中央:( ' + cx + ' , ' + cy + ' )'));
     $('map-xy-search').appendChild(dv);
 
-    function setCenter(act, x, y )
-    {
-        var rollover = $('rollover');
+    function setCenter(x, y) {
         var icon_c = 'data:image/png;base64,'+
                 'iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz'+
                 'AAAK8AAACvABQqw0mAAAABZ0RVh0Q3JlYXRpb24gVGltZQAwMy8yNi8wOQlCSeUAAAAldEVYdFNv'+
@@ -4652,31 +4916,29 @@ function disp_MapCenter()
                 'n11tsu+M2n2mtStpN4vNer8KeL84Akr3yJdkvj8iQP9Xh3ip9ibtRpFT54kipk+cVqY6gd/wvYi4'+
                 'X3bInjPq9Ln0/qT1CfhZImcT0fiIOEAY7rAdZ9RV/CePnKsAzrsK4LzrggP+F1IbDJgkELkdAAAA'+
                 'AElFTkSuQmCC';
-        var img = d.createElement('img');
-        img.src = icon_c;
-        img.style.zIndex = 200;
-        img.style.position = 'absolute';
 
-        img.style.left = x;
-        img.style.top = y;
-        var mapType = cgetMapSize();
-        if (mapType == null) {
+        var no = cgetMapNofromXY(x, y, x, y, mapType);
+
+        if (!no) {
+            caddLogMessage('error:中央の値が取れませんでした。');
             return;
         }
 
-        if(mapType == MAP_TYPE.TYPE15) {
-            img.style.width = '44px';
-            img.style.height = '44px';
+        var img = d.createElement('img');
+        img.src = icon_c;
+        img.className = 'mapAll'+no;
+
+        if(mapType & MAP_TYPE.TYPE11) {
+            img.style.paddingTop = '4px';
         }
-        else if(mapType == MAP_TYPE.TYPE20) {
-            img.style.width = '34px';
-            img.style.height = '36px';
+        else if(mapType & MAP_TYPE.TYPE15) {
+            img.style.paddingTop = '2px';
         }
-        else if(mapType == MAP_TYPE.TYPE11) {
-            img.style.width = '60px';
-            img.style.height = '60px';
-            img.style.zIndex = 121;
+        else if(mapType & MAP_TYPE.TYPE20) {
+            img.style.paddingTop = '1px';
         }
+
+        var rollover = $('rollover');
         rollover.parentNode.insertBefore(img, rollover.nextSibling);
     }
 
@@ -4923,7 +5185,7 @@ function disp_TSendTime()
         mi =parseInt(mi, 10);
         s = parseInt(s, 10);
         if( isNaN(''+y) || isNaN(''+m) || isNaN(''+d) || isNaN(''+h) || isNaN(''+mi) || isNaN(''+s) ) {
-            alert('数字で入力して下さい');
+            caddLogMessage('数字で入力して下さい');
             return;
         }
 
@@ -5055,39 +5317,45 @@ function disp_SmallButton()
     var targetNames = ['base','production','easydeploy'];
     var targets = {
             base : {
-                img : '(id("lodgment") | id("sidebar"))//img[contains(@src,"icon_base")]',
+                closer : '(id("lodgment") | id("sidebar"))//img[contains(@src,"icon_base")]/..',
                 inner : 'ancestor::div[contains(@class,"Head")]/following-sibling::div[contains(@class,"Inner")]'
             },
             production : {
-                img : 'id("sidebar")//img[contains(@src,"icon_production")]',
+                closer : 'id("sidebar")//img[contains(@src,"icon_production")]',
                 inner : 'ancestor::div[contains(@class,"Head")]/following-sibling::div[contains(@class,"Inner")]'
             },
             easydeploy : {
-                img : '(//div[contains(concat(" ",normalize-space(@class)," "), " footer_box ")] | id("sidebar"))//img[contains(@src,"icon_easydeploy")]',
+                closer : '(//div[contains(concat(" ",normalize-space(@class)," "), " footer_box ")] | id("sidebar"))//img[contains(@src,"icon_easydeploy")]',
                 inner : 'ancestor::div[contains(@class,"Head")]/following-sibling::div[contains(@class,"Inner")] | id("map_bookmark")'
             }
     };
     for(var i = 0;i < targetNames.length;i++) {
-        if (isNarrow && targetNames[i] == 'base' && location.pathname.search(/^\/(village|map|land)\.php/) < 0) {
+        if (isNarrow && targetNames[i] == 'base' && location.pathname.search(/^\/(?:village|(?:big_)?map|land)\.php/) < 0) {
             continue;
         }
 
         var target = targets[targetNames[i]];
 
-        var base_img = $s(target.img);
-        if( !base_img ) continue;
+        var base_closer = $s(target.closer);
+        if( !base_closer ) continue;
 
-        var base_inner = $s(target.inner, base_img);
+        var base_inner = $s(target.inner, base_closer);
         if( !base_inner ) continue;
+
 
         var oc = cloadData( 'sidebox_oc' + i , '', true);
         if( oc ) {
             base_inner.style.display = 'none';
-            base_img.style.opacity = 0.3;
+            base_closer.style.opacity = 0.3;
         }
+
         (function(inner, no) {
-            $e(base_img, 'click', function(e) {
+            $e(base_closer, 'click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+
                 var ocs = '';
+
                 if( inner.style.display == 'none' ){
                     inner.style.display = '';
                     this.style.opacity = 1;
@@ -5096,8 +5364,10 @@ function disp_SmallButton()
                     this.style.opacity = 0.3;
                     ocs = '1';
                 }
+
                 csaveData( 'sidebox_oc' + no , ocs, true);
-            });
+                return false;
+            },true);
         })(base_inner, i);
     }
 
@@ -5152,14 +5422,9 @@ function disp_AttackMap()
 
     var lists = cloadData('AttackList', '[]', true, true);
     lists = checkList(lists);       //時間を過ぎたものを削除
-
-    if( location.pathname == '/map.php' ) {
+    var mapType = cgetMapType();
+    if(mapType & MAP_TYPE.ALL) {
         //地図に表示
-        var type = cgetMapSize();
-        if (type == null) {
-            return;
-        }
-
         if( lists.length ) {
             var cx = parseInt(URL_PARAM.x,10);
             var cy = parseInt(URL_PARAM.y,10);
@@ -5168,29 +5433,87 @@ function disp_AttackMap()
             if( cy > MAP_Y_MAX ) cy = MAP_Y_MAX;
             if( cy < MAP_Y_MIN ) cy = MAP_Y_MIN;
 
-            var map = $s('id("mapsAll")');
+            var map = null;
+            if (mapType & MAP_TYPE.NORMAL) {
+                map = $s('id("mapsAll")');
+            }
+            var mapAreaContents = null;
             for(var i=0 ; i<lists.length ; i++) {
-                var no = cgetMapNofromXY(lists[i].x, lists[i].y, cx, cy, type );
-                if( !no ) continue;
-                var img = document.createElement('img');
-                img.className = 'mapAll' + no;
-                if( lists[i].kind == 1 ) {
-                    img.src = img_mov;
-                }else{
-                    img.src = img_atk;
+                mapAreaContents = $x('id("mapOverlayMap")/area[contains(@href, "x=' + lists[i].x + '") and contains(@href, "y=' + lists[i].y + '")] | id("map51-content")//li/div/a[contains(@href, "x=' + lists[i].x + '") and contains(@href, "y=' + lists[i].y + '")][1]');
+
+                if (mapType & MAP_TYPE.NORMAL) {
+                    var no = cgetMapNofromXY(lists[i].x, lists[i].y, cx, cy, mapType );
+                    if( !no ) continue;
+                    var img = document.createElement('img');
+                    img.className = 'mapAll' + no;
+                    if( lists[i].kind == 1 ) {
+                        img.src = img_mov;
+                    }else{
+                        img.src = img_atk;
+                    }
+                    img.title = lists[i].time;
+
+                    map.appendChild(img);
+
+                    if( mapAreaContents ){
+                        mapAreaContents.title += '　到着予定:' + lists[i].time;
+                        mapAreaContents.alt += '　到着予定:' + lists[i].time;
+                    }
+                    csetMapStarDisable(no);
                 }
-                img.title = lists[i].time;
-//              img.style.zIndex = 1000;
+                else if (mapType & MAP_TYPE.BIG) {
+                    var setMapAreaContents = null;
+                    if (mapAreaContents.length <= 0) {
+                        continue;
+                    }
+                    else if (mapAreaContents.length == 1) {
+                        setMapAreaContents = mapAreaContents[0].cloneNode(true);
+                    }
+                    else {
+                        setMapAreaContents = mapAreaContents[1];
+                    }
 
-                map.appendChild(img);
+                    if( lists[i].kind == 1 ) {
+                        setMapAreaContents.innerHTML = '援';
+                    }
+                    else {
+                        setMapAreaContents.innerHTML = '出';
+                    }
 
-                var area = $s('id("mapOverlayMap")/area[contains(@href, "?x=' + lists[i].x + '&y=' + lists[i].y + '")]');
-                if( area ){
-                    area.title += '　到着予定:' + lists[i].time;
-                    area.alt += '　到着予定:' + lists[i].time;
+                    mapAreaContents[0].style.display = 'none';
+                    mapAreaContents[0].parentNode.appendChild(setMapAreaContents);
+
+                    var match = null;
+                    if ((match = mapAreaContents[0].parentNode.parentNode.className.match(/bg_[^\s]*/g)) && match.length == 1) {
+                        setMapAreaContents.style.color = 'red';
+                    }
+                    else {
+                        setMapAreaContents.style.color = 'moccasin';
+                    }
+
+                    (function (time) {
+                        $e(setMapAreaContents,'mouseover',function(e){
+                            var toolTips = $x('id("overDiv")//dl[contains(concat(" ",normalize-space(@class)," "), " bigmap ")]//*[contains(concat(" ",normalize-space(@class)," "), " bottom-popup-")]');
+                            if (toolTips.length == 0) {
+                                return;
+                            }
+                            for (var i = 0; i < toolTips.length; i++) {
+                                toolTips[i].className = '';
+                            }
+
+                            var dt = document.createElement('dt');
+                                dt.className = 'bottom-popup-l';
+                                dt.appendChild(document.createTextNode('到着予定'));
+
+                            var dd = document.createElement('dd');
+                                dd.className = 'bottom-popup-r';
+                                dd.appendChild(document.createTextNode(time));
+
+                            toolTips[toolTips.length - 1].parentNode.appendChild(dt);
+                            toolTips[toolTips.length - 1].parentNode.appendChild(dd);
+                        });
+                    })(lists[i].time);
                 }
-
-                csetMapStarDisable(no);
             }
         }
     }
@@ -5465,8 +5788,7 @@ function cdeleteUserXY(aid)
 
 }
 
-function cresetUserXY()
-{
+function cresetUserXY() {
     var allylists = cloadData( 'allyXYAllyList', '[]', true, true );
 
     for(var i=0 ; i<allylists.length ; i++) {
@@ -5560,21 +5882,21 @@ function cgetMapNofromXY(x, y, base_x, base_y, type)
     //map.php専用のXY座標→mapAll999
     var sc = 0;
     var hosei = 0;
-    if (type == MAP_TYPE.TYPE11) {
+    if (type & MAP_TYPE.TYPE11) {
         sc = 11;
     }
-    else if( type == MAP_TYPE.TYPE15 ) {
+    else if( type & MAP_TYPE.TYPE15 ) {
         sc = 15;
     }
-    else if( type == MAP_TYPE.TYPE20 ) {
+    else if( type & MAP_TYPE.TYPE20 ) {
         sc = 20;
         hosei = 1;
     }
-    else if( type == MAP_TYPE.TYPE51 ) {
+    else if( type & MAP_TYPE.TYPE51 ) {
         sc = 51;
     }
     else {
-        return '00';
+        return null;
     }
 
     var hw = Math.floor( (sc - 1) / 2 );
@@ -6246,7 +6568,7 @@ function Pika_installMapXYHelper()
     // https://developer.mozilla.org/ja/XPCNativeWrapper
     // use event listener to set 'onlcick' functon
 
-    if( location.pathname != '/map.php' ) return;
+    if(!(cgetMapType() & MAP_TYPE.ALL)) return;
 
     var form = $s('id("map-xy-search")/form');
     if( !form ) return;
@@ -6499,6 +6821,7 @@ function disp_castleAidLink()
         var spn = cgetElementSibling(elem,0);
         if (!spn) {
             spn = d.createElement('span');
+            spn.style.marginTop = '4px';
             elem.parentNode.appendChild(spn);
         }
 
@@ -6667,7 +6990,7 @@ function disp_timerLinkDepot() {
 }
 
 function disp_villageListBox() {
-    if (0 <= location.pathname.search(/^\/(village|map|land)\.php/)) {
+    if (0 <= location.pathname.search(/^\/(?:village|(?:big_)?map|land|)\.php/)) {
         return;
     }
 
@@ -6720,12 +7043,47 @@ function disp_villageListBox() {
     }
 }
 
+function disp_logMessageBox() {
+    var icon_log = 'data:image/png;base64,'
+                  + 'iVBORw0KGgoAAAANSUhEUgAAABEAAAAPCAYAAAACsSQRAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN'
+                  + '1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAExSURBVDiNpdNB'
+                  + 'isIwGIbhN6Ei7koDvYK4EcQjuOgJinTjtssgrgXBA/QAHsKtvYHg3kM0GBGKtIjMrBysThxlvlUC4ckX'
+                  + '+COGw+EX/4x3WwRBgFIKKaXzsDEGa60bUUpxPp9ZrVZORGuNUorD4dDAfhApJfv9njAMnYiUkizL0Fo3'
+                  + 'EHd3R8IwfHqyd7+p65rtdsvlciHPc4QQTKdTgiB4CTeQJEnYbDbsdjv6/T69Xo/lckkURVyvVyfS6DWb'
+                  + 'zVgsFsRxzOl0whjDer2mqirG4/F7TW6ZTCbUdY3nebTbbUajEZ1O5zNESkmapgD4vs98Psf3/c+Q++R5'
+                  + 'TlmWDAaDvxFjDFrrXydWCEGr1aIoiteItRZrLd1ulyzLXg7d0yWPH/CdP1QUBcfj8bnJY6NP8g35z22n'
+                  + 'h1LDWQAAAABJRU5ErkJggg==';
+
+    var elms = ccreateSideBox('beyond_sidebox_log_box', icon_log, 'ログ');
+
+    var textarea = d.createElement('textarea');
+        textarea.id = 'beyond_sidebox_log_box';
+        textarea.rows = OPT_LOGBOX_HEIGHT;
+        textarea.cols = OPT_LOGBOX_WIDTH;
+
+    textarea.style.fontSize= OPT_LOGBOX_FONT_SIZE + 'px';
+    PRE_LOAD_NODES['logConsole'] = textarea;
+
+    var logs = cloadData('logMessages','[]',true,true);
+    csaveData('logMessages', [],true,true);
+
+    var nowTime = new Date().getTime();
+
+    logs.forEach(function(messageObj){
+        if ((messageObj.time + parseInt(OPT_LOG_EXP_TIME,10) * 60 * 1000) < nowTime) {
+            return;
+        }
+        caddLogMessage(messageObj);
+    });
+
+    elms.sideBoxInner.appendChild(textarea);
+}
 
 
 
 // 初期化拡張
 function initVillages() {
-    if (0 <= location.pathname.search(/^\/(village|map|land)\.php/)) {
+    if (0 <= location.pathname.search(/^\/(?:village|(?:big_)?map|land)\.php/)) {
         _villageInit();
         return;
     }
@@ -6848,7 +7206,7 @@ function initCastleSend() {
 }
 
 function initNarrow() {
-    if (0 <= location.pathname.search(/^\/(village|map|land)\.php/)) {
+    if (0 <= location.pathname.search(/^\/(?:village|(?:big_)?map|land)\.php/)) {
         $s('id("lodgment")/div[contains(concat(" ",normalize-space(@class)," "), " floatHead ")]//a').href = 'javascript:void(0);';
     }
     GM_addStyle('.footer_box { height:auto !important;}');
@@ -6857,6 +7215,7 @@ function initNarrow() {
 function initPreLoadNode() {
     PRE_LOAD_NODES['nowResources'] = {wood:$('wood'),stone:$('stone'),iron:$('iron'),rice:$('rice')};
     PRE_LOAD_NODES['serverTime'] = $('server_time_disp');
+    PRE_LOAD_NODES['logConsole'] = $('BeyondLogConsoleWindow');
 }
 
 function initUrlParams() {
@@ -6952,7 +7311,6 @@ function cgetVillageIds() {
     return ret;
 }
 
-
 /**
  * @param {HTMLElement} element
  * @param {Number} direction pre=1,next=0
@@ -7009,8 +7367,8 @@ function cgetSquareElementFromArea(area) {
     add.y = 25;
 
     var isMap = false;
-    var mapType = cgetMapSize();
-    if (mapType != null) {
+    var mapType = cgetMapType();
+    if (mapType & MAP_TYPE.ALL) {
         isMap = true;
         switch (mapType) {
         case MAP_TYPE.TYPE20:
@@ -7100,13 +7458,13 @@ function caddSessionId(url) {
 }
 
 /**
- * function cgetMapSize
+ * function cgetMapType
+ * @param {Node} optional map contetns document
  * @returns {Number}
  */
-function cgetMapSize() {
-    if (0 <= location.pathname.indexOf('map.php')) {
-        isMap = true;
-        var nowMapDoc = $s('id("change-map-scale")//li[contains(concat(" ",normalize-space(@class)," ")," now ")]');
+function cgetMapType(mapDocument) {
+    if (mapDocument || /(?:big_)?map\.php/.test(location.pathname)) {
+        var nowMapDoc = $s('id("change-map-scale")//li[contains(concat(" ",normalize-space(@class)," ")," now ")]',mapDocument || document);
         if (!nowMapDoc) {
             return null;
         }
@@ -7124,6 +7482,170 @@ function cgetMapSize() {
     }
     return null;
 }
+
+/**
+ * function caddLogMessage
+ * @param {Object} message or Logs Object
+ */
+function caddLogMessage(message) {
+    if (PRE_LOAD_NODES['logConsole']) {
+        var logs = cloadData('logMessages','[]',true,true);
+        var nowTime = new Date().getTime();
+
+        var logObj = message;
+        if (typeof message == 'string') {
+            logObj = {'time':nowTime,'message':message};
+        }
+        logs.push(logObj);
+        csaveData('logMessages', logs,true,true);
+        PRE_LOAD_NODES['logConsole'].value += logObj.message + '\n';
+        PRE_LOAD_NODES['logConsole'].scrollTop = PRE_LOAD_NODES['logConsole'].scrollHeight - PRE_LOAD_NODES['logConsole'].clientHeight;
+    }
+    else {
+        alert(message);
+    }
+}
+
+/**
+ * function cgetMapItemDataFromItemDocument
+ * @param {Element} mapType normal : Area,mapType big:A
+ * @param {MAP_TYPE} optional mapType
+ * @returns {Object} {name, userName, population, xy, allyName, star, distance, wood, stone, iron, rice, isNPCBuild}
+ */
+function cgetMapItemDataFromItemDocument(element,mapType) {
+    mapType = mapType || cgetMapType();
+    if (!(mapType & MAP_TYPE.ALL)) {
+        return null;
+    }
+
+    var userData = {
+            'name' : '',
+            'userName' : '',
+            'population' : '-',
+            'xy' : '',
+            'allyName' : '-',
+            'star' : '',
+            'distance' : '',
+            'wood' : '',
+            'stone' : '',
+            'iron' : '',
+            'rice' : '',
+            'isNPCBuild' : ''
+        };
+    var mouseOver = element.getAttribute('onmouseover');
+    if (!mouseOver) {
+        return null;
+    }
+
+    if (mapType & MAP_TYPE.NORMAL) {
+        mouseOver = mouseOver.replace(/^.*rewrite\s*\(/, '[');
+        mouseOver = mouseOver.replace(/\); .*$/, ']');
+        var tmp = eval(mouseOver);
+        if (!tmp) {
+            return null;
+        }
+
+        userData.name = tmp[0];
+        userData.userName = tmp[1];
+        userData.population = tmp[2];
+        userData.xy = tmp[3];
+        userData.allyName = tmp[4];
+        userData.star = tmp[5];
+        userData.distance = tmp[6];
+        userData.wood = tmp[7];
+        userData.stone = tmp[8];
+        userData.iron = tmp[9];
+        userData.rice = tmp[10];
+        userData.isNPCBuild = tmp[11];
+    }
+    else if (mapType & MAP_TYPE.BIG) {
+        var doc = mouseOver.replace(/^[^']+'|'[^']+$/g, '');
+        var nameTextNode = $s('//dt[contains(concat(" ",normalize-space(@class)," "), " bigmap-caption ")]//text()',doc);
+        userData.name = nameTextNode ? nameTextNode.nodeValue : '';
+
+        var userNameTextNode = $s('//dt[normalize-space(text())="君主名"]/following-sibling::dd[1]//text()',doc);
+        userData.userName = userNameTextNode ? userNameTextNode.nodeValue : '';
+
+        var populationTextNode = $s('//dt[normalize-space(text())="人口"]/following-sibling::dd[1]//text()',doc);
+        userData.population = populationTextNode ? populationTextNode.nodeValue : '-';
+
+        var xyAndDistanceTextNode = $s('//dt[normalize-space(text())="座標\u00A0/\u00A0距離"]/following-sibling::dd[1]//text()',doc);
+        userData.distance = (xyAndDistanceTextNode && xyAndDistanceTextNode.nodeValue.match(/\[(\d+(?:\.\d+)?)\]/)) ? xyAndDistanceTextNode.nodeValue.match(/\[(\d+(?:\.\d+)?)\]/)[1] : '';
+        userData.xy = xyAndDistanceTextNode ? xyAndDistanceTextNode.nodeValue.split(/\s*\/\s*/)[0] : '';
+
+        var allyTextNode = $s('//dt[normalize-space(text())="同盟名"]/following-sibling::dd[1]//text()',doc);
+        userData.allyName = allyTextNode ? allyTextNode.nodeValue : '-';
+
+        var starTextNode = $s('//dt[normalize-space(text())="戦力"]/following-sibling::dd[1]//text()', doc);
+        userData.star = starTextNode ? starTextNode.nodeValue : '';
+
+        var resourcesTextNode = $s('//dt[normalize-space(text())="資源"]/following-sibling::dd[1]/text()',doc);
+        if (resourcesTextNode) {
+            var resDatas = resourcesTextNode.nodeValue.split(/\s/);
+            if (resDatas.length != 4) {
+                caddLogMessage('error:一覧の取得に失敗しました。');
+                return null;
+            }
+            userData.wood = resDatas[0].replace(/^[^\d]+|[^\d]+$/, '');
+            userData.stone = resDatas[1].replace(/^[^\d]+|[^\d]+$/, '');
+            userData.iron = resDatas[2].replace(/^[^\d]+|[^\d]+$/, '');
+            userData.rice = resDatas[3].replace(/^[^\d]+|[^\d]+$/, '');
+        }
+
+        if ($s('//dd/span[contains(concat(" ",normalize-space(@class)," "), " npc-red-star ")]',doc)) {
+            userData.isNPCBuild = '1';
+            var npcBossNames = [
+                '\u4e8e\u7981',         // 于禁
+                '\u516c\u5b6b\u74da',   // 公孫瓚
+                '\u5289\u5099',         // 劉備
+                '\u5289\u7109',         // 劉焉
+                '\u5289\u8868',         // 劉表
+                '\u5442\u5e03',         // 呂布
+                '\u5442\u8499',         // 呂蒙
+                '\u5468\u745c',         // 周瑜
+                '\u590f\u5019\u60c7',   // 夏候惇
+                '\u5b5f\u7372',         // 孟獲
+                '\u5b6b\u6a29',         // 孫権
+                '\u5b6b\u7b56',         // 孫策
+                '\u5f35\u907c',         // 張遼
+                '\u5f35\u90c3',         // 張郃
+                '\u5f35\u98db',         // 張飛
+                '\u5f35\u9b6f',         // 張魯
+                '\u66f9\u64cd',         // 曹操
+                '\u6731\u970a',         // 朱霊
+                '\u6c99\u6469\u67ef',   // 沙摩柯
+                '\u725b\u8f14',         // 牛輔
+                '\u732e\u5e1d',         // 献帝
+                '\u7518\u5be7',         // 甘寧
+                '\u795d\u878d',         // 祝融
+                '\u7a0b\u666e',         // 程普
+                '\u8340\u5f67',         // 荀彧
+                '\u8463\u5353',         // 董卓
+                '\u8521\u7441',         // 蔡瑁
+                '\u8881\u7d39',         // 袁紹
+                '\u8881\u8853',         // 袁術
+                '\u90ed\u6c5c',         // 郭汜
+                '\u95a2\u7fbd',         // 関羽
+                '\u99ac\u8b16',         // 馬謖
+                '\u99ac\u8d85',         // 馬超
+                '\u9ec4\u7956',         // 黄祖
+                '\u9f90\u7d71',         // 龐統
+            ];
+            if (userData.allyName == '-' && !(/^(\u5317|\u5357)(\u6771|\u897f)\u5b88\u885b\d+$/.test(userData.userName) == true
+                    || 0 <= npcBossNames.indexOf(userData.userName))) {
+                userData.allyName = userData.userName+'の所属同盟(未取得)';
+            }
+        }
+    }
+
+    return userData;
+}
+
+
+
+
+
+// 他のuserscriptとの連携用
 /**
  * function csetMapStarDisable
  * @param {String} no no String from cgetMapNofromXY
@@ -7137,6 +7659,9 @@ function csetMapStarDisable(no) {
         }
     },100);
 }
+
+
+
 
 
 //その他拡張
