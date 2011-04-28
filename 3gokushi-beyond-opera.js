@@ -6,13 +6,13 @@
 //@include        https://*.3gokushi.jp/*
 //@author         hatt
 //@maintainer     romer,etc
-//@version        1.28.1.1
+//@version        1.28.1.2
 //==/UserScript==
 //FireFox / Google Chrome / Opera / Safari対応です。
 document.addEventListener('DOMContentLoaded', function() {
     if(document.getElementById('beyond_basepanel') ) return ;
 
-    var VERSION_NAME = 'ブラウザ三国志Beyond Ver 1.28.1.1 by hatt+ろむ+etc';
+    var VERSION_NAME = 'ブラウザ三国志Beyond Ver 1.28.1.2 by hatt+ろむ+etc';
     var IMG_DIR = '/20110427-01/img/';
 
     var crossBrowserUtility = initCrossBrowserSupport();
