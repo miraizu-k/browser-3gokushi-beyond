@@ -356,7 +356,6 @@ document.addEventListener('DOMContentLoaded', function() {
                    + 'span.beyond_panel_ctlbox img {width:8px;height:9px; float:right; }'
                    + 'div#beyond_basepanel img{vertical-align:middle; margin:1px 1px 1px 0px; padding-left:2px}'
                    + '#beyond_basepanel fieldset{border:groove 1px black; margin:1px; padding:1px;}'
-                   + '#beyond_basepanel fieldset{border:groove 1px black; margin:1px; padding:1px;}'
                  );
     }
 
