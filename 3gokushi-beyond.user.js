@@ -7522,7 +7522,7 @@ function cgetMapItemDataFromItemDocument(element,mapType) {
             'userName' : '',
             'population' : '-',
             'xy' : '',
-            'allyName' : '-',
+            'allyName' : '',
             'star' : '',
             'distance' : '',
             'wood' : '',
@@ -7573,7 +7573,7 @@ function cgetMapItemDataFromItemDocument(element,mapType) {
         userData.xy = xyAndDistanceTextNode ? xyAndDistanceTextNode.nodeValue.split(/\s*\/\s*/)[0] : '';
 
         var allyTextNode = $s('//dt[normalize-space(text())="同盟名"]/following-sibling::dd[1]//text()',doc);
-        userData.allyName = allyTextNode ? allyTextNode.nodeValue : '-';
+        userData.allyName = allyTextNode ? allyTextNode.nodeValue : '';
 
         var starTextNode = $s('//dt[normalize-space(text())="戦力"]/following-sibling::dd[1]//text()', doc);
         userData.star = starTextNode ? starTextNode.nodeValue : '';
@@ -7630,9 +7630,12 @@ function cgetMapItemDataFromItemDocument(element,mapType) {
                 '\u9ec4\u7956',         // 黄祖
                 '\u9f90\u7d71',         // 龐統
             ];
-            if (userData.allyName == '-' && !(/^(\u5317|\u5357)(\u6771|\u897f)\u5b88\u885b\d+$/.test(userData.userName) == true
+            if (userData.allyName == '' && !(/^(\u5317|\u5357)(\u6771|\u897f)\u5b88\u885b\d+$/.test(userData.userName) == true
                     || 0 <= npcBossNames.indexOf(userData.userName))) {
                 userData.allyName = userData.userName+'の所属同盟(未取得)';
+            }
+            else if (userData.allyName == '') {
+                userData.allyName = '-';
             }
         }
     }

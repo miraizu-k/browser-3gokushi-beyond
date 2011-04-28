@@ -7512,132 +7512,135 @@ document.addEventListener('DOMContentLoaded', function() {
     * @returns {Object} {name, userName, population, xy, allyName, star, distance, wood, stone, iron, rice, isNPCBuild}
     */
     function cgetMapItemDataFromItemDocument(element,mapType) {
-     mapType = mapType || cgetMapType();
-     if (!(mapType & MAP_TYPE.ALL)) {
-         return null;
-     }
+        mapType = mapType || cgetMapType();
+        if (!(mapType & MAP_TYPE.ALL)) {
+            return null;
+        }
 
-     var userData = {
-             'name' : '',
-             'userName' : '',
-             'population' : '-',
-             'xy' : '',
-             'allyName' : '-',
-             'star' : '',
-             'distance' : '',
-             'wood' : '',
-             'stone' : '',
-             'iron' : '',
-             'rice' : '',
-             'isNPCBuild' : ''
-         };
-     var mouseOver = element.getAttribute('onmouseover');
-     if (!mouseOver) {
-         return null;
-     }
+        var userData = {
+                'name' : '',
+                'userName' : '',
+                'population' : '-',
+                'xy' : '',
+                'allyName' : '',
+                'star' : '',
+                'distance' : '',
+                'wood' : '',
+                'stone' : '',
+                'iron' : '',
+                'rice' : '',
+                'isNPCBuild' : ''
+            };
+        var mouseOver = element.getAttribute('onmouseover');
+        if (!mouseOver) {
+            return null;
+        }
 
-     if (mapType & MAP_TYPE.NORMAL) {
-         mouseOver = mouseOver.replace(/^.*rewrite\s*\(/, '[');
-         mouseOver = mouseOver.replace(/\); .*$/, ']');
-         var tmp = eval(mouseOver);
-         if (!tmp) {
-             return null;
-         }
+        if (mapType & MAP_TYPE.NORMAL) {
+            mouseOver = mouseOver.replace(/^.*rewrite\s*\(/, '[');
+            mouseOver = mouseOver.replace(/\); .*$/, ']');
+            var tmp = eval(mouseOver);
+            if (!tmp) {
+                return null;
+            }
 
-         userData.name = tmp[0];
-         userData.userName = tmp[1];
-         userData.population = tmp[2];
-         userData.xy = tmp[3];
-         userData.allyName = tmp[4];
-         userData.star = tmp[5];
-         userData.distance = tmp[6];
-         userData.wood = tmp[7];
-         userData.stone = tmp[8];
-         userData.iron = tmp[9];
-         userData.rice = tmp[10];
-         userData.isNPCBuild = tmp[11];
-     }
-     else if (mapType & MAP_TYPE.BIG) {
-         var doc = mouseOver.replace(/^[^']+'|'[^']+$/g, '');
-         var nameTextNode = $s('//dt[contains(concat(" ",normalize-space(@class)," "), " bigmap-caption ")]//text()',doc);
-         userData.name = nameTextNode ? nameTextNode.nodeValue : '';
+            userData.name = tmp[0];
+            userData.userName = tmp[1];
+            userData.population = tmp[2];
+            userData.xy = tmp[3];
+            userData.allyName = tmp[4];
+            userData.star = tmp[5];
+            userData.distance = tmp[6];
+            userData.wood = tmp[7];
+            userData.stone = tmp[8];
+            userData.iron = tmp[9];
+            userData.rice = tmp[10];
+            userData.isNPCBuild = tmp[11];
+        }
+        else if (mapType & MAP_TYPE.BIG) {
+            var doc = mouseOver.replace(/^[^']+'|'[^']+$/g, '');
+            var nameTextNode = $s('//dt[contains(concat(" ",normalize-space(@class)," "), " bigmap-caption ")]//text()',doc);
+            userData.name = nameTextNode ? nameTextNode.nodeValue : '';
 
-         var userNameTextNode = $s('//dt[normalize-space(text())="君主名"]/following-sibling::dd[1]//text()',doc);
-         userData.userName = userNameTextNode ? userNameTextNode.nodeValue : '';
+            var userNameTextNode = $s('//dt[normalize-space(text())="君主名"]/following-sibling::dd[1]//text()',doc);
+            userData.userName = userNameTextNode ? userNameTextNode.nodeValue : '';
 
-         var populationTextNode = $s('//dt[normalize-space(text())="人口"]/following-sibling::dd[1]//text()',doc);
-         userData.population = populationTextNode ? populationTextNode.nodeValue : '-';
+            var populationTextNode = $s('//dt[normalize-space(text())="人口"]/following-sibling::dd[1]//text()',doc);
+            userData.population = populationTextNode ? populationTextNode.nodeValue : '-';
 
-         var xyAndDistanceTextNode = $s('//dt[normalize-space(text())="座標\u00A0/\u00A0距離"]/following-sibling::dd[1]//text()',doc);
-         userData.distance = (xyAndDistanceTextNode && xyAndDistanceTextNode.nodeValue.match(/\[(\d+(?:\.\d+)?)\]/)) ? xyAndDistanceTextNode.nodeValue.match(/\[(\d+(?:\.\d+)?)\]/)[1] : '';
-         userData.xy = xyAndDistanceTextNode ? xyAndDistanceTextNode.nodeValue.split(/\s*\/\s*/)[0] : '';
+            var xyAndDistanceTextNode = $s('//dt[normalize-space(text())="座標\u00A0/\u00A0距離"]/following-sibling::dd[1]//text()',doc);
+            userData.distance = (xyAndDistanceTextNode && xyAndDistanceTextNode.nodeValue.match(/\[(\d+(?:\.\d+)?)\]/)) ? xyAndDistanceTextNode.nodeValue.match(/\[(\d+(?:\.\d+)?)\]/)[1] : '';
+            userData.xy = xyAndDistanceTextNode ? xyAndDistanceTextNode.nodeValue.split(/\s*\/\s*/)[0] : '';
 
-         var allyTextNode = $s('//dt[normalize-space(text())="同盟名"]/following-sibling::dd[1]//text()',doc);
-         userData.allyName = allyTextNode ? allyTextNode.nodeValue : '-';
+            var allyTextNode = $s('//dt[normalize-space(text())="同盟名"]/following-sibling::dd[1]//text()',doc);
+            userData.allyName = allyTextNode ? allyTextNode.nodeValue : '';
 
-         var starTextNode = $s('//dt[normalize-space(text())="戦力"]/following-sibling::dd[1]//text()', doc);
-         userData.star = starTextNode ? starTextNode.nodeValue : '';
+            var starTextNode = $s('//dt[normalize-space(text())="戦力"]/following-sibling::dd[1]//text()', doc);
+            userData.star = starTextNode ? starTextNode.nodeValue : '';
 
-         var resourcesTextNode = $s('//dt[normalize-space(text())="資源"]/following-sibling::dd[1]/text()',doc);
-         if (resourcesTextNode) {
-             var resDatas = resourcesTextNode.nodeValue.split(/\s/);
-             if (resDatas.length != 4) {
-                 caddLogMessage('error:一覧の取得に失敗しました。');
-                 return null;
-             }
-             userData.wood = resDatas[0].replace(/^[^\d]+|[^\d]+$/, '');
-             userData.stone = resDatas[1].replace(/^[^\d]+|[^\d]+$/, '');
-             userData.iron = resDatas[2].replace(/^[^\d]+|[^\d]+$/, '');
-             userData.rice = resDatas[3].replace(/^[^\d]+|[^\d]+$/, '');
-         }
+            var resourcesTextNode = $s('//dt[normalize-space(text())="資源"]/following-sibling::dd[1]/text()',doc);
+            if (resourcesTextNode) {
+                var resDatas = resourcesTextNode.nodeValue.split(/\s/);
+                if (resDatas.length != 4) {
+                    caddLogMessage('error:一覧の取得に失敗しました。');
+                    return null;
+                }
+                userData.wood = resDatas[0].replace(/^[^\d]+|[^\d]+$/, '');
+                userData.stone = resDatas[1].replace(/^[^\d]+|[^\d]+$/, '');
+                userData.iron = resDatas[2].replace(/^[^\d]+|[^\d]+$/, '');
+                userData.rice = resDatas[3].replace(/^[^\d]+|[^\d]+$/, '');
+            }
 
-         if ($s('//dd/span[contains(concat(" ",normalize-space(@class)," "), " npc-red-star ")]',doc)) {
-             userData.isNPCBuild = '1';
-             var npcBossNames = [
-                 '\u4e8e\u7981',         // 于禁
-                 '\u516c\u5b6b\u74da',   // 公孫瓚
-                 '\u5289\u5099',         // 劉備
-                 '\u5289\u7109',         // 劉焉
-                 '\u5289\u8868',         // 劉表
-                 '\u5442\u5e03',         // 呂布
-                 '\u5442\u8499',         // 呂蒙
-                 '\u5468\u745c',         // 周瑜
-                 '\u590f\u5019\u60c7',   // 夏候惇
-                 '\u5b5f\u7372',         // 孟獲
-                 '\u5b6b\u6a29',         // 孫権
-                 '\u5b6b\u7b56',         // 孫策
-                 '\u5f35\u907c',         // 張遼
-                 '\u5f35\u90c3',         // 張郃
-                 '\u5f35\u98db',         // 張飛
-                 '\u5f35\u9b6f',         // 張魯
-                 '\u66f9\u64cd',         // 曹操
-                 '\u6731\u970a',         // 朱霊
-                 '\u6c99\u6469\u67ef',   // 沙摩柯
-                 '\u725b\u8f14',         // 牛輔
-                 '\u732e\u5e1d',         // 献帝
-                 '\u7518\u5be7',         // 甘寧
-                 '\u795d\u878d',         // 祝融
-                 '\u7a0b\u666e',         // 程普
-                 '\u8340\u5f67',         // 荀彧
-                 '\u8463\u5353',         // 董卓
-                 '\u8521\u7441',         // 蔡瑁
-                 '\u8881\u7d39',         // 袁紹
-                 '\u8881\u8853',         // 袁術
-                 '\u90ed\u6c5c',         // 郭汜
-                 '\u95a2\u7fbd',         // 関羽
-                 '\u99ac\u8b16',         // 馬謖
-                 '\u99ac\u8d85',         // 馬超
-                 '\u9ec4\u7956',         // 黄祖
-                 '\u9f90\u7d71',         // 龐統
-             ];
-             if (userData.allyName == '-' && !(/^(\u5317|\u5357)(\u6771|\u897f)\u5b88\u885b\d+$/.test(userData.userName) == true
-                     || 0 <= npcBossNames.indexOf(userData.userName))) {
-                 userData.allyName = userData.userName+'の所属同盟(未取得)';
-             }
-         }
-     }
+            if ($s('//dd/span[contains(concat(" ",normalize-space(@class)," "), " npc-red-star ")]',doc)) {
+                userData.isNPCBuild = '1';
+                var npcBossNames = [
+                    '\u4e8e\u7981',         // 于禁
+                    '\u516c\u5b6b\u74da',   // 公孫瓚
+                    '\u5289\u5099',         // 劉備
+                    '\u5289\u7109',         // 劉焉
+                    '\u5289\u8868',         // 劉表
+                    '\u5442\u5e03',         // 呂布
+                    '\u5442\u8499',         // 呂蒙
+                    '\u5468\u745c',         // 周瑜
+                    '\u590f\u5019\u60c7',   // 夏候惇
+                    '\u5b5f\u7372',         // 孟獲
+                    '\u5b6b\u6a29',         // 孫権
+                    '\u5b6b\u7b56',         // 孫策
+                    '\u5f35\u907c',         // 張遼
+                    '\u5f35\u90c3',         // 張郃
+                    '\u5f35\u98db',         // 張飛
+                    '\u5f35\u9b6f',         // 張魯
+                    '\u66f9\u64cd',         // 曹操
+                    '\u6731\u970a',         // 朱霊
+                    '\u6c99\u6469\u67ef',   // 沙摩柯
+                    '\u725b\u8f14',         // 牛輔
+                    '\u732e\u5e1d',         // 献帝
+                    '\u7518\u5be7',         // 甘寧
+                    '\u795d\u878d',         // 祝融
+                    '\u7a0b\u666e',         // 程普
+                    '\u8340\u5f67',         // 荀彧
+                    '\u8463\u5353',         // 董卓
+                    '\u8521\u7441',         // 蔡瑁
+                    '\u8881\u7d39',         // 袁紹
+                    '\u8881\u8853',         // 袁術
+                    '\u90ed\u6c5c',         // 郭汜
+                    '\u95a2\u7fbd',         // 関羽
+                    '\u99ac\u8b16',         // 馬謖
+                    '\u99ac\u8d85',         // 馬超
+                    '\u9ec4\u7956',         // 黄祖
+                    '\u9f90\u7d71',         // 龐統
+                ];
+                if (userData.allyName == '' && !(/^(\u5317|\u5357)(\u6771|\u897f)\u5b88\u885b\d+$/.test(userData.userName) == true
+                        || 0 <= npcBossNames.indexOf(userData.userName))) {
+                    userData.allyName = userData.userName+'の所属同盟(未取得)';
+                }
+                else if (userData.allyName == '') {
+                    userData.allyName = '-';
+                }
+            }
+        }
 
-     return userData;
+        return userData;
     }
 
 
