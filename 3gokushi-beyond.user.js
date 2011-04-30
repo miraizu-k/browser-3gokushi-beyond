@@ -6,13 +6,13 @@
 // @include        https://*.3gokushi.jp/*
 // @author         hatt
 // @maintainer     romer,etc
-// @version        1.28.1.4
+// @version        1.28.1.5
 // ==/UserScript==
 // FireFox / Google Chrome / Opera / Safari対応です。
 ( function(){
 if(document.getElementById('beyond_basepanel') ) return ;
 
-var VERSION_NAME = 'ブラウザ三国志Beyond Ver 1.28.1.4 by hatt+ろむ+etc';
+var VERSION_NAME = 'ブラウザ三国志Beyond Ver 1.28.1.5 by hatt+ろむ+etc';
 var IMG_DIR = '/20110427-01/img/';
 
 var crossBrowserUtility = initCrossBrowserSupport();
@@ -360,9 +360,7 @@ function initStyle()
                   + 'span.beyond_panel_ctlbox img {width:8px;height:9px; float:right; }'
                   + 'div#beyond_basepanel img{vertical-align:middle; margin:1px 1px 1px 0px; padding-left:2px}'
                   + '#beyond_basepanel fieldset{border:groove 1px black; margin:1px; padding:1px;}'
-                  + '#map51-content div li {min-width:14px;}'
-                  + 'div#map51-content div ul li.li_bn_final {min-width:13px;}'
-                  + 'div#map51-content div ul li.li_bn_final div {border-right:none;}'
+                  + 'div#map51-content div li {width:auto !important;}'
                 );
 }
 
@@ -2386,7 +2384,7 @@ function disp_TTable()
     function setTTable(elm) {
 
         var tmpHTML = elm.innerHTML;
-        var reg = /剣兵\s+槍兵\s+弓兵\s+騎兵\s+矛槍兵\s+弩兵\s+近衛騎兵\s+斥候\s+斥候騎兵\s+衝車\s+投石機\s+武将.*(\n兵士\s+|\n)(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+).*(\n死傷\s+|\n)(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/g;
+        var reg = /剣兵\s+槍兵\s+弓兵\s+騎兵\s+矛槍兵\s+弩兵\s+近衛騎兵\s+斥候\s+斥候騎兵\s+衝車\s+投石機\s+武将.*(\n兵士\s+|\n)(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+).*(\n死傷\s+|\n)(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+|(?:[\u3005\u3007\u303b\u3400-\u9FFF\uF900-\uFAFF]|[\uD840-\uD87F][\uDC00-\uDFFF])+)/g;
         tmpHTML = tmpHTML.replace(reg,
             function() {
                 var txt = '<table class="tables"><tr><th class="solClass">　</th>' +
@@ -2406,7 +2404,7 @@ function disp_TTable()
                 return txt;
             } );
 
-        reg = /剣兵\s+槍兵\s+弓兵\s+騎兵\s+矛槍兵\s+弩兵\s+近衛騎兵\s+斥候\s+斥候騎兵\s+衝車\s+投石機\s+武将.*(\n兵士\s+|\n)(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/g;
+        reg = /剣兵\s+槍兵\s+弓兵\s+騎兵\s+矛槍兵\s+弩兵\s+近衛騎兵\s+斥候\s+斥候騎兵\s+衝車\s+投石機\s+武将.*(\n兵士\s+|\n)(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+|(?:[\u3005\u3007\u303b\u3400-\u9FFF\uF900-\uFAFF]|[\uD840-\uD87F][\uDC00-\uDFFF])+)/g;
         tmpHTML = tmpHTML.replace(reg ,
             function() {
                 var txt = '<table class="tables"><tr><th class="solClass">　</th>' +
