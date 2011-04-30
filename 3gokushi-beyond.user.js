@@ -6,13 +6,13 @@
 // @include        https://*.3gokushi.jp/*
 // @author         hatt
 // @maintainer     romer,etc
-// @version        1.28.1.2
+// @version        1.28.1.4
 // ==/UserScript==
 // FireFox / Google Chrome / Opera / Safari対応です。
 ( function(){
 if(document.getElementById('beyond_basepanel') ) return ;
 
-var VERSION_NAME = 'ブラウザ三国志Beyond Ver 1.28.1.2 by hatt+ろむ+etc';
+var VERSION_NAME = 'ブラウザ三国志Beyond Ver 1.28.1.4 by hatt+ろむ+etc';
 var IMG_DIR = '/20110427-01/img/';
 
 var crossBrowserUtility = initCrossBrowserSupport();
@@ -20,31 +20,35 @@ var crossBrowserUtility = initCrossBrowserSupport();
 var d = document;
 var $ = function (id,pd) {return pd ? pd.getElementById(id) : document.getElementById(id);};
 /**
- * function $x
- * 以前の$a
+ * $x
+ * @description 以前の$a xpathを評価し結果を配列で返す
  * @param {String} xp
- * @param {Node} dc
+ * @param {HTMLElement|HTMLDocument} dc
  * @returns {Array}
  * @throws
+ * @function
  */
 var $x = function(xp, dc) {function c(f) {var g = '';if (typeof f == 'string') {g = f;}var h = function(a) {var b = document.implementation.createHTMLDocument('');var c = b.createRange();c.selectNodeContents(b.documentElement);c.deleteContents();b.documentElement.appendChild(c.createContextualFragment(a));return b;};if (0 <= navigator.userAgent.toLowerCase().indexOf('firefox')) {h = function(a) {var b = document.implementation.createDocumentType('html','-//W3C//DTD HTML 4.01//EN','http://www.w3.org/TR/html4/strict.dtd');var c = document.implementation.createDocument(null, 'html', b);var d = document.createRange();d.selectNodeContents(document.documentElement);var e = c.adoptNode(d.createContextualFragment(a));c.documentElement.appendChild(e);return c;};}return h(g);}var m = [], r = null, n = null;var o = dc || document.documentElement;var p = o.ownerDocument;if (typeof dc == 'object' && typeof dc.nodeType == 'number') {if (dc.nodeType == 1 && dc.nodeName.toUpperCase() == 'HTML') {o = c(dc.innerHTML);p = o;}else if (dc.nodeType == 9) {o = dc.documentElement;p = dc;}}else if (typeof dc == 'string') {o = c(dc);p = o;}try {r = p.evaluate(xp, o, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,null);for ( var i = 0, l = r.snapshotLength; i < l; i++) m.push(r.snapshotItem(i));}catch (e) {try {var q = p.evaluate(xp, o, null, XPathResult.ANY_TYPE, null);while (n = q.iterateNext()) m.push(n);}catch (e) {throw new Error(e.message);}}return m;};
 
 /**
- * function $s
- * 以前の$x
+ * $s
+ * @description 以前の$x xpathを評価し1つの結果を返す
  * @param {String} xp
- * @param {Node} dc
+ * @param {HTMLElement|HTMLDocument} dc
  * @returns {Node}
  * @throws
+ * @see $x
+ * @function
  */
 var $s = function(xp, dc) { return $x(xp,dc).shift();};
 
 /**
- * function $e
- * @param {Node} doc
- * @param {Object} event string or event.click=f event.click=[f,f,f]
- * @param {Function} func
- * @param {Boolean} optional useCapture
+ * $e
+ * @param {HTMLElement|HTMLDocument|Window} doc
+ * @param {String|Object} event string or event.click=f or event.click=[f,f,f]
+ * @param {Function} event handler
+ * @param {Boolean} [useCapture=false]
+ * @function
  */
 var $e = function(doc, event, func, useCapture) {var eventList = event;var eType = null;var capture = useCapture || false;if (typeof event == 'string') {eventList = new Object();eventList[event] = new Array(func);} else {for (eType in eventList) {if (typeof eventList[eType] == 'object'&& eventList[eType] instanceof Array) {continue;}eventList[eType] = [ event[eType] ];}}for (eType in eventList) {var eventName = eType;for ( var i = 0; i < eventList[eType].length; i++) {doc.addEventListener(eventName, eventList[eType][i], capture);}}};
 var isNarrow = location.host.match(/^(?:[m|y]\d+\.3gokushi)\.jp/i) ? true : false;
@@ -356,6 +360,9 @@ function initStyle()
                   + 'span.beyond_panel_ctlbox img {width:8px;height:9px; float:right; }'
                   + 'div#beyond_basepanel img{vertical-align:middle; margin:1px 1px 1px 0px; padding-left:2px}'
                   + '#beyond_basepanel fieldset{border:groove 1px black; margin:1px; padding:1px;}'
+                  + '#map51-content div li {min-width:14px;}'
+                  + 'div#map51-content div ul li.li_bn_final {min-width:13px;}'
+                  + 'div#map51-content div ul li.li_bn_final div {border-right:none;}'
                 );
 }
 
@@ -535,6 +542,11 @@ function loadOptions()
     OPT_NEXT_MEISEI = cloadData( 'OPT_NEXT_MEISEI', 1 );
     OPT_TIMER_LINK_DEPOT = cloadData( 'OPT_TIMER_LINK_DEPOT', 0 );
     OPT_LOGBOX = cloadData( 'OPT_LOGBOX', 0 );
+    OPT_LOGBOX_FONT_SIZE = cloadData( 'OPT_LOGBOX_FONT_SIZE', '9' );
+    OPT_LOGBOX_WIDTH = cloadData( 'OPT_LOGBOX_WIDTH', '20' );
+    OPT_LOGBOX_HEIGHT = cloadData( 'OPT_LOGBOX_HEIGHT', '5' );
+    OPT_LOG_EXP_TIME = cloadData( 'OPT_LOG_EXP_TIME', '30' );
+
     if (isNarrow) {
         OPT_VILLAGE_LIST_BOX = cloadData( 'OPT_VILLAGE_LIST_BOX', 1 );
     }
@@ -591,6 +603,10 @@ function saveOptions()
     OPT_NEXT_MEISEI = cgetCheckBoxValue('OPT_NEXT_MEISEI');
     OPT_TIMER_LINK_DEPOT = cgetCheckBoxValue('OPT_TIMER_LINK_DEPOT');
     OPT_LOGBOX = cgetCheckBoxValue('OPT_LOGBOX');
+    OPT_LOGBOX_FONT_SIZE = cgetTextBoxValue('OPT_LOGBOX_FONT_SIZE');
+    OPT_LOGBOX_WIDTH = cgetTextBoxValue('OPT_LOGBOX_WIDTH');
+    OPT_LOGBOX_HEIGHT = cgetTextBoxValue('OPT_LOGBOX_HEIGHT');
+    OPT_LOG_EXP_TIME = cgetTextBoxValue('OPT_LOG_EXP_TIME');
 
     if (isNarrow) {
         OPT_VILLAGE_LIST_BOX = cgetCheckBoxValue( 'OPT_VILLAGE_LIST_BOX');
@@ -646,6 +662,10 @@ function saveOptions()
     csaveData( 'OPT_NEXT_MEISEI', OPT_NEXT_MEISEI );
     csaveData( 'OPT_TIMER_LINK_DEPOT', OPT_TIMER_LINK_DEPOT );
     csaveData( 'OPT_LOGBOX', OPT_LOGBOX );
+    csaveData( 'OPT_LOGBOX_FONT_SIZE', OPT_LOGBOX_FONT_SIZE );
+    csaveData( 'OPT_LOGBOX_WIDTH', OPT_LOGBOX_WIDTH );
+    csaveData( 'OPT_LOGBOX_HEIGHT', OPT_LOGBOX_HEIGHT );
+    csaveData( 'OPT_LOG_EXP_TIME', OPT_LOG_EXP_TIME );
 
     if (isNarrow) {
         csaveData( 'OPT_VILLAGE_LIST_BOX', OPT_VILLAGE_LIST_BOX );
@@ -898,7 +918,7 @@ function createDistanceBox(container, items, num)
         }
         tb.size = 12;
 
-        cb.parentNode.appendChild(d.createTextNode(' '));
+        cb.parentNode.appendChild(d.createTextNode('\u00A0'));
         cb.parentNode.appendChild(tb);
         (function(no) {
             $e(cb, 'change', function() {
@@ -1732,7 +1752,7 @@ function disp_baseLink()
     var elm = $s('id("lodgment")/div[contains(concat(" ",normalize-space(@class)," "), " floatInner ")] | //div[contains(concat(" ",normalize-space(@class)," "), " sideBoxInner ") and contains(concat(" ",normalize-space(@class)," "), " basename ")]');
     if( !elm ) return;
 
-    var bases = $x('//li/child::*', elm);
+    var bases = $x('.//li/child::*', elm);
 
     for( var idx=0 ; idx < bases.length ; idx++) {
         addBaseLink(bases[idx]);
@@ -2494,18 +2514,29 @@ function disp_Deck()
     if( OPT_DECK_SET ) dispDeckSet();
 
     function dispDeckSet() {
-        var nam = cgetCurrentBaseName();
+        var name = cgetCurrentBaseName();
+        var cardFolder = $s('id("cardFileList")|id("rotate")');
+        var changeSelect = function () {
+            var selectNodes = $x('(.//div[contains(concat(" ",normalize-space(@class)," "), " cardColmn ")]|.//div[contains(concat(" ",normalize-space(@class)," "), " cardStatusDetail ")])//select',cardFolder);
+            selectNodes.forEach(function(selectNode){
+                var option = $s('descendant::option[normalize-space(text())="'+name+'" and not(@selected)]',selectNode);
+                option.selected = true;
+            });
+        };
 
-        var sels = $x('//select',d);
-        for(var i=0 ; i<sels.length ; i++) {
-            if( !sels[i].id.match(/selected_village_/) ) continue;
-            var opts = $x('descendant::option',sels[i]);
-            for(var j=0 ; j<opts.length ; j++) {
-                if(opts[j].innerHTML == nam ) {
-                    opts[j].selected = true;
-                }
+        changeSelect();
+
+        $e(cardFolder,'DOMNodeInserted',function(e){
+            var timerId = null;
+            if (timerId != null) {
+                return;
             }
-        }
+            timerId = setTimeout(function(){
+                changeSelect();
+                clearTimeout(timerId);
+                timerId = null;
+            },30);
+        });
     }
 }
 
@@ -7247,8 +7278,12 @@ function initUrlParams() {
 
 // common関数拡張
 /**
+ * cinsertSideBox
  * @param {Number} insPos
- * @param {Object}
+ * @param {Object} insNode insNode from ccreateSideBox
+ * @see $
+ * @see $x
+ * @see cloadData
  */
 function cinsertSideBox(insPos,insNode) {
     var sideboxes = $x('id("beyond_fixpanel")/div[contains(concat(" ",normalize-space(@class)," "), " sideBox ")]');
@@ -7279,7 +7314,9 @@ function cinsertSideBox(insPos,insNode) {
 }
 
 /**
+ * cgetCurrentVillageId
  * @returns {Number}
+ * @see cgetCurrentBaseXY
  */
 function cgetCurrentVillageId() {
     var xy = cgetCurrentBaseXY();
@@ -7287,8 +7324,10 @@ function cgetCurrentVillageId() {
 }
 
 /**
+ * chasVillageId
  * @param {Number} vid
  * @returns {Boolean}
+ * @see cgetVillageIds
  */
 function chasVillageId(vid) {
     vid = parseInt(vid,10);
@@ -7297,6 +7336,7 @@ function chasVillageId(vid) {
 }
 
 /**
+ * cgetVillageIds
  * @returns {Number}
  */
 function cgetVillageIds() {
@@ -7311,17 +7351,19 @@ function cgetVillageIds() {
 }
 
 /**
+ * cgetElementSibling
  * @param {HTMLElement} element
- * @param {Number} direction pre=1,next=0
- * @param {Number} optional skipCount
+ * @param {Number} [direction=0] pre=1,next=0
+ * @param {Number} [moveCount=1]
  * @returns {HTMLElement}
  */
-function cgetElementSibling(element,direction,skipCount) {
+function cgetElementSibling(element,direction,moveCount) {
     var hasElementSibling = (typeof element.nextElementSibling == 'object' || typeof element.previousElementSibling == 'object') ? true : false;
-    if (!skipCount) skipCount = 1;
-    for (var i = 0;i < skipCount;) {
+    if (!direction) direction = 0;
+    if (!moveCount) moveCount = 1;
+    for (var i = moveCount;0 < i;) {
         if (hasElementSibling) {
-            i++;
+            i--;
             if (direction == 1) {
                 element = element.previousElementSibling;
             }
@@ -7336,8 +7378,8 @@ function cgetElementSibling(element,direction,skipCount) {
             else {
                 element = element.nextSibling;
             }
-            if (element.nodeType == 1) {
-                i++;
+            if (element && element.nodeType == 1) {
+                i--;
             }
         }
 
@@ -7349,9 +7391,11 @@ function cgetElementSibling(element,direction,skipCount) {
 }
 
 /**
- * areaから四方のareaを取得
+ * cgetSquareElementFromArea
+ * @description areaから四方のareaを取得
  * @param {HTMLAreaElement} area
  * @returns {Object}
+ * @see $s
  */
 function cgetSquareElementFromArea(area) {
     var coords = area.getAttribute('coords');
@@ -7412,6 +7456,7 @@ function cgetSquareElementFromArea(area) {
 }
 
 /**
+ * cgetFacilityInfoFromArea
  * areaからx,y,name,lvを返す
  * @param {HTMLAreaElement} area
  * @returns {Object}
@@ -7438,6 +7483,7 @@ function cgetFacilityInfoFromArea(area) {
 }
 
 /**
+ * caddSessionId
  * @param {String} url
  * @returns {String}
  */
@@ -7457,9 +7503,10 @@ function caddSessionId(url) {
 }
 
 /**
- * function cgetMapType
- * @param {Node} optional map contetns document
+ * cgetMapType
+ * @param {HTMLElement|HTMLDocument} [map=document]
  * @returns {Number}
+ * @see $s
  */
 function cgetMapType(mapDocument) {
     if (mapDocument || /(?:big_)?map\.php/.test(location.pathname)) {
@@ -7483,8 +7530,8 @@ function cgetMapType(mapDocument) {
 }
 
 /**
- * function caddLogMessage
- * @param {Object} message or Logs Object
+ * caddLogMessage
+ * @param {Object} message message or Logs Object
  */
 function caddLogMessage(message) {
     if (PRE_LOAD_NODES['logConsole']) {
@@ -7506,10 +7553,11 @@ function caddLogMessage(message) {
 }
 
 /**
- * function cgetMapItemDataFromItemDocument
- * @param {Element} mapType normal : Area,mapType big:A
- * @param {MAP_TYPE} optional mapType
+ * cgetMapItemDataFromItemDocument
+ * @param {HTMLAreaElement|HTMLAnchorElement} mapType normal : Area,mapType big:A
+ * @param {MAP_TYPE} [mapType] cgetMapType
  * @returns {Object} {name, userName, population, xy, allyName, star, distance, wood, stone, iron, rice, isNPCBuild}
+ * @see cgetMapType
  */
 function cgetMapItemDataFromItemDocument(element,mapType) {
     mapType = mapType || cgetMapType();
@@ -7649,7 +7697,7 @@ function cgetMapItemDataFromItemDocument(element,mapType) {
 
 // 他のuserscriptとの連携用
 /**
- * function csetMapStarDisable
+ * csetMapStarDisable
  * @param {String} no no String from cgetMapNofromXY
  */
 function csetMapStarDisable(no) {
@@ -7667,7 +7715,10 @@ function csetMapStarDisable(no) {
 
 
 //その他拡張
-//GM関数初期化
+/**
+ * initGMFunctions
+ * @description GM関数初期化
+ */
 function initGMFunctions() {
     // @copyright 2009, James Campos
     // @license cc-by-3.0; http://creativecommons.org/licenses/by/3.0/
@@ -7675,18 +7726,38 @@ function initGMFunctions() {
             && (GM_getValue('a', 'b') != undefined)) {
         return;
     }
+
+    /**
+     * GM_addStyle
+     * @param {String} css css text
+     * @function
+     */
     GM_addStyle = function(css) {
         var style = document.createElement('style');
         style.textContent = css;
         document.getElementsByTagName('head')[0].appendChild(style);
     };
 
-    GM_deleteValue = function(name) {
-        localStorage.removeItem(name);
+    /**
+     * GM_deleteValue
+     * @param {String} key storage key
+     * @see localStorage
+     * @function
+     */
+    GM_deleteValue = function(key) {
+        localStorage.removeItem(key);
     };
 
-    GM_getValue = function(name, defaultValue) {
-        var value = localStorage.getItem(name);
+    /**
+     * GM_getValue
+     * @param {String} key storage key
+     * @param {Object} [defaultValue] any Object
+     * @returns {Object}
+     * @see localStorage
+     * @function
+     */
+    GM_getValue = function(key, defaultValue) {
+        var value = localStorage.getItem(key);
         if (!value)
             return defaultValue;
         var type = value[0];
@@ -7701,18 +7772,41 @@ function initGMFunctions() {
         }
     };
 
-    GM_log = function(message) {
-        if (typeof opera == 'object') {
-            opera.postError(message);
-            return;
+    /**
+     * GM_log
+     * @param {Object} message any Object
+     * @param {Number} [level]
+     * @function
+     * @see console
+     */
+    GM_log = function(message, level) {
+        if (typeof console == 'object') {
+            console.log(message, level);
         }
-        console.log(message);
     };
 
-    GM_registerMenuCommand = function(name, funk) {
-        // todo
+
+    /**
+    * function GM_registerMenuCommand
+    * @param {String} caption
+    * @param {Function} commandFunc
+    * @param {String} [accelKey]
+    * @param {String} [accelModifiers]
+    * @param {String} [accessKey]
+    * @function
+    */
+    GM_registerMenuCommand = function(caption, commandFunc,accelKey,accelModifiers,accessKey) {
+       throw new Error('not supported');
     };
 
+    /**
+     * GM_setValue
+     * @param {String} name storage key
+     * @param {String|Number|Boolean} value storage saved object
+     * @throws {TypeError}
+     * @see localStorage
+     * @function
+     */
     GM_setValue = function(name, value) {
         switch (typeof value) {
         case 'string':
@@ -7728,6 +7822,13 @@ function initGMFunctions() {
     };
 
     // additional functions
+
+    /**
+     * GM_listValues
+     * @returns {Array}
+     * @see localStorage
+     * @function
+     */
     GM_listValues = function() {
         var len = localStorage.length;
         var res = new Object();
@@ -7739,12 +7840,79 @@ function initGMFunctions() {
         return res;
     };
 
-    GM_openInTab = function(url) {
-        window.open(url, '');
+    /**
+     * GM_openInTab
+     * @param {String} url uri strings
+     * @function
+     */
+    GM_openInTab = function(uri) {
+        window.open(uri, '');
+    };
+
+    /**
+     * GM_xmlhttpRequest
+     * @param requestParam Object request parameter settings
+     * @param requestParam.url request url string
+     * @param [requestParam.method="GET"] request method. default is GET
+     * @param [requestParam.data] request data
+     * @param [requestParam.headers] request headers object
+     * @param [requestParam.onload] request complite event handler
+     * @param [requestParam.onerror] request error event handler
+     * @param [requestParam.onreadystatechange] request readystatechange event handler
+     * @returns {XMLHttpRequest}
+     */
+    GM_xmlhttpRequest = function(requestParam) {
+        var xhr;
+        if (typeof XMLHttpRequest == 'function') {
+            xhr = XMLHttpRequest;
+        }
+        else {
+            return;
+        }
+        var req = new xhr();
+       ['onload','onerror','onreadystatechange'].forEach(function (event) {
+            if ((event in requestParam) == false) {
+                return;
+            }
+            req[event] = function () {
+                var isComplete = (req.readyState == 4);
+                var responseState = {
+                        responseText: req.responseText,
+                        readyState: req.readyState,
+                        responseHeaders: isComplete ? req.getAllResponseHeaders() : '',
+                        status: isComplete ? req.status : 0,
+                        statusText: isComplete ? req.statusText : '',
+                        finalUrl: isComplete ? requestParam.url : ''
+                };
+                requestParam[event](responseState);
+            };
+        });
+
+        try {
+            req.open(requestParam.method ? requestParam.method : 'GET',requestParam.url,true);
+        } catch(e) {
+            if(requestParam.onerror) {
+                requestParam.onerror({readyState:4,responseHeaders:'',responseText:'',status:403,statusText:'Forbidden',finalUrl:''});
+            }
+            return;
+        }
+
+        if('headers' in requestParam && typeof requestParam.headers == 'object') {
+            for(var name in requestParam.headers) {
+                req.setRequestHeader(name, requestParam.headers[name]);
+            }
+        }
+
+        req.send(('data' in requestParam) ? requestParam.data : null);
+        return req;
     };
 }
 
-//JSONがない場合とprototype.jsとJSONオブジェクトの衝突回避用(forOpera)
+/**
+ * initJSON
+ * @description JSONがない場合とprototype.jsとJSONオブジェクトの衝突回避用(forOpera)
+ * @returns {Object}
+ */
 function initJSON() {
     var myJSON = function() {
         if (typeof JSON != 'object' || typeof Prototype == 'object') {
@@ -7838,10 +8006,12 @@ function initJSON() {
     return new myJSON();
 }
 
+/**
+ * initCrossBrowserSupport
+ * @returns {Object}
+ */
 function initCrossBrowserSupport() {
     var crossBrowserUtility = {'JSON':null}
-    // GM関数の初期化
-    initGMFunctions();
 
     // 配列のindexOf対策 from MDC
     if (!Array.prototype.indexOf) {
@@ -7883,6 +8053,10 @@ function initCrossBrowserSupport() {
 
     // JSONのサポート
     crossBrowserUtility.JSON = initJSON();
+
+    // GM関数の初期化
+    initGMFunctions();
+
     return crossBrowserUtility;
 }
 }) ();
