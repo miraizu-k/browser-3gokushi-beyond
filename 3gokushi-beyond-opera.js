@@ -6,19 +6,22 @@
 // @include        https://*.3gokushi.jp/*
 // @author         hatt
 // @maintainer     romer,etc
-// @version        1.28.1.5
+// @version        1.28.1.6
 // ==/UserScript==
 // FireFox / Google Chrome / Opera / Safari対応です。
 document.addEventListener('DOMContentLoaded', function() {
-    if(document.getElementById('beyond_basepanel') ) return ;
+    if (document.getElementById('beyond_basepanel')) {
+        return ;
+    }
 
-    var VERSION_NAME = 'ブラウザ三国志Beyond Ver 1.28.1.5 by hatt+ろむ+etc';
+    var VERSION_NAME = 'ブラウザ三国志Beyond Ver 1.28.1.6 by hatt+ろむ+etc';
     var IMG_DIR = '/20110427-01/img/';
 
     var crossBrowserUtility = initCrossBrowserSupport();
 
     var d = document;
     var $ = function (id,pd) {return pd ? pd.getElementById(id) : document.getElementById(id);};
+
     /**
      * $x
      * @description 以前の$a xpathを評価し結果を配列で返す
@@ -28,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
      * @throws
      * @function
      */
-    var $x = function(xp, dc) {function c(f) {var g = '';if (typeof f == 'string') {g = f;}var h = function(a) {var b = document.implementation.createHTMLDocument('');var c = b.createRange();c.selectNodeContents(b.documentElement);c.deleteContents();b.documentElement.appendChild(c.createContextualFragment(a));return b;};if (0 <= navigator.userAgent.toLowerCase().indexOf('firefox')) {h = function(a) {var b = document.implementation.createDocumentType('html','-//W3C//DTD HTML 4.01//EN','http://www.w3.org/TR/html4/strict.dtd');var c = document.implementation.createDocument(null, 'html', b);var d = document.createRange();d.selectNodeContents(document.documentElement);var e = c.adoptNode(d.createContextualFragment(a));c.documentElement.appendChild(e);return c;};}return h(g);}var m = [], r = null, n = null;var o = dc || document.documentElement;var p = o.ownerDocument;if (typeof dc == 'object' && typeof dc.nodeType == 'number') {if (dc.nodeType == 1 && dc.nodeName.toUpperCase() == 'HTML') {o = c(dc.innerHTML);p = o;}else if (dc.nodeType == 9) {o = dc.documentElement;p = dc;}}else if (typeof dc == 'string') {o = c(dc);p = o;}try {r = p.evaluate(xp, o, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,null);for ( var i = 0, l = r.snapshotLength; i < l; i++) m.push(r.snapshotItem(i));}catch (e) {try {var q = p.evaluate(xp, o, null, XPathResult.ANY_TYPE, null);while (n = q.iterateNext()) m.push(n);}catch (e) {throw new Error(e.message);}}return m;};
+    var $x = function(xp, dc) {function c(f) {var g = '';if (typeof f === 'string') {g = f;}var h = function(a) {var b = document.implementation.createHTMLDocument('');var c = b.createRange();c.selectNodeContents(b.documentElement);c.deleteContents();b.documentElement.appendChild(c.createContextualFragment(a));return b;};if (0 <= navigator.userAgent.toLowerCase().indexOf('firefox')) {h = function(a) {var b = document.implementation.createDocumentType('html','-//W3C//DTD HTML 4.01//EN','http://www.w3.org/TR/html4/strict.dtd');var c = document.implementation.createDocument(null, 'html', b);var d = document.createRange();d.selectNodeContents(document.documentElement);var e = c.adoptNode(d.createContextualFragment(a));c.documentElement.appendChild(e);return c;};}return h(g);}var m = [], r = null, n = null;var o = dc || document.documentElement;var p = o.ownerDocument;if (typeof dc === 'object' && typeof dc.nodeType === 'number') {if (dc.nodeType === 1 && dc.nodeName.toUpperCase() === 'HTML') {o = c(dc.innerHTML);p = o;}else if (dc.nodeType === 9) {o = dc.documentElement;p = dc;}}else if (typeof dc === 'string') {o = c(dc);p = o;}try {r = p.evaluate(xp, o, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,null);for ( var i = 0, l = r.snapshotLength; i < l; i++) m.push(r.snapshotItem(i));}catch (e) {try {var q = p.evaluate(xp, o, null, XPathResult.ANY_TYPE, null);while (n = q.iterateNext()) m.push(n);}catch (e) {throw new Error(e.message);}}return m;};
 
     /**
      * $s
@@ -1636,7 +1639,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             if( costs[title[1]] ) {
                 if(costs[title[1]][title[2]]) {
-                    var xy = allarea[idx].getAttribute('href').match(/^.*(?:\?|&)x=([\-0-9]+)&y=([\-0-9]+)+(?:&[^=]+=[^&]+)*$/);
+                    var xy = allarea[idx].getAttribute('href').match(/^.*(?:\?|&)x=([\-0-9]+)&y=([\-0-9]+)+(?:&[^=]+=[^&]*)*#?.*/);
                     var level = parseInt(title[2],10);
                     var blding = 0;
                     var dlting = 0;
@@ -1794,7 +1797,7 @@ document.addEventListener('DOMContentLoaded', function() {
             a_n.appendChild(a_n_img);
 
             if( elem.href ) {
-                var id = elem.href.match(/^.*\?village_id=([0-9]+).*$/);
+                var id = elem.href.match(/^.*\?village_id=([0-9]+)[^&]*/);
                 if( id ) {
                     a_v.href = caddSessionId('/village_change.php?village_id=' + id[1] + '&from=menu&page=/village.php#ptop');
                     a_n.href = caddSessionId('/village_change.php?village_id=' + id[1] + '&from=menu&page=/card/domestic_setting.php#ptop');
@@ -1866,7 +1869,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             var basename = $s('//span[contains(concat(" ",normalize-space(@class)," "), " basename ")]');
 
-            var xy = location.search.match(/^\?x=([\-0-9]+)\&y=([\-0-9]+)+$/);
+            var xy = location.search.match(/^\?x=([\-0-9]+)\&y=([\-0-9]+)[^&]*/);
 
             if( basename ) {
                 v_name = basename.innerHTML;
