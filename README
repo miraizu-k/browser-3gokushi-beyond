@@ -11,7 +11,8 @@
 Chrome  : 3gokushi-beyond.user.js 選択->RAWクリックでインストール可能
 fireofx : grasemonkey拡張インストール -> 3gokushi-beyond.user.js選択->RAWクリックでインストール可能
 safari  : NinjaKit拡張インストール -> 3gokushi-beyond.user.js選択->RAWクリックでインストール可能
-opera   : ツール->設定->詳細設定->コンテンツ->JavaScriptオプション->ユーザーJavaScriptフォルダ選択->3gokushi-beyond-opera.js選択->RAW右クリックで保存
+opera   : ツール->設定->詳細設定->コンテンツ->JavaScriptオプション->ユーザーJavaScriptフォルダ選択
+          ->3gokushi-beyond-opera.js選択->RAW右クリックで保存
 
 IE・・・未対応です
 
