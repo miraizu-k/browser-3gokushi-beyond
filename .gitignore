@@ -1,3 +1,4 @@
 /.project
 /.settings
-/.git
+/.git/manifest.json
+/manifest.json

@@ -1,12 +1,13 @@
 // ==UserScript==
-// @name           3gokushi-Beyond
+// @name           3gokushi-beyond
 // @namespace      3gokushi-hatt
 // @description    ブラウザ三国志用便利機能色々ごった煮
 // @include        http://*.3gokushi.jp/*
 // @include        https://*.3gokushi.jp/*
 // @author         hatt
-// @maintainer     romer,froop,etc
-// @version        1.28.1.6
+// @maintainer     romer
+// @contributor    froop,etc
+// @version        1.28.1.7
 // ==/UserScript==
 // FireFox / Google Chrome / Opera / Safari対応です。
 document.addEventListener('DOMContentLoaded', function() {
