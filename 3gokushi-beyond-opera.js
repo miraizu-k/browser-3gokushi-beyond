@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name           3gokushi-Beyond
 // @namespace      3gokushi-hatt
-// @description    ブラウザ三国志用便利機能色々ごった煮 by hatt+ろむ+α
+// @description    ブラウザ三国志用便利機能色々ごった煮
 // @include        http://*.3gokushi.jp/*
 // @include        https://*.3gokushi.jp/*
 // @author         hatt
-// @maintainer     romer,etc
+// @maintainer     romer,froop,etc
 // @version        1.28.1.6
 // ==/UserScript==
 // FireFox / Google Chrome / Opera / Safari対応です。
@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return ;
     }
 
-    var VERSION_NAME = 'ブラウザ三国志Beyond Ver 1.28.1.6 by hatt+ろむ+etc';
+    var VERSION_NAME = 'ブラウザ三国志Beyond Ver 1.28.1.7';
     var IMG_DIR = '/20110427-01/img/';
 
     var crossBrowserUtility = initCrossBrowserSupport();
@@ -3580,7 +3580,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if( str1) msg += '以下の領地が破棄されました\n' + str1;
                 if( str2) msg += '以下の拠点が破棄されました\n' + str2;
                 if( str3) msg += '以下の拠点が作成されました\n' + str3;
-                if( str4) msg += '以下の拠点がレベルアップしました\n' + str4;
+                if( str4) msg += '以下の領地がレベルアップしました\n' + str4;
 
                 csaveData( 'RemoveList', lists, true, true );
                 caddLogMessage(msg);
@@ -7549,7 +7549,9 @@ document.addEventListener('DOMContentLoaded', function() {
             PRE_LOAD_NODES['logConsole'].scrollTop = PRE_LOAD_NODES['logConsole'].scrollHeight - PRE_LOAD_NODES['logConsole'].clientHeight;
         }
         else {
-            alert(message);
+// Firefox4のバグ？を回避、画面表示時にalertすると以降のsetTimeoutやAjaxが無応答になる問題
+//            alert(message);
+            window.setTimeout(function() { alert(message); }, 0);
         }
     }
 
