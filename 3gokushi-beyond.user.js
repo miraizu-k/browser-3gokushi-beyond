@@ -5,7 +5,8 @@
 // @include        http://*.3gokushi.jp/*
 // @include        https://*.3gokushi.jp/*
 // @author         hatt
-// @maintainer     romer,froop,etc
+// @maintainer     romer
+// @contributor    froop,etc
 // @version        1.28.1.7
 // ==/UserScript==
 // FireFox / Google Chrome / Opera / Safari対応です。
