@@ -15,7 +15,7 @@ opera   : ツール->設定->詳細設定->コンテンツ->JavaScriptオプシ�
           ->3gokushi-beyond-opera.js選択->RAW右クリックで保存
 IE      : 未対応です
 
-バグ報告はgithubのissues・課題/ブログ/@romer_tまで
+バグ報告はgithubのissues/ブログ/@romer_tまで
 
 ブラウザ以外で必要な物のURL
 firefox addon greasemonkey : https://addons.mozilla.org/ja/firefox/addon/greasemonkey/
@@ -24,11 +24,15 @@ safari extension NinjaKit : http://d.hatena.ne.jp/os0x/20100612/1276330696
 ライセンスについて
 原作者じゃないのでライセンスは不明
 
+修正及び拡張分については
+MITライセンス適用したいけど元が何かわからないので何とも
+
+
 original script by hatt
 http://www1.ocn.ne.jp/~hatt/3gkb/
 
 Maintainer
-romer
+romer : http://d.hatena.ne.jp/romer/
 
 Contributor
-froop
+froop : http://blog.livedoor.jp/froo/
