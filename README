@@ -22,11 +22,16 @@ firefox addon greasemonkey : https://addons.mozilla.org/ja/firefox/addon/greasem
 safari extension NinjaKit : http://d.hatena.ne.jp/os0x/20100612/1276330696
 
 ライセンスについて
-原作者じゃないのでライセンスは不明
+原作者じゃないのでライセンスは不明。
+修正及び拡張分については、MITライセンス適用したいけど元が何かわからないので何とも。
 
-修正及び拡張分については
-MITライセンス適用したいけど元が何かわからないので何とも
-
+バージョニングについて
+A.B.C.Dって感じで
+A->フルリプレースで更新
+B->大規模なリプレースで更新
+C->新規機能追加で更新
+D->バグ修正等で更新
+こんな感じでやるつもりです
 
 original script by hatt
 http://www1.ocn.ne.jp/~hatt/3gkb/
